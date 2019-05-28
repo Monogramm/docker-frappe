@@ -2,12 +2,14 @@
 set -eo pipefail
 
 declare -A base=(
-	[debian]='debian'
+	[stretch]='debian'
+	[stretch-slim]='debian'
 	[alpine]='alpine'
 )
 
 variants=(
-	debian
+	stretch
+	stretch-slim
 	alpine
 )
 

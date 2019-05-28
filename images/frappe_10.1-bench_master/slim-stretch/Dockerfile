@@ -1,11 +1,11 @@
-FROM monogramm/docker-frappe-base:%%VARIANT%%
+FROM monogramm/docker-frappe-base:slim-stretch
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
 # Build environments
 ENV FRAPPE_USER=frappe \
-	BENCH_BRANCH=%%BRANCH%% \
-	FRAPPE_BRANCH=v%%VERSION%%
+	BENCH_BRANCH=master \
+	FRAPPE_BRANCH=v10.1.67
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \

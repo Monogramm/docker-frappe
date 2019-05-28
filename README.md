@@ -29,13 +29,13 @@ Full-stack web application framework that uses Python and MariaDB on the server 
 https://hub.docker.com/r/monogramm/docker-frappe/
 
 * frappe 11.1
-    - `11.1-apache`, `11-apache`, `apache`, `11.1`, `latest`
-    - `11.1-fpm-alpine`, `fpm-alpine`
-    - `11.1-fpm`, `fpm`
+    - `11.1-alpine` `fpm-alpine` `11.1` `latest`
+    - `11.1-stretch` `stretch`
+    - `11.1-stretch-slim` `stretch-slim`
 * frappe 10.1
-    - `10.1-apache`, `10-apache`
-    - `10.1-fpm-alpine`
-    - `10.1-fpm`
+    - `10.1-alpine` `10.1`
+    - `10.1-stretch`
+    - `10.1-stretch-slim`
 
 # Questions / Issues
 If you got any questions or problems using the image, please visit our [Github Repository](https://github.com/Monogramm/docker-frappe) and write an issue.  
