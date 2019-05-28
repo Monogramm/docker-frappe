@@ -1,0 +1,38 @@
+dist: trusty
+sudo: required
+
+services: docker
+
+language: bash
+
+branches:
+  only:
+    - master
+
+before_script:
+  - env | sort
+  - name="frappe"
+  - image="monogramm/docker-frappe:travis-frappe_${VERSION}-bench_${BENCH}${VARIANT:+-$VARIANT}"
+  - dir="images/frappe_${VERSION}-bench_${BENCH}/${VARIANT}"
+
+script:
+  - travis_wait docker build -t "$image" "$dir"
+
+after_script:
+  - docker images
+  - docker run --name "$name" -d "$image"
+  - docker ps
+  - docker logs "$name"
+
+notifications:
+  email: false
+
+env: # Environments
+    - VERSION=10.1 BENCH=master VARIANT=alpine
+    - VERSION=10.1 BENCH=master VARIANT=debian
+    - VERSION=10.1 BENCH=4.1 VARIANT=alpine
+    - VERSION=10.1 BENCH=4.1 VARIANT=debian
+    - VERSION=11.1 BENCH=master VARIANT=alpine
+    - VERSION=11.1 BENCH=master VARIANT=debian
+    - VERSION=11.1 BENCH=4.1 VARIANT=alpine
+    - VERSION=11.1 BENCH=4.1 VARIANT=debian
