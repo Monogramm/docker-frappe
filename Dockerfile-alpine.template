@@ -35,7 +35,7 @@ RUN set -ex; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
-    bench setup requirements --node \
+    bench setup requirements --node; \
     sudo bench setup sudoers $FRAPPE_USER; \
     bench setup socketio; \
     bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
