@@ -29,7 +29,7 @@ RUN set -ex; \
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
 # Copy docker entrypoint and set permissions
-ADD ./docker-entrypoint.sh /entrypoint.sh
+ADD ./entrypoint.sh /entrypoint.sh
 RUN sudo chmod +x /entrypoint.sh
 
 VOLUME /home/$FRAPPE_USER/frappe-bench/logs
