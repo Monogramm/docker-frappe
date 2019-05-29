@@ -15,7 +15,8 @@ USER $FRAPPE_USER
 WORKDIR /home/$FRAPPE_USER
 
 # Setup Frappe folders
-RUN git clone -b $BENCH_BRANCH --depth 1 https://github.com/$FRAPPE_USER/bench bench-repo; \
+RUN set -ex; \
+    git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     mkdir -p frappe-bench; \
     cd frappe-bench; \
