@@ -18,14 +18,15 @@ WORKDIR /home/$FRAPPE_USER
 RUN set -ex; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
-    bench setup requirements --node; \
     mkdir -p frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER; \
-    bench setup socketio; \
-    bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
+    bench setup socketio
+    #bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
+
+WORKDIR /home/$FRAPPE_USER/frappe-bench
 
 # Copy docker entrypoint and set permissions
 ADD ./docker-entrypoint.sh /entrypoint.sh
