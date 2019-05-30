@@ -19,7 +19,7 @@ RUN set -ex; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
-    npm install -g yarn; \
+    sudo npm install -g yarn; \
     bench init frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
