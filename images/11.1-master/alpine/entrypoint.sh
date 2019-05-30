@@ -6,7 +6,7 @@ DB_PORT=${DB_HOST:=3306}
 
 bench use localhost
 
-cd /home/frappe/frappe-bench
+cd /home/$FRAPPE_USER/frappe-bench
 ls apps/ | while read -r file; do  if [ $file != "frappe" ]; then ./env/bin/pip install -q -e apps/$file --no-cache-dir; fi; done && \
 
 
@@ -16,7 +16,7 @@ dockerize -wait "tcp://${DB_HOST}:${DB_PORT}" -timeout 120s
 
 
 # TASK=$(case "$NODE_TYPE" in
-#   ("app") echo "/home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 4 -t 120 frappe.app:application --preload" ;;
+#   ("app") echo "/home/$FRAPPE_USER/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 4 -t 120 frappe.app:application --preload" ;;
 #   ("setup") echo "echo \"Setup Finished \" " ;;
 #   ("setup-apps") echo "echo \"Setup Finished \" " ;;
 #   ("update") echo "/usr/bin/bench update --no-git" ;;
@@ -27,13 +27,13 @@ dockerize -wait "tcp://${DB_HOST}:${DB_PORT}" -timeout 120s
 #   ("worker-default") echo "/usr/bin/bench worker --queue default" ;;
 #   ("worker-long") echo "/usr/bin/bench worker --queue long" ;;
 #   ("worker-short") echo "/usr/bin/bench worker --queue short" ;;
-#   ("node-socketio") echo "node /home/frappe/frappe-bench/apps/frappe/socketio.js" ;;
+#   ("node-socketio") echo "node /home/$FRAPPE_USER/frappe-bench/apps/frappe/socketio.js" ;;
 #   (*) ;;
 # esac)
 
 if [ ${NODE_TYPE} = "app" ]; then
-  cd /home/frappe/frappe-bench/sites
-  /home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 4 -t 120 frappe.app:application --preload
+  cd /home/$FRAPPE_USER/frappe-bench/sites
+  /home/$FRAPPE_USER/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 4 -t 120 frappe.app:application --preload
 fi;
 
 if [ ${NODE_TYPE} = "update" ]; then
@@ -99,7 +99,7 @@ if [ ${NODE_TYPE} = "worker-short" ]; then
 fi;
 
 if [ ${NODE_TYPE} = "node-socketio" ]; then
-  node /home/frappe/frappe-bench/apps/frappe/socketio.js
+  node /home/$FRAPPE_USER/frappe-bench/apps/frappe/socketio.js
 fi;
 
-# (eval $TASK | tee /home/frappe/frappe-bench/logs/${NODE_TYPE}.log) 3>&1 1>&2 2>&3 | tee /home/frappe/frappe-bench/logs/${NODE_TYPE}.err.log
+# (eval $TASK | tee /home/$FRAPPE_USER/frappe-bench/logs/${NODE_TYPE}.log) 3>&1 1>&2 2>&3 | tee /home/$FRAPPE_USER/frappe-bench/logs/${NODE_TYPE}.err.log

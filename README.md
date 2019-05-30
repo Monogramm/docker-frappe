@@ -30,7 +30,7 @@ Full-stack web application framework that uses Python and MariaDB on the server 
 https://hub.docker.com/r/monogramm/docker-frappe/
 
 * frappe 11.1
-    - `11.1-alpine` `fpm-alpine` `11.1` `latest`
+    - `11.1-alpine` `11.1` `alpine` `latest`
     - `11.1-stretch` `stretch`
     - `11.1-stretch-slim` `stretch-slim`
 * frappe 10.1
@@ -40,3 +40,20 @@ https://hub.docker.com/r/monogramm/docker-frappe/
 
 # Questions / Issues
 If you got any questions or problems using the image, please visit our [Github Repository](https://github.com/Monogramm/docker-frappe) and write an issue.  
+
+# References
+
+A list of a few issues encountered during the development of this container for future reference:
+* Frappe 10 references croniter==0.3.26 which does not exist
+    * _Solution_: Update requirements.txt croniter==0.3.26 to croniter==0.3.29
+    * _References_:
+        * https://discuss.erpnext.com/t/easy-install-for-v10-no-longer-works-fails-every-time-w-same-error-multiple-os/47899/24
+* ModuleNotFoundError: No module named 'pip.req' with pip 10 and bench 4.1
+    * _Solution_: Downgrade pip to 9.3
+    * _References_:
+        * https://discuss.erpnext.com/t/bench-install-on-easy-setup-failing-no-pip-req/35823/11
+* Error: Cannot find module 'rollup'
+    * _Solution_: Use appropriate Python version (2 for 10.1, 3  for 11.1)
+    * _References_:
+        * https://discuss.erpnext.com/t/error-cannot-find-module-rollup/45204
+        * https://discuss.erpnext.com/t/cannot-find-module-rollup/48989

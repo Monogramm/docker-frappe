@@ -27,8 +27,6 @@ RUN set -ex; \
     bench setup socketio
     #bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
 
-WORKDIR /home/$FRAPPE_USER/frappe-bench
-
 # Copy docker entrypoint and set permissions
 ADD ./entrypoint.sh /entrypoint.sh
 RUN sudo chmod +x /entrypoint.sh
