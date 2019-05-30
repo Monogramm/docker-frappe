@@ -20,12 +20,13 @@ RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     sudo npm install -g yarn; \
+    bench setup socketio; \
+    bench setup requirements; \
     bench init frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER; \
-    bench setup socketio; \
     bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
 
 # Copy docker entrypoint and set permissions
