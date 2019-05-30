@@ -19,9 +19,9 @@ RUN set -ex; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
-    mkdir -p frappe-bench; \
-    cd frappe-bench; \
-    mkdir -p apps logs sites/localhost config; \
+    bench init frappe-bench && cd frappe-bench; \
+    bench new-site localhost; \
+    mkdir -p apps logs sites config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER; \
     bench setup socketio

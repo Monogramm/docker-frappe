@@ -1,6 +1,7 @@
 #!/bin/sh
 
-NODE_TYPE=$1
+NODE_TYPE=${1}
+APP=${2}
 DB_HOST=${DB_HOST:=db}
 DB_PORT=${DB_HOST:=3306}
 
@@ -32,6 +33,7 @@ dockerize -wait "tcp://${DB_HOST}:${DB_PORT}" -timeout 120s
 # esac)
 
 if [ ${NODE_TYPE} = "app" ]; then
+  echo "Starting app..."
   cd /home/$FRAPPE_USER/frappe-bench/sites
   /home/$FRAPPE_USER/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 4 -t 120 frappe.app:application --preload
 fi;
@@ -42,9 +44,9 @@ if [ ${NODE_TYPE} = "update" ]; then
 fi;
 
 if [ ${NODE_TYPE} = "setup" ]; then
-  bench reinstall --yes && bench install-app erpnext && \
+  bench reinstall --yes && bench install-app $APP && \
   ls apps/ | while read -r file; do  if [ $file != "frappe" ]; then bench install-app $file; fi; done
-  echo "Setup Finished"
+  echo "$APP Setup Finished"
 fi;
 
 if [ ${NODE_TYPE} = "setup-apps" ]; then
@@ -83,22 +85,27 @@ if [ ${NODE_TYPE} = "restore" ]; then
 fi;
 
 if [ ${NODE_TYPE} = "scheduler" ]; then
+  echo "Starting scheduler..."
   bench schedule
 fi;
 
 if [ ${NODE_TYPE} = "worker-default" ]; then
+  echo "Starting default worker..."
   bench worker --queue default
 fi;
 
 if [ ${NODE_TYPE} = "worker-long" ]; then
+  echo "Starting long worker..."
   bench worker --queue long
 fi;
 
 if [ ${NODE_TYPE} = "worker-short" ]; then
+  echo "Starting short worker..."
   bench worker --queue short
 fi;
 
 if [ ${NODE_TYPE} = "node-socketio" ]; then
+  echo "Starting socketio..."
   node /home/$FRAPPE_USER/frappe-bench/apps/frappe/socketio.js
 fi;
 
