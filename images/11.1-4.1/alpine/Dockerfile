@@ -1,11 +1,11 @@
-FROM monogramm/docker-frappe-base:alpine
+FROM monogramm/docker-frappe-base:2.7-alpine
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
 # Build environments
 ENV FRAPPE_USER=frappe \
 	BENCH_BRANCH=4.1 \
-	FRAPPE_BRANCH=v11.1.31
+	FRAPPE_BRANCH=v11.1.32
 
 RUN addgroup -S $FRAPPE_USER; \
     adduser -D -G $FRAPPE_USER $FRAPPE_USER; \

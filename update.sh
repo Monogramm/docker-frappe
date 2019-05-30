@@ -26,7 +26,7 @@ latestsFrappe=( $( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' 
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV ) 10.1.67 )
 
-latestsBench=( 4.1 master )
+latestsBench=( master 4.1 )
 
 # Remove existing images
 echo "reset docker images"
@@ -56,8 +56,17 @@ for latest in "${latestsFrappe[@]}"; do
 				cp "$template" "$dir/Dockerfile"
 
 				# Replace the variables.
+				if [ "$bench" = "4.1" ]; then
+					sed -ri -e '
+						s/%%VARIANT%%/'"2.7-$variant"'/g;
+					' "$dir/Dockerfile"
+				else
+					sed -ri -e '
+						s/%%VARIANT%%/'"$variant"'/g;
+					' "$dir/Dockerfile"
+				fi
+
 				sed -ri -e '
-					s/%%VARIANT%%/'"$variant"'/g;
 					s/%%VERSION%%/'"$latest"'/g;
 					s/%%BRANCH%%/'"$bench"'/g;
 				' "$dir/Dockerfile"
