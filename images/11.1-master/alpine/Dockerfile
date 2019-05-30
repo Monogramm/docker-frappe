@@ -26,7 +26,8 @@ RUN set -ex; \
         rollup-plugin-multi-entry \
         rollup-plugin-commonjs \
         rollup-plugin-node-resolve \
-        rollup-plugin-uglify\
+        rollup-plugin-uglify \
+        rollup-plugin-postcss \
     ; \
     bench setup socketio; \
     bench init frappe-bench; \
