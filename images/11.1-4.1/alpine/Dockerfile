@@ -21,7 +21,6 @@ RUN set -ex; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     sudo npm install -g yarn; \
     bench setup socketio; \
-    bench setup requirements; \
     bench init frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \

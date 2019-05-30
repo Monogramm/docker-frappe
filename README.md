@@ -53,7 +53,11 @@ A list of a few issues encountered during the development of this container for 
     * _References_:
         * https://discuss.erpnext.com/t/bench-install-on-easy-setup-failing-no-pip-req/35823/11
 * Error: Cannot find module 'rollup'
-    * _Solution_: Use appropriate Python version (2 for 10.1, 3  for 11.1)
+    * _Solution_: Use appropriate Python version (2 for 10.1, 3 for 11.1)
     * _References_:
         * https://discuss.erpnext.com/t/error-cannot-find-module-rollup/45204
         * https://discuss.erpnext.com/t/cannot-find-module-rollup/48989
+* Error: Cannot find module 'chalk'
+    * _Solution_: setup socketio and requirements
+    * _References_:
+        * https://discuss.erpnext.com/t/error-cannot-find-module-chalk/44851
