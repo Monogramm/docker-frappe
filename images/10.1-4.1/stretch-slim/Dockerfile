@@ -17,8 +17,8 @@ WORKDIR /home/$FRAPPE_USER
 # Setup Frappe folders
 RUN set -ex; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
-    sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
+    sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     mkdir -p frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
