@@ -61,3 +61,4 @@ A list of a few issues encountered during the development of this container for 
     * _Solution_: setup socketio and requirements
     * _References_:
         * https://discuss.erpnext.com/t/error-cannot-find-module-chalk/44851
+        * https://discuss.erpnext.com/t/error-while-installing-frappe-on-my-ubuntu-16-04-server/37417/3

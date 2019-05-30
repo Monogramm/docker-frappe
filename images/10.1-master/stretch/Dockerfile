@@ -20,6 +20,14 @@ RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     sudo npm install -g yarn; \
+    npm install \
+        chalk \
+        rollup \
+        rollup-plugin-multi-entry \
+        rollup-plugin-commonjs \
+        rollup-plugin-node-resolve \
+        rollup-plugin-uglify\
+    ; \
     bench setup socketio; \
     bench init frappe-bench; \
     cd frappe-bench; \
