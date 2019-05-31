@@ -30,7 +30,7 @@ RUN set -ex; \
         rollup-plugin-postcss \
     ; \
     bench setup socketio; \
-    bench init frappe-bench; \
+    bench init --ignore-exist --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
