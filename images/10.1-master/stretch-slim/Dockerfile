@@ -16,10 +16,10 @@ WORKDIR /home/$FRAPPE_USER
 
 # Setup Frappe folders
 RUN set -ex; \
-    git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
+    git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
-    sudo npm install -g yarn; \
+    bench --version; \
     npm install \
         chalk \
         rollup \
@@ -32,10 +32,12 @@ RUN set -ex; \
     bench setup socketio; \
     bench init --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
+    ls; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER; \
-    bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
+    ls
+    #bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
 
 # Copy docker entrypoint and set permissions
 ADD ./entrypoint.sh /entrypoint.sh
