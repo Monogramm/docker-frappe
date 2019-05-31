@@ -29,6 +29,7 @@ RUN set -ex; \
         rollup-plugin-uglify \
         rollup-plugin-postcss \
         rollup-plugin-buble \
+        rollup-plugin-terser \
     ; \
     bench setup socketio; \
     bench init --skip-redis-config-generation frappe-bench; \
