@@ -28,15 +28,14 @@ RUN set -ex; \
         rollup-plugin-node-resolve \
         rollup-plugin-uglify \
         rollup-plugin-postcss \
+        rollup-plugin-buble \
     ; \
     bench setup socketio; \
     bench init  frappe-bench; \
     cd frappe-bench; \
-    ls; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
-    sudo bench setup sudoers $FRAPPE_USER; \
-    ls
+    sudo bench setup sudoers $FRAPPE_USER
     #bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
 
 # Copy docker entrypoint and set permissions
