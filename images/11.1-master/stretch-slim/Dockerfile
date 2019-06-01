@@ -34,6 +34,7 @@ RUN set -ex; \
         vue-template-compiler \
     ; \
     bench setup socketio; \
+    bench setup requirements; \
     bench init --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
