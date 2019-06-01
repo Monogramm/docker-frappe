@@ -31,6 +31,7 @@ RUN set -ex; \
         rollup-plugin-buble \
         rollup-plugin-terser \
         rollup-plugin-vue \
+        vue-template-compiler \
     ; \
     bench setup socketio; \
     bench init  frappe-bench; \
