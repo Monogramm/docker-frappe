@@ -30,6 +30,7 @@ RUN set -ex; \
         rollup-plugin-postcss \
         rollup-plugin-buble \
         rollup-plugin-terser \
+        rollup-plugin-vue \
     ; \
     bench setup socketio; \
     bench init  frappe-bench; \
