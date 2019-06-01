@@ -32,9 +32,9 @@ RUN set -ex; \
         rollup-plugin-terser \
         rollup-plugin-vue \
         vue-template-compiler \
+        moment \
     ; \
     bench setup socketio; \
-    bench setup requirements; \
     bench init  frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
