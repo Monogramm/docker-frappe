@@ -62,3 +62,8 @@ A list of a few issues encountered during the development of this container for 
     * _References_:
         * https://discuss.erpnext.com/t/error-cannot-find-module-chalk/44851
         * https://discuss.erpnext.com/t/error-while-installing-frappe-on-my-ubuntu-16-04-server/37417/3
+* Error during `bench init frappe-bench`due to missing node modules:
+    * _Solution_: install modules manually and call `bench setup requirements` 
+    * _References_:
+        * https://discuss.erpnext.com/t/error-while-installing-frappe-on-my-ubuntu-16-04-server/37417/4
+        * https://discuss.erpnext.com/t/error-on-bench-build/41467
