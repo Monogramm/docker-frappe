@@ -26,7 +26,10 @@ latestsFrappe=( $( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' 
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV ) 10.1.67 )
 
-latestsBench=( master 4.1 )
+latestsBench=( 
+	master
+	#4.1
+)
 
 # Remove existing images
 echo "reset docker images"
