@@ -39,7 +39,8 @@ RUN set -ex; \
     cd frappe-bench; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
-    sudo bench setup sudoers $FRAPPE_USER
+    sudo bench setup sudoers $FRAPPE_USER; \
+    bench new-site localhost
     #bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
 
 # Copy docker entrypoint and set permissions
