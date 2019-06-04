@@ -13,7 +13,7 @@
 
 Docker image for Frappe applications.
 
-This image is directly inspired by [BizzoTech/docker-frappe](https://github.com/BizzoTech/docker-frappe) but derived adds an alpine variation, like provided by [donysukardi/docker-frappe](https://github.com/donysukardi/docker-frappe).
+This image is directly inspired by [emadshaaban92/docker-compose-erpnext](https://github.com/emadshaaban92/docker-compose-erpnext/) / [BizzoTech/docker-frappe](https://github.com/BizzoTech/docker-frappe) but adds an alpine variation, like provided by [donysukardi/docker-frappe](https://github.com/donysukardi/docker-frappe), and aims to provide as much automatic configuration and install as possible.
 
 :construction: **This image is still in development!**
 
