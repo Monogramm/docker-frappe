@@ -2,7 +2,7 @@ FROM monogramm/docker-frappe-base:alpine
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
-# Build environments
+# Build environment variables
 ENV FRAPPE_USER=frappe \
 	BENCH_BRANCH=master \
 	FRAPPE_BRANCH=v11.1.32
@@ -40,11 +40,29 @@ RUN set -ex; \
     mkdir -p apps logs sites/localhost config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER
-    #bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH
 
 # Copy docker entrypoint and set permissions
 ADD ./entrypoint.sh /entrypoint.sh
 RUN sudo chmod +x /entrypoint.sh
+
+# Runtime environment variables
+ENV FRAPPE_DOCKER_INIT=0 \
+	ADMIN_PASSWORD=frappe \
+	DB_HOST=db \
+	DB_PORT=3306 \
+	DB_NAME=frappe \
+	DB_USER=frappe \
+	DB_PASSWORD=youshouldoverwritethis \
+	ROOT_PASSWORD=mariadb_root_password \
+	ENCRYPTION_KEY=youshoulddefinitelyoverwritethis \
+	REDIS_CACHE_HOST=redis_cache \
+	REDIS_QUEUE_HOST=redis_queue \
+	REDIS_SOCKETIO_HOST=redis_socketio \
+	MAIL_HOST=mail \
+	MAIL_PORT=587 \
+	MAIL_USE_SSL=tls \
+	MAIL_LOGIN=frappe-mail \
+	MAIL_PASSWORD=youshouldoverwritethis
 
 VOLUME /home/$FRAPPE_USER/frappe-bench/logs
 
