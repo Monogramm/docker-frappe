@@ -2,42 +2,90 @@
 set -eo pipefail
 
 # Container node type. Can be set by command argument or env var
-NODE_TYPE=${NODE_TYPE:-${1:-cli}}
+NODE_TYPE=${NODE_TYPE:-${1}}
 
+# Frappe working directory (frappe user set at build time)
+FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
 # -------------------------------------------------------------------
 # Frappe Bench management functions
 
 pip_install() {
   echo "Install apps python packages..."
-  cd "/home/${FRAPPE_USER}/frappe-bench"
-  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ]; then ./env/bin/pip install -q -e "apps/$file" --no-cache-dir; fi; done
+
+  cd "${FRAPPE_WD}"
+  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip install -q -e "apps/$file" --no-cache-dir; fi; done
+
+  echo "Apps python packages installed"
 }
 
 wait_db() {
   echo "Waiting for DB at ${DB_HOST}:${DB_PORT} to start up..."
-  dockerize -wait "tcp://${DB_HOST}:${DB_PORT}" -timeout 120s
+  dockerize -wait \
+    "tcp://${DB_HOST}:${DB_PORT}" \
+    -timeout 120s
+}
+
+wait_apps() {
+  echo "Waiting for frappe apps to be set..."
+
+  i=1
+  s=10
+  l=120
+  while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
+      echo "Waiting..."
+      sleep $s
+
+      i="$(($i+$s))"
+      if [[ $i = $l ]]; then
+          echo 'Condition was not met in time!'
+          exit 1
+      fi
+  done
+}
+
+wait_sites() {
+  echo "Waiting for frappe current site to be set..."
+
+  i=1
+  s=10
+  l=120
+  while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
+      echo "Waiting..."
+      sleep $s
+
+      i="$(($i+$s))"
+      if [[ $i = $l ]]; then
+          echo 'Condition was not met in time!'
+          exit 1
+      fi
+  done
 }
 
 bench_app() {
-  echo "Checking diagnostic info about ${FRAPPE_DEFAULT_SITE}..."
-  bench --site "${FRAPPE_DEFAULT_SITE}" doctor > /dev/null 2>&1
+  echo "Checking diagnostic info..."
+  bench doctor \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 
   echo "Starting app..."
-  cd "/home/${FRAPPE_USER}/frappe-bench/sites"
-  "/home/${FRAPPE_USER}/frappe-bench/env/bin/gunicorn" \
+  cd "${FRAPPE_WD}/sites"
+  "${FRAPPE_WD}/env/bin/gunicorn" \
     -b 0.0.0.0:8000 \
     -w 4 \
     -t 120 \
     frappe.app:application --preload \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_setup_apps() {
-  echo "Setup existing apps..."
-  cd "/home/${FRAPPE_USER}/frappe-bench"
-  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ]; then bench install-app "$file"; fi; done
+  echo "FIXME Setup existing apps..."
+
+  # FIXME Error: No such command "install-app"
+  #cd "${FRAPPE_WD}"
+  #ls apps/ | while read -r file; do  if [ "$file" != "frappe" ]; then bench install-app "$file"; fi; done
+
   echo "Setup Finished"
 }
 
@@ -45,11 +93,13 @@ bench_setup() {
   # Expecting first parameter to be the app
   FRAPPE_APP_SETUP=${1}
   if [ -n "${FRAPPE_APP_SETUP}" ]; then
-    echo "Reinstalling with fresh database..."
-    bench reinstall --yes
+    # FIXME Error: No such command "reinstall"
+    echo "FIXME Reinstalling with fresh database..."
+    #bench reinstall --yes
 
-    echo "Installing ${FRAPPE_APP_SETUP}..."
-    bench install-app "${FRAPPE_APP_SETUP}"
+    # FIXME Error: No such command "install-app"
+    echo "FIXME Installing ${FRAPPE_APP_SETUP}..."
+    #bench install-app "${FRAPPE_APP_SETUP}"
   else
     echo "No app specified to reinstall"
   fi
@@ -99,54 +149,84 @@ bench_migrate() {
 bench_scheduler() {
   echo "Starting scheduler..."
   bench schedule \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_worker() {
   echo "Starting $1 worker..."
   bench worker --queue "$1" \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_socketio() {
   echo "Starting socketio..."
-  node "/home/${FRAPPE_USER}/frappe-bench/apps/frappe/socketio.js" \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "/home/${FRAPPE_USER}/frappe-bench/logs/${NODE_TYPE}.err.log"
+  node "${FRAPPE_WD}/apps/frappe/socketio.js" \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 
 # -------------------------------------------------------------------
 # Runtime
 
-# pip install of apps
-pip_install
 
-# Frappe automatic app setup
-if [ -n "${FRAPPE_APP_INIT}" ] && [ ! -f "/home/${FRAPPE_USER}/frappe-bench/sites/.docker-init" ]; then
+if [ -n "${FRAPPE_RESET_SITES}" ]; then
+  echo "Removing sites: ${FRAPPE_RESET_SITES}"
+  rm -rf "${FRAPPE_WD}/sites/${FRAPPE_RESET_SITES}"
+fi
+
+
+echo "Setup folders and files owner to ${FRAPPE_USER}..."
+sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+  "${FRAPPE_WD}/sites" \
+  "${FRAPPE_WD}/logs"
+
+
+# Frappe automatic app init
+if [ -n "${FRAPPE_APP_INIT}" ]; then
+
+  # Init apps
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
+    echo "Adding frappe to apps.txt..."
+    echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
+
+    echo "Adding ${FRAPPE_APP_INIT} to apps.txt..."
+    echo "${FRAPPE_APP_INIT}" >> "${FRAPPE_WD}/sites/apps.txt"
+  fi
+
+else
+  # Wait for another node to setup apps and sites
+  wait_apps
+fi
+
+
+
+# Frappe automatic site setup
+if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; then
 
   echo "Creating default directories for sites/${FRAPPE_DEFAULT_SITE}..."
   mkdir -p \
-      sites/assets \
-      "sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
-      "sites/${FRAPPE_DEFAULT_SITE}/locks" \
-      "sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
-      "sites/${FRAPPE_DEFAULT_SITE}/private/files" \
-      "sites/${FRAPPE_DEFAULT_SITE}/public/files" \
-      "sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+      "${FRAPPE_WD}/sites/assets" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
   ;
 
-  if [ ! -f "/home/${FRAPPE_USER}/frappe-bench/sites/common_site_config.json" ]; then
+  # Init common site config
+  if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
     echo "Creating common site config..."
-    echo <<EOF > /home/${FRAPPE_USER}/frappe-bench/sites/common_site_config.json
+    cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
   "admin_password": "${ADMIN_PASSWORD}",
   "encryption_key": "${ENCRYPTION_KEY}",
   "deny_multiple_logins": false,
   "disable_website_cache": false,
-  "dns_multitenant": true,
+  "dns_multitenant": false,
   "host_name": "${FRAPPE_DEFAULT_SITE}",
   "serve_default_site": true,
   "frappe_user": "${FRAPPE_USER}",
@@ -165,56 +245,61 @@ if [ -n "${FRAPPE_APP_INIT}" ] && [ ! -f "/home/${FRAPPE_USER}/frappe-bench/site
   "use_ssl": "${MAIL_USE_SSL}",
   "mail_login": "${MAIL_LOGIN}",
   "mail_password": "${MAIL_PASSWORD}",
+  "mute_emails": ${MAIL_MUTED},
   "redis_cache": "redis://${REDIS_CACHE_HOST}",
   "redis_queue": "redis://${REDIS_QUEUE_HOST}",
-  "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}",
+  "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}"
 }
 EOF
   fi
 
-  # Check default site config config
-  if [ ! -f "/home/${FRAPPE_USER}/frappe-bench/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" ]; then
+  # Check default site config
+  if [ ! -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" ]; then
     echo "Creating ${FRAPPE_DEFAULT_SITE} site config from common config..."
     cp \
-      "/home/${FRAPPE_USER}/frappe-bench/sites/common_site_config.json" \
-      "/home/${FRAPPE_USER}/frappe-bench/sites/${FRAPPE_DEFAULT_SITE}/site_config.json"
+      "${FRAPPE_WD}/sites/common_site_config.json" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json"
   fi
 
-  echo "Setup folders and files owner to ${FRAPPE_USER}..."
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-    "/home/${FRAPPE_USER}/frappe-bench/sites/sites/*" \
-    "/home/${FRAPPE_USER}/frappe-bench/sites/logs/*"
+  # FIXME Error: No such command "new-site"
+  echo "FIXME Creating new site at ${FRAPPE_DEFAULT_SITE}..."
+  #bench new-site "${FRAPPE_DEFAULT_SITE}"
+
+  # Init current site
+  echo "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
+  echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
+
+  # FIXME Error: No such command "use"
+  echo "FIXME Using site at ${FRAPPE_DEFAULT_SITE}..."
+  #bench use "${FRAPPE_DEFAULT_SITE}"
+
+  echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-site-init"
+  echo "Docker Frappe automatic site setup ended"
+else
+  # Wait for another node to setup sites
+  wait_sites
+fi
 
 
-  echo "Creating new site at ${FRAPPE_DEFAULT_SITE}..."
-  bench new-site "${FRAPPE_DEFAULT_SITE}"
-  echo "Using site at ${FRAPPE_DEFAULT_SITE}..."
-  bench use "${FRAPPE_DEFAULT_SITE}"
 
+# Frappe automatic app setup
+if [ -n "${FRAPPE_APP_INIT}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; then
 
-  # Call bench setup
+  # Call bench setup for app
   bench_setup "${FRAPPE_APP_INIT}"
 
+  echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
+  echo "Docker Frappe automatic app setup ended"
 
-  echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "/home/${FRAPPE_USER}/frappe-bench/sites/.docker-init"
-  echo "Docker Frappe automatic setup ended"
-
-else
-  echo "Using site at ${FRAPPE_DEFAULT_SITE}..."
-  bench use "${FRAPPE_DEFAULT_SITE}"
 fi
 
-# Check current site
-if [ ! -f "/home/${FRAPPE_USER}/frappe-bench/sites/currentsite.txt" ]; then
-  echo "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
-  echo "${FRAPPE_DEFAULT_SITE}" > "/home/${FRAPPE_USER}/frappe-bench/sites/currentsite.txt"
-fi
+
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
-  ("app") wait_db; bench_app ;;
-  ("setup") bench_setup ${@:2} ;;
-  ("setup-apps") bench_setup_apps ;;
+  ("app") wait_db; pip_install; bench_app ;;
+  ("setup") pip_install; bench_setup ${@:2} ;;
+  ("setup-apps") pip_install; bench_setup_apps ;;
   ("update") bench_update ;;
   ("backup") bench_backup;;
   ("restore") bench_restore ;;
@@ -224,6 +309,5 @@ case "${NODE_TYPE}" in
   ("worker-long") bench_worker long ;;
   ("worker-short") bench_worker short ;;
   ("node-socketio") bench_socketio ;;
-  ("cli") bench ${@:2} ;;
   (*) ;;
 esac
