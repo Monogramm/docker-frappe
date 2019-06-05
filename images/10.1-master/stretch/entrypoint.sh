@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eo pipefail
+set -e
 
 # Container node type. Can be set by command argument or env var
 NODE_TYPE=${NODE_TYPE:-${1}}
