@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
 	BENCH_BRANCH=master \
-	FRAPPE_BRANCH=v11.1.32
+	FRAPPE_BRANCH=v11.1.33
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -47,16 +47,19 @@ RUN sudo chmod +x /entrypoint.sh
 
 # Runtime environment variables
 ENV FRAPPE_APP_INIT= \
-    FRAPPE_DEFAULT_SITE=localhost \
+    FRAPPE_DEFAULT_SITE= \
+    FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
 	ADMIN_PASSWORD=frappe \
 	ENCRYPTION_KEY=youshoulddefinitelyoverwritethis \
+    DB_TYPE=mariadb \
 	DB_HOST=db \
 	DB_PORT=3306 \
 	DB_NAME=frappe \
 	DB_USER=frappe \
 	DB_PASSWORD=youshouldoverwritethis \
 	DB_ROOT_PASSWORD=mariadb_root_password \
+	MAIL_MUTED=false \
 	MAIL_HOST=mail \
 	MAIL_PORT=587 \
 	MAIL_USE_SSL=tls \
@@ -66,7 +69,9 @@ ENV FRAPPE_APP_INIT= \
 	REDIS_QUEUE_HOST=redis_queue \
 	REDIS_SOCKETIO_HOST=redis_socketio
 
-VOLUME /home/$FRAPPE_USER/frappe-bench/logs
+VOLUME /home/frappe/bench-repo \
+    /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites
 
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
