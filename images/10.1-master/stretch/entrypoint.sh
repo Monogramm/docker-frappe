@@ -33,9 +33,9 @@ wait_db() {
 wait_apps() {
   log "Waiting for frappe apps to be set..."
 
-  i=1
+  i=0
   s=10
-  l=120
+  l=600
   while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
       log "Waiting..."
       sleep $s
@@ -51,9 +51,9 @@ wait_apps() {
 wait_sites() {
   log "Waiting for frappe current site to be set..."
 
-  i=1
+  i=0
   s=10
-  l=120
+  l=1800
   while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
       log "Waiting..."
       sleep $s
