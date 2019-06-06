@@ -27,7 +27,7 @@ wait_db() {
   log "Waiting for DB at ${DB_HOST}:${DB_PORT} to start up..."
   dockerize -wait \
     "tcp://${DB_HOST}:${DB_PORT}" \
-    -timeout 120s
+    -timeout "${DOCKER_DB_TIMEOUT}s"
 }
 
 wait_apps() {
@@ -35,13 +35,13 @@ wait_apps() {
 
   i=0
   s=10
-  l=600
+  l=${DOCKER_APPS_TIMEOUT}
   while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
       log "Waiting..."
-      sleep $s
+      sleep "$s"
 
       i="$(($i+$s))"
-      if [[ $i = $l ]]; then
+      if [ "$i" = "$l" ]; then
           log 'Condition was not met in time!'
           exit 1
       fi
@@ -53,13 +53,13 @@ wait_sites() {
 
   i=0
   s=10
-  l=1800
+  l=${DOCKER_SITES_TIMEOUT}
   while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
       log "Waiting..."
-      sleep $s
+      sleep "$s"
 
       i="$(($i+$s))"
-      if [[ $i = $l ]]; then
+      if [ "$i" = "$l" ]; then
           log 'Condition was not met in time!'
           exit 1
       fi
@@ -72,12 +72,12 @@ bench_app() {
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 
-  log "Starting app..."
+  log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
   cd "${FRAPPE_WD}/sites"
   "${FRAPPE_WD}/env/bin/gunicorn" \
-    -b 0.0.0.0:8000 \
-    -w 4 \
-    -t 120 \
+    -b "0.0.0.0:${DOCKER_GUNICORN_PORT}" \
+    -w "${DOCKER_GUNICORN_WORKERS}" \
+    -t "${DOCKER_GUNICORN_TIMEOUT}" \
     frappe.app:application --preload \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
@@ -89,6 +89,7 @@ bench_setup_apps() {
   cd "${FRAPPE_WD}"
   ls apps/ | while read -r file; do  if [ "$file" != "frappe" ]; then bench install-app "$file"; fi; done
 
+  log "Building apps assets..."
   bench build
 
   log "Setup Finished"
@@ -240,6 +241,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "shallow_clone": true,
   "rebase_on_pull": false,
   "logging": "${FRAPPE_LOGGING}",
+  "db_type": "${DB_TYPE}",
   "db_host": "${DB_HOST}",
   "db_name": "${DB_NAME}",
   "db_user": "${DB_USER}",

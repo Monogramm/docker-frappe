@@ -46,7 +46,13 @@ ADD ./entrypoint.sh /entrypoint.sh
 RUN sudo chmod +x /entrypoint.sh
 
 # Runtime environment variables
-ENV FRAPPE_APP_INIT= \
+ENV DOCKER_DB_TIMEOUT=120 \
+    DOCKER_APPS_TIMEOUT=600 \
+    DOCKER_SITES_TIMEOUT=900 \
+    DOCKER_GUNICORN_PORT=8000 \
+    DOCKER_GUNICORN_WORKERS=4 \
+    DOCKER_GUNICORN_TIMEOUT=120 \
+    FRAPPE_APP_INIT= \
     FRAPPE_DEFAULT_SITE= \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
