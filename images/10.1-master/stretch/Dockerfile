@@ -57,6 +57,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
 	ADMIN_PASSWORD=frappe \
+	ENCRYPTION_KEY=youshouloverwritethiswithbase64 \
     DB_TYPE=mariadb \
 	DB_HOST=db \
 	DB_PORT=3306 \
