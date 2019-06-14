@@ -64,6 +64,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
 	DB_NAME=frappe \
 	DB_USER=frappe \
 	DB_PASSWORD=youshouldoverwritethis \
+	DB_ROOT_LOGIN=root \
 	DB_ROOT_PASSWORD=mariadb_root_password \
 	MAIL_MUTED=false \
 	MAIL_HOST=mail \
