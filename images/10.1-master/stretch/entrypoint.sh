@@ -229,7 +229,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
   "admin_password": "${ADMIN_PASSWORD}",
-  "encryption_key": "${ENCRYPTION_KEY}",
+  "encryption_key": "${ENCRYPTION_KEY:-$(openssl rand -base64 32)}",
   "deny_multiple_logins": false,
   "disable_website_cache": false,
   "dns_multitenant": false,
@@ -246,6 +246,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "db_name": "${DB_NAME}",
   "db_user": "${DB_USER}",
   "db_password": "${DB_PASSWORD}",
+  "root_login": "${DB_ROOT_LOGIN}",
   "root_password": "${DB_ROOT_PASSWORD}",
   "mail_server": "${MAIL_HOST}",
   "mail_port": "${MAIL_PORT}",

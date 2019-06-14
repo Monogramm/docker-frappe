@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
 	BENCH_BRANCH=master \
-	FRAPPE_BRANCH=v11.1.33
+	FRAPPE_BRANCH=v11.1.35
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -57,13 +57,14 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
 	ADMIN_PASSWORD=frappe \
-	ENCRYPTION_KEY=youshoulddefinitelyoverwritethis \
+	ENCRYPTION_KEY=youshouloverwritethiswithbase64 \
     DB_TYPE=mariadb \
 	DB_HOST=db \
 	DB_PORT=3306 \
 	DB_NAME=frappe \
 	DB_USER=frappe \
 	DB_PASSWORD=youshouldoverwritethis \
+	DB_ROOT_LOGIN=root \
 	DB_ROOT_PASSWORD=mariadb_root_password \
 	MAIL_MUTED=false \
 	MAIL_HOST=mail \
