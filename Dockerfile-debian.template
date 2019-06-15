@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
 	BENCH_BRANCH=%%BRANCH%% \
-	FRAPPE_BRANCH=v%%VERSION%%
+	FRAPPE_BRANCH=%%VERSION%%
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -35,7 +35,6 @@ RUN set -ex; \
         moment \
     ; \
     bench setup socketio; \
-    bench init %%BENCH_OPTIONS%% frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \
