@@ -1,11 +1,11 @@
-FROM monogramm/docker-frappe-base:%%VARIANT%%
+FROM monogramm/docker-frappe-base:alpine
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
-	BENCH_BRANCH=%%BRANCH%% \
-	FRAPPE_BRANCH=v%%VERSION%%
+	BENCH_BRANCH=master \
+	FRAPPE_BRANCH=vdevelop
 
 RUN addgroup -S $FRAPPE_USER; \
     adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
@@ -35,7 +35,7 @@ RUN set -ex; \
         moment \
     ; \
     bench setup socketio; \
-    bench init %%BENCH_OPTIONS%% frappe-bench; \
+    bench init --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \

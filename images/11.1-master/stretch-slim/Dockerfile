@@ -39,7 +39,15 @@ RUN set -ex; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \
-    sudo bench setup sudoers $FRAPPE_USER
+    sudo bench setup sudoers $FRAPPE_USER; \
+    bench setup socketio; \
+    bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH; \
+    cd /home/$FRAPPE_USER/frappe-bench/apps/frappe; \
+    npm install; \
+    cd /home/$FRAPPE_USER/frappe-bench; \
+    npm install babel-preset-env; \
+    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
+    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
 # Copy docker entrypoint and set permissions
 ADD ./entrypoint.sh /entrypoint.sh
@@ -57,7 +65,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
 	ADMIN_PASSWORD=frappe \
-	ENCRYPTION_KEY=youshouloverwritethiswithbase64 \
+	ENCRYPTION_KEY= \
     DB_TYPE=mariadb \
 	DB_HOST=db \
 	DB_PORT=3306 \

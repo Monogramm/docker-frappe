@@ -28,6 +28,9 @@ notifications:
   email: false
 
 env: # Environments
+    - VERSION=develop BENCH=master VARIANT=alpine
+    - VERSION=develop BENCH=master VARIANT=stretch-slim
+    - VERSION=develop BENCH=master VARIANT=stretch
     - VERSION=10.1 BENCH=master VARIANT=alpine
     - VERSION=10.1 BENCH=master VARIANT=stretch-slim
     - VERSION=10.1 BENCH=master VARIANT=stretch
