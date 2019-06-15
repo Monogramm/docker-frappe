@@ -40,7 +40,6 @@ RUN set -ex; \
     mkdir -p apps logs sites config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER; \
-    bench setup socketio; \
     bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH; \
     cd /home/$FRAPPE_USER/frappe-bench/apps/frappe; \
     npm install; \
