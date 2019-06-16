@@ -49,7 +49,7 @@ for latest in "${latestsFrappe[@]}"; do
 
 		# Define bench version for frappe
 		case $frappe in
-			#10.*) bench=4.1;;
+			10.*) bench=4.1;;
 			*) bench=master;;
 		esac
 
