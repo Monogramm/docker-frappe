@@ -4,8 +4,8 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
-	BENCH_BRANCH=master \
-	FRAPPE_BRANCH=10.1.67
+    BENCH_BRANCH=master \
+    FRAPPE_BRANCH=10.1.67
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -14,7 +14,7 @@ RUN groupadd -r $FRAPPE_USER; \
 USER $FRAPPE_USER
 WORKDIR /home/$FRAPPE_USER
 
-# Setup Frappe folders
+# Setup Bench
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
@@ -34,16 +34,16 @@ RUN set -ex; \
         vue-template-compiler \
         moment \
     ; \
-    bench setup socketio; \
+    bench setup socketio
+
+# Setup Frappe
+RUN set -ex; \
+    bench init --frappe-branch $FRAPPE_BRANCH --no-auto-update --skip-redis-config-generation frappe-bench; \
+    mkdir -p frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \
     sudo bench setup sudoers $FRAPPE_USER; \
-    bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH; \
-    cd /home/$FRAPPE_USER/frappe-bench/apps/frappe; \
-    npm install; \
-    cd /home/$FRAPPE_USER/frappe-bench; \
-    npm install babel-preset-env; \
     rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
     rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
@@ -62,25 +62,25 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_DEFAULT_SITE= \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
-	ADMIN_PASSWORD=frappe \
-	ENCRYPTION_KEY= \
+    ADMIN_PASSWORD=frappe \
+    ENCRYPTION_KEY= \
     DB_TYPE=mariadb \
-	DB_HOST=db \
-	DB_PORT=3306 \
-	DB_NAME=frappe \
-	DB_USER=frappe \
-	DB_PASSWORD=youshouldoverwritethis \
-	DB_ROOT_LOGIN=root \
-	DB_ROOT_PASSWORD=mariadb_root_password \
-	MAIL_MUTED=false \
-	MAIL_HOST=mail \
-	MAIL_PORT=587 \
-	MAIL_USE_SSL=tls \
-	MAIL_LOGIN=frappe-mail \
-	MAIL_PASSWORD=youshouldoverwritethis \
-	REDIS_CACHE_HOST=redis_cache \
-	REDIS_QUEUE_HOST=redis_queue \
-	REDIS_SOCKETIO_HOST=redis_socketio
+    DB_HOST=db \
+    DB_PORT=3306 \
+    DB_NAME=frappe \
+    DB_USER=frappe \
+    DB_PASSWORD=youshouldoverwritethis \
+    DB_ROOT_LOGIN=root \
+    DB_ROOT_PASSWORD=mariadb_root_password \
+    MAIL_MUTED=false \
+    MAIL_HOST=mail \
+    MAIL_PORT=587 \
+    MAIL_USE_SSL=tls \
+    MAIL_LOGIN=frappe-mail \
+    MAIL_PASSWORD=youshouldoverwritethis \
+    REDIS_CACHE_HOST=redis_cache \
+    REDIS_QUEUE_HOST=redis_queue \
+    REDIS_SOCKETIO_HOST=redis_socketio
 
 VOLUME /home/frappe/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
