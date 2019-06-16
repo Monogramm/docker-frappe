@@ -29,10 +29,10 @@ latestsFrappe=( $( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' 
 	develop
 )
 
-latestsBench=( 
-	master
-	#4.1
-)
+#latestsBench=( 
+#	master
+#	4.1
+#)
 
 # Remove existing images
 echo "reset docker images"
@@ -43,6 +43,7 @@ echo "update docker images"
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
 	frappe=$(echo "$latest" | cut -d. -f1-2)
+	major=$(echo "$latest" | cut -d. -f1-1)
 
 	# Only add versions >= "$min_version"
 	if version_greater_or_equal "$frappe" "$min_versionFrappe"; then
@@ -68,14 +69,22 @@ for latest in "${latestsFrappe[@]}"; do
 				cp "$template" "$dir/Dockerfile"
 
 				# Replace the variables.
-				if [ "$bench" = "4.1" ]; then
+				if [ "$major" = "10" ]; then
 					sed -ri -e '
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
-						s/%%BENCH_OPTIONS%%//g;
 					' "$dir/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+					' "$dir/Dockerfile"
+				fi
+
+				if [ "$bench" = "4.1" ]; then
+					sed -ri -e '
+						s/%%BENCH_OPTIONS%%//g;
+					' "$dir/Dockerfile"
+				else
+					sed -ri -e '
 						s/%%BENCH_OPTIONS%%/--skip-redis-config-generation/g;
 					' "$dir/Dockerfile"
 				fi
