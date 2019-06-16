@@ -47,7 +47,13 @@ for latest in "${latestsFrappe[@]}"; do
 	# Only add versions >= "$min_version"
 	if version_greater_or_equal "$frappe" "$min_versionFrappe"; then
 
-		for bench in "${latestsBench[@]}"; do
+		# Define bench version for frappe
+		case $frappe in
+			10.*) bench=4.1;;
+			*) bench=master;;
+		esac
+
+		#for bench in "${latestsBench[@]}"; do
 
 			for variant in "${variants[@]}"; do
 				# Create the frappe-bench/variant directory with a Dockerfile.
@@ -103,7 +109,7 @@ for latest in "${latestsFrappe[@]}"; do
 				fi
 			done
 
-		done
+		#done
 
 	fi
 
