@@ -19,13 +19,13 @@ function version_greater_or_equal() {
 	[[ "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1" || "$1" == "$2" ]];
 }
 
-min_versionFrappe=10.1
+min_versionFrappe=10
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=( $( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
-	10.1.67
+	10.x.x
 	develop
 )
 
