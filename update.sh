@@ -74,10 +74,17 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile"
 				fi
 
-				sed -ri -e '
-					s/%%VERSION%%/'"$latest"'/g;
-					s/%%BRANCH%%/'"$bench"'/g;
-				' "$dir/Dockerfile"
+				if [ "$latest" = "develop" ]; then
+					sed -ri -e '
+						s/%%VERSION%%/'"$latest"'/g;
+						s/%%BRANCH%%/'"$bench"'/g;
+					' "$dir/Dockerfile"
+				else
+					sed -ri -e '
+						s/%%VERSION%%/'"v$latest"'/g;
+						s/%%BRANCH%%/'"$bench"'/g;
+					' "$dir/Dockerfile"
+				fi
 
 				# Copy the shell scripts
 				for name in entrypoint; do
