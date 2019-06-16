@@ -21,10 +21,6 @@ RUN set -ex; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     bench --version; \
     npm install \
-        babel-core \
-        babel-plugin-transform-object-rest-spread \
-        babel-preset-env \
-        touch \
         chalk \
         rollup \
         rollup-plugin-multi-entry \
@@ -37,6 +33,12 @@ RUN set -ex; \
         rollup-plugin-vue \
         vue-template-compiler \
         moment \
+    ; \
+    test "$BENCH_BRANCH" = "4.1" && npm install \
+        babel-core \
+        babel-plugin-transform-object-rest-spread \
+        babel-preset-env \
+        touch \
     ; \
     bench setup socketio
 
