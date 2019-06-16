@@ -21,6 +21,8 @@ RUN set -ex; \
     sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     bench --version; \
     npm install \
+        babel-core \
+        babel-preset-env \
         chalk \
         rollup \
         rollup-plugin-multi-entry \
