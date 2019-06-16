@@ -23,6 +23,7 @@ RUN set -ex; \
     npm install \
         babel-core \
         babel-preset-env \
+        touch \
         chalk \
         rollup \
         rollup-plugin-multi-entry \
