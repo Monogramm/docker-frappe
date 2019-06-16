@@ -92,7 +92,7 @@ bench_setup_apps() {
   log "Building apps assets..."
   bench build
 
-  if [ "${DB_TYPE}" -eq "mariadb" ] && [ -n "${DOCKER_DB_ALLOWED_HOSTS}" ]; then
+  if [ "${DB_TYPE}" = "mariadb" ] && [ -n "${DOCKER_DB_ALLOWED_HOSTS}" ]; then
     log "Updating MariaDB users allowed hosts..."
     mysql -h ${DB_HOST} -P ${DB_PORT} \
           -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
