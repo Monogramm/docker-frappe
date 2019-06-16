@@ -22,6 +22,7 @@ RUN set -ex; \
     bench --version; \
     npm install \
         babel-core \
+        babel-plugin-transform-object-rest-spread \
         babel-preset-env \
         touch \
         chalk \
