@@ -42,20 +42,20 @@ mkdir -p ./images
 echo "update docker images"
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
-	version=$(echo "$latest" | cut -d. -f1-2)
+	frappe=$(echo "$latest" | cut -d. -f1-2)
 
 	# Only add versions >= "$min_version"
-	if version_greater_or_equal "$version" "$min_versionFrappe"; then
+	if version_greater_or_equal "$frappe" "$min_versionFrappe"; then
 
 		for bench in "${latestsBench[@]}"; do
 
 			for variant in "${variants[@]}"; do
-				# Create the version+variant directory with a Dockerfile.
-				dir="images/$version-$bench/$variant"
+				# Create the frappe-bench/variant directory with a Dockerfile.
+				dir="images/$frappe-$bench/$variant"
 				if [ -d "$dir" ]; then
 					continue
 				fi
-				echo "generating frappe $latest [$version] / bench $bench ($variant)"
+				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
 				template="Dockerfile-${base[$variant]}.template"
@@ -94,10 +94,10 @@ for latest in "${latestsFrappe[@]}"; do
 
 				cp ".dockerignore" "$dir/.dockerignore"
 
-				travisEnv='\n    - VERSION='"$version"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
+				travisEnv='\n    - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
 				if [[ $1 == 'build' ]]; then
-					tag="$version-$variant"
+					tag="$frappe-$variant"
 					echo "Build Dockerfile for ${tag}"
 					docker build -t ${dockerRepo}:${tag} $dir
 				fi
