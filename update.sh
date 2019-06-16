@@ -43,13 +43,14 @@ echo "update docker images"
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
 	frappe=$(echo "$latest" | cut -d. -f1-2)
+	major=$(echo "$latest" | cut -d. -f1-1)
 
 	# Only add versions >= "$min_version"
 	if version_greater_or_equal "$frappe" "$min_versionFrappe"; then
 
 		# Define bench version for frappe
 		case $frappe in
-			10.*) bench=4.1;;
+			#10.*) bench=4.1;;
 			*) bench=master;;
 		esac
 
@@ -68,7 +69,7 @@ for latest in "${latestsFrappe[@]}"; do
 				cp "$template" "$dir/Dockerfile"
 
 				# Replace the variables.
-				if [ "$bench" = "4.1" ]; then
+				if [ "$major" = "10" ]; then
 					sed -ri -e '
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
 						s/%%BENCH_OPTIONS%%//g;

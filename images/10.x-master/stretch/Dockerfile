@@ -1,14 +1,14 @@
-FROM monogramm/docker-frappe-base:2.7-alpine
+FROM monogramm/docker-frappe-base:2.7-stretch
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
-    BENCH_BRANCH=4.1 \
+    BENCH_BRANCH=master \
     FRAPPE_BRANCH=v10.x.x
 
-RUN addgroup -S $FRAPPE_USER; \
-    adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
+RUN groupadd -r $FRAPPE_USER; \
+    useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
     echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
 USER $FRAPPE_USER
