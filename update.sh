@@ -72,11 +72,19 @@ for latest in "${latestsFrappe[@]}"; do
 				if [ "$major" = "10" ]; then
 					sed -ri -e '
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
-						s/%%BENCH_OPTIONS%%//g;
 					' "$dir/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+					' "$dir/Dockerfile"
+				fi
+
+				if [ "$bench" = "4.1" ]; then
+					sed -ri -e '
+						s/%%BENCH_OPTIONS%%//g;
+					' "$dir/Dockerfile"
+				else
+					sed -ri -e '
 						s/%%BENCH_OPTIONS%%/--skip-redis-config-generation/g;
 					' "$dir/Dockerfile"
 				fi
