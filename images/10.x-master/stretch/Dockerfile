@@ -1,10 +1,10 @@
-FROM monogramm/docker-frappe-base:2.7-stretch-slim
+FROM monogramm/docker-frappe-base:stretch
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
-    BENCH_BRANCH=4.1 \
+    BENCH_BRANCH=master \
     FRAPPE_BRANCH=v10.x.x
 
 RUN groupadd -r $FRAPPE_USER; \
@@ -44,7 +44,7 @@ RUN set -ex; \
 
 # Setup Frappe
 RUN set -ex; \
-    bench init --frappe-branch $FRAPPE_BRANCH --no-auto-update  frappe-bench; \
+    bench init --frappe-branch $FRAPPE_BRANCH --no-auto-update --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \

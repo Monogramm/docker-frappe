@@ -32,14 +32,17 @@ matrix:
     - env: VERSION=10.x BENCH=4.1 VARIANT=alpine
     - env: VERSION=10.x BENCH=4.1 VARIANT=stretch-slim
     - env: VERSION=10.x BENCH=4.1 VARIANT=stretch
+    - env: VERSION=10.x BENCH=master VARIANT=alpine
+    - env: VERSION=10.x BENCH=master VARIANT=stretch-slim
+    - env: VERSION=10.x BENCH=master VARIANT=stretch
 
 env: # Environments
     - VERSION=develop BENCH=master VARIANT=alpine
     - VERSION=develop BENCH=master VARIANT=stretch-slim
     - VERSION=develop BENCH=master VARIANT=stretch
-    - VERSION=10.x BENCH=4.1 VARIANT=alpine
-    - VERSION=10.x BENCH=4.1 VARIANT=stretch-slim
-    - VERSION=10.x BENCH=4.1 VARIANT=stretch
+    - VERSION=10.x BENCH=master VARIANT=alpine
+    - VERSION=10.x BENCH=master VARIANT=stretch-slim
+    - VERSION=10.x BENCH=master VARIANT=stretch
     - VERSION=11.1 BENCH=master VARIANT=alpine
     - VERSION=11.1 BENCH=master VARIANT=stretch-slim
     - VERSION=11.1 BENCH=master VARIANT=stretch
