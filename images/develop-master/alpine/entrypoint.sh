@@ -92,6 +92,26 @@ bench_setup_apps() {
   log "Building apps assets..."
   bench build
 
+  if [ "${DB_TYPE}" -eq "mariadb" ] && [ -n "${DOCKER_DB_ALLOWED_HOSTS}" ]; then
+    log "Updating MariaDB users allowed hosts..."
+    mysql -h ${DB_HOST} -P ${DB_PORT} \
+          -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
+          ${DB_NAME} \
+          -e "UPDATE mysql.user SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%' AND user != 'root';"
+
+    log "Updating MariaDB databases allowed hosts..."
+    mysql -h ${DB_HOST} -P ${DB_PORT} \
+          -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
+          ${DB_NAME} \
+          -e "UPDATE mysql.db SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%' AND user != 'root';"
+
+    log "Flushing MariaDB privileges..."
+    mysql -h ${DB_HOST} -P ${DB_PORT} \
+          -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
+          ${DB_NAME} \
+          -e "FLUSH PRIVILEGES;"
+  fi
+
   log "Setup Finished"
 }
 
@@ -243,8 +263,9 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "logging": "${FRAPPE_LOGGING}",
   "db_type": "${DB_TYPE}",
   "db_host": "${DB_HOST}",
+  "db_port": "${DB_PORT}",
   "db_name": "${DB_NAME}",
-  "db_user": "${DB_USER}",
+  "db_user": "${DB_NAME}",
   "db_password": "${DB_PASSWORD}",
   "root_login": "${DB_ROOT_LOGIN}",
   "root_password": "${DB_ROOT_PASSWORD}",

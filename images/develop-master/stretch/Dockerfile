@@ -39,7 +39,6 @@ RUN set -ex; \
 # Setup Frappe
 RUN set -ex; \
     bench init --frappe-branch $FRAPPE_BRANCH --no-auto-update --skip-redis-config-generation frappe-bench; \
-    mkdir -p frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \
@@ -47,12 +46,28 @@ RUN set -ex; \
     rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
     rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
+# For documentation: replace previous run by this for manual install
+#RUN set -ex; \
+#    mkdir -p frappe-bench; \
+#    cd frappe-bench; \
+#    mkdir -p apps logs sites config; \
+#    bench setup env; \
+#    sudo bench setup sudoers $FRAPPE_USER; \
+#    bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH; \
+#    cd /home/$FRAPPE_USER/frappe-bench/apps/frappe; \
+#    npm install; \
+#    cd /home/$FRAPPE_USER/frappe-bench; \
+#    npm install babel-preset-env; \
+#    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
+#    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
+
 # Copy docker entrypoint and set permissions
 ADD ./entrypoint.sh /entrypoint.sh
 RUN sudo chmod +x /entrypoint.sh
 
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
+    DOCKER_DB_ALLOWED_HOSTS=172.%.%.% \
     DOCKER_APPS_TIMEOUT=600 \
     DOCKER_SITES_TIMEOUT=900 \
     DOCKER_GUNICORN_PORT=8000 \
@@ -68,7 +83,6 @@ ENV DOCKER_DB_TIMEOUT=120 \
     DB_HOST=db \
     DB_PORT=3306 \
     DB_NAME=frappe \
-    DB_USER=frappe \
     DB_PASSWORD=youshouldoverwritethis \
     DB_ROOT_LOGIN=root \
     DB_ROOT_PASSWORD=mariadb_root_password \
