@@ -19,12 +19,15 @@ function version_greater_or_equal() {
 	[[ "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1" || "$1" == "$2" ]];
 }
 
-min_versionFrappe=10.1
+min_versionFrappe=10
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=( $( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
-	sort -urV ) 10.1.67 )
+	sort -urV )
+	10.x.x
+	develop
+)
 
 latestsBench=( 
 	master
@@ -39,20 +42,26 @@ mkdir -p ./images
 echo "update docker images"
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
-	version=$(echo "$latest" | cut -d. -f1-2)
+	frappe=$(echo "$latest" | cut -d. -f1-2)
 
 	# Only add versions >= "$min_version"
-	if version_greater_or_equal "$version" "$min_versionFrappe"; then
+	if version_greater_or_equal "$frappe" "$min_versionFrappe"; then
 
-		for bench in "${latestsBench[@]}"; do
+		# Define bench version for frappe
+		case $frappe in
+			#10.*) bench=4.1;;
+			*) bench=master;;
+		esac
+
+		#for bench in "${latestsBench[@]}"; do
 
 			for variant in "${variants[@]}"; do
-				# Create the version+variant directory with a Dockerfile.
-				dir="images/$version-$bench/$variant"
+				# Create the frappe-bench/variant directory with a Dockerfile.
+				dir="images/$frappe-$bench/$variant"
 				if [ -d "$dir" ]; then
 					continue
 				fi
-				echo "generating frappe $latest [$version] / bench $bench ($variant)"
+				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
 				template="Dockerfile-${base[$variant]}.template"
@@ -71,10 +80,17 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile"
 				fi
 
-				sed -ri -e '
-					s/%%VERSION%%/'"$latest"'/g;
-					s/%%BRANCH%%/'"$bench"'/g;
-				' "$dir/Dockerfile"
+				if [ "$latest" = "develop" ]; then
+					sed -ri -e '
+						s/%%VERSION%%/'"$latest"'/g;
+						s/%%BRANCH%%/'"$bench"'/g;
+					' "$dir/Dockerfile"
+				else
+					sed -ri -e '
+						s/%%VERSION%%/'"v$latest"'/g;
+						s/%%BRANCH%%/'"$bench"'/g;
+					' "$dir/Dockerfile"
+				fi
 
 				# Copy the shell scripts
 				for name in entrypoint; do
@@ -84,16 +100,16 @@ for latest in "${latestsFrappe[@]}"; do
 
 				cp ".dockerignore" "$dir/.dockerignore"
 
-				travisEnv='\n    - VERSION='"$version"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
+				travisEnv='\n    - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
 				if [[ $1 == 'build' ]]; then
-					tag="$version-$variant"
+					tag="$frappe-$variant"
 					echo "Build Dockerfile for ${tag}"
 					docker build -t ${dockerRepo}:${tag} $dir
 				fi
 			done
 
-		done
+		#done
 
 	fi
 

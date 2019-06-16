@@ -16,7 +16,7 @@ before_script:
   - dir="images/${VERSION}-${BENCH}/${VARIANT}"
 
 script:
-  - travis_wait docker build -t "$image" "$dir"
+  - travis_wait 20 docker build -t "$image" "$dir"
 
 after_script:
   - docker images
@@ -27,10 +27,22 @@ after_script:
 notifications:
   email: false
 
+matrix:
+  allow_failures:
+    - env: VERSION=10.x BENCH=4.1 VARIANT=alpine
+    - env: VERSION=10.x BENCH=4.1 VARIANT=stretch-slim
+    - env: VERSION=10.x BENCH=4.1 VARIANT=stretch
+    - env: VERSION=10.x BENCH=master VARIANT=alpine
+    - env: VERSION=10.x BENCH=master VARIANT=stretch-slim
+    - env: VERSION=10.x BENCH=master VARIANT=stretch
+
 env: # Environments
-    - VERSION=10.1 BENCH=master VARIANT=alpine
-    - VERSION=10.1 BENCH=master VARIANT=stretch-slim
-    - VERSION=10.1 BENCH=master VARIANT=stretch
+    - VERSION=develop BENCH=master VARIANT=alpine
+    - VERSION=develop BENCH=master VARIANT=stretch-slim
+    - VERSION=develop BENCH=master VARIANT=stretch
+    - VERSION=10.x BENCH=master VARIANT=alpine
+    - VERSION=10.x BENCH=master VARIANT=stretch-slim
+    - VERSION=10.x BENCH=master VARIANT=stretch
     - VERSION=11.1 BENCH=master VARIANT=alpine
     - VERSION=11.1 BENCH=master VARIANT=stretch-slim
     - VERSION=11.1 BENCH=master VARIANT=stretch
