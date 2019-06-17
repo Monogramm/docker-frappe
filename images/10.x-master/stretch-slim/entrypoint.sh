@@ -263,7 +263,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "logging": "${FRAPPE_LOGGING}",
   "db_type": "${DB_TYPE}",
   "db_host": "${DB_HOST}",
-  "db_port": "${DB_PORT}",
+  "db_port": ${DB_PORT},
   "db_name": "${DB_NAME}",
   "db_user": "${DB_NAME}",
   "db_password": "${DB_PASSWORD}",
