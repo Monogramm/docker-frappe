@@ -270,7 +270,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "root_login": "${DB_ROOT_LOGIN}",
   "root_password": "${DB_ROOT_PASSWORD}",
   "mail_server": "${MAIL_HOST}",
-  "mail_port": "${MAIL_PORT}",
+  "mail_port": ${MAIL_PORT},
   "use_ssl": "${MAIL_USE_SSL}",
   "mail_login": "${MAIL_LOGIN}",
   "mail_password": "${MAIL_PASSWORD}",
