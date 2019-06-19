@@ -1,20 +1,20 @@
 version: "2"
 
 services:
-  frappe_app:
+  erpnext_app:
     build: ./
-    container_name: frappe_app
+    container_name: erpnext_app
     command: app
     #restart: always
     ports:
       - 8000:8000
     depends_on:
-      - frappedb
+      - erpnextdb
     links:
-      - frappedb
+      - erpnextdb
     environment:
       # Frappe setup
-      - FRAPPE_APP_INIT=frappe
+      - FRAPPE_APP_INIT=erpnext
       - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
       - FRAPPE_LOGGING=1
       #- ADMIN_USER=Administrator
@@ -22,7 +22,7 @@ services:
       - ENCRYPTION_KEY=${FRAPPE_ENCRYPTION_KEY}
       # Database setup
       - DB_TYPE=mariadb
-      - DB_HOST=frappedb
+      - DB_HOST=erpnextdb
       - DB_PORT=3306
       - DB_NAME=${FRAPPE_DB_NAME}
       - DB_PASSWORD=${FRAPPE_DB_PWD}
@@ -34,18 +34,18 @@ services:
       - MAIL_LOGIN=${FRAPPE_SMTP_USER}
       - MAIL_PASSWORD=${FRAPPE_SMTP_PWD}
       # Redis setup
-      - REDIS_CACHE_HOST=frappe_redis_cache
-      - REDIS_QUEUE_HOST=frappe_redis_queue
-      - REDIS_SOCKETIO_HOST=frappe_redis_socketio
+      - REDIS_CACHE_HOST=erpnext_redis_cache
+      - REDIS_QUEUE_HOST=erpnext_redis_queue
+      - REDIS_SOCKETIO_HOST=erpnext_redis_socketio
     volumes:
-      - /srv/frappe/frappe/sites:/home/frappe/frappe-bench/sites
-      - /srv/frappe/frappe/logs:/home/frappe/frappe-bench/logs
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
+      - /srv/erpnext/frappe/logs:/home/frappe/frappe-bench/logs
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-  frappe_web:
+  erpnext_web:
     image: nginx:alpine
-    container_name: frappe_web
+    container_name: erpnext_web
     #restart: always
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
@@ -53,18 +53,18 @@ services:
       # - ./certs:/etc/letsencrypt
       # - ./certs-data:/data/letsencrypt
     volumes_from:
-      - frappe_app
+      - erpnext_app
     ports:
       - 80:80
       # If you need SSL connection
       # - '443:443'
     links:
-      - frappe_app
-      - frappe_socketio
+      - erpnext_app
+      - erpnext_socketio
 
-  frappedb:
+  erpnextdb:
     image: mariadb:10
-    container_name: frappedb
+    container_name: erpnextdb
     restart: always
     command: --character_set_client=utf8 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --character-set-client-handshake=FALSE
     environment:
@@ -74,84 +74,84 @@ services:
       #- MYSQL_USER=${FRAPPE_DB_USER}
       #- MYSQL_PASSWORD=${FRAPPE_DB_PWD}
     volumes:
-      - /srv/frappe/db:/var/lib/mysql
+      - /srv/erpnext/db:/var/lib/mysql
 
-  frappe_scheduler:
+  erpnext_scheduler:
     build: ./
-    container_name: frappe_scheduler
+    container_name: erpnext_scheduler
     command: scheduler
     #restart: always
     depends_on:
-      - frappe_app
+      - erpnext_app
     volumes:
-      - /srv/frappe/frappe/sites:/home/frappe/frappe-bench/sites
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-  frappe_worker_default:
+  erpnext_worker_default:
     build: ./
-    container_name: frappe_worker_default
+    container_name: erpnext_worker_default
     command: worker-default
     #restart: always
     depends_on:
-      - frappe_app
+      - erpnext_app
     volumes:
-      - /srv/frappe/frappe/sites:/home/frappe/frappe-bench/sites
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-  frappe_worker_long:
+  erpnext_worker_long:
     build: ./
-    container_name: frappe_worker_long
+    container_name: erpnext_worker_long
     command: worker-long
     #restart: always
     depends_on:
-      - frappe_app
+      - erpnext_app
     volumes:
-      - /srv/frappe/frappe/sites:/home/frappe/frappe-bench/sites
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-  frappe_worker_short:
+  erpnext_worker_short:
     build: ./
-    container_name: frappe_worker_short
+    container_name: erpnext_worker_short
     command: worker-short
     #restart: always
     depends_on:
-      - frappe_app
+      - erpnext_app
     volumes:
-      - /srv/frappe/frappe/sites:/home/frappe/frappe-bench/sites
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-  frappe_socketio:
+  erpnext_socketio:
     build: ./
-    container_name: frappe_socketio
+    container_name: erpnext_socketio
     command: node-socketio
     #restart: always
     ports:
       - 3000:3000
     depends_on:
-      - frappe_app
+      - erpnext_app
     volumes:
-      - /srv/frappe/frappe/sites:/home/frappe/frappe-bench/sites
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-  frappe_redis_cache:
+  erpnext_redis_cache:
     image: redis:alpine
-    container_name: frappe_redis_cache
+    container_name: erpnext_redis_cache
     #restart: always
     volumes:
-      - ./services/frappe/conf/redis_cache.conf:/etc/conf.d/redis.conf:ro
+      - ./services/erpnext/conf/redis_cache.conf:/etc/conf.d/redis.conf:ro
     command: ["redis-server","/etc/conf.d/redis.conf"]
 
-  frappe_redis_queue:
+  erpnext_redis_queue:
     image: redis:alpine
-    container_name: frappe_redis_queue
+    container_name: erpnext_redis_queue
     #restart: always
 
-  frappe_redis_socketio:
+  erpnext_redis_socketio:
     image: redis:alpine
-    container_name: frappe_redis_socketio
+    container_name: erpnext_redis_socketio
     #restart: always
