@@ -7,6 +7,12 @@ declare -A base=(
 	[alpine]='alpine'
 )
 
+declare -A compose=(
+	[stretch]='mariadb'
+	[stretch-slim]='mariadb'
+	[alpine]='postgres'
+)
+
 variants=(
 	stretch
 	stretch-slim
@@ -108,6 +114,7 @@ for latest in "${latestsFrappe[@]}"; do
 				done
 
 				cp ".dockerignore" "$dir/.dockerignore"
+				cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml"
 
 				travisEnv='\n    - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
