@@ -52,7 +52,7 @@ RUN set -ex; \
     rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
     rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
-# For documentation: replace previous run by this for manual install
+# Alternative: replace previous run by this for manual install
 #RUN set -ex; \
 #    mkdir -p frappe-bench; \
 #    cd frappe-bench; \
