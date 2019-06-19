@@ -108,9 +108,9 @@ for latest in "${latestsFrappe[@]}"; do
 				fi
 
 				# Copy the shell scripts
-				for name in entrypoint; do
-					cp "docker-$name.sh" "$dir/$name.sh"
-					chmod 755 "$dir/$name.sh"
+				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
+					cp "docker-$name" "$dir/$name"
+					chmod 755 "$dir/$name"
 				done
 
 				cp ".dockerignore" "$dir/.dockerignore"
