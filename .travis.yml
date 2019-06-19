@@ -20,15 +20,15 @@ script:
   - travis_retry docker-compose up -d && sleep 60
   - docker-compose ps
   - docker-compose logs
-  - docker-compose ps "erpnextdb" | grep "Up" || exit 1
-  - docker-compose ps "erpnext_app" | grep "Up" || exit 1
-  - docker-compose ps "erpnext_web" | grep "Up" || exit 1
+  - docker-compose ps "frappe_db" | grep "Up" || exit 1
+  - docker-compose ps "frappe_app" | grep "Up" || exit 1
+  - docker-compose ps "frappe_web" | grep "Up" || exit 1
   - echo 'Wait until sites and apps database installed (4-5 minutes)' && sleep 300
   - docker-compose ps
   - docker-compose logs
-  - docker-compose ps "erpnextdb" | grep "Up"
-  - docker-compose ps "erpnext_app" | grep "Up"
-  - docker-compose ps "erpnext_web" | grep "Up"
+  - docker-compose ps "frappe_db" | grep "Up"
+  - docker-compose ps "frappe_app" | grep "Up"
+  - docker-compose ps "frappe_web" | grep "Up"
 
 notifications:
   email: false
