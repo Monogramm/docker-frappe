@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v11.1.35
+    FRAPPE_BRANCH=v11.1.36
 
 RUN addgroup -S $FRAPPE_USER; \
     adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
