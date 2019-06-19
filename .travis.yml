@@ -33,6 +33,11 @@ script:
 notifications:
   email: false
 
+matrix:
+  allow_failures:
+    - env: VERSION=10.x BENCH=master VARIANT=alpine
+    - env: VERSION=11.1 BENCH=master VARIANT=alpine
+
 env: # Environments
     - VERSION=develop BENCH=master VARIANT=alpine
     - VERSION=develop BENCH=master VARIANT=stretch-slim
