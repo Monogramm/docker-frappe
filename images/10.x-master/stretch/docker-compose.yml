@@ -14,7 +14,7 @@ services:
       - erpnextdb
     environment:
       # Frappe setup
-      - FRAPPE_APP_INIT=erpnext
+      - FRAPPE_APP_INIT=frappe
       - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
       - FRAPPE_LOGGING=1
       #- ADMIN_USER=Administrator
