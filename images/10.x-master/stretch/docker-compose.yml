@@ -66,7 +66,7 @@ services:
     image: mariadb:10
     container_name: frappe_db
     #restart: always
-    command: --character_set_client=utf8 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --character-set-client-handshake=FALSE
+    command: --bind-address=0.0.0.0 --character-set-client-handshake=OFF --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       - MYSQL_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
       # Following parameters must NOT be set and are only there for documentation (Bench will install DB)
