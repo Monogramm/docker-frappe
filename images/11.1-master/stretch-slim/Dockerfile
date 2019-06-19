@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v11.1.35
+    FRAPPE_BRANCH=v11.1.36
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -52,7 +52,7 @@ RUN set -ex; \
     rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
     rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
-# For documentation: replace previous run by this for manual install
+# Alternative: replace previous run by this for manual install
 #RUN set -ex; \
 #    mkdir -p frappe-bench; \
 #    cd frappe-bench; \

@@ -7,6 +7,12 @@ declare -A base=(
 	[alpine]='alpine'
 )
 
+declare -A compose=(
+	[stretch]='mariadb'
+	[stretch-slim]='mariadb'
+	[alpine]='postgres'
+)
+
 variants=(
 	stretch
 	stretch-slim
@@ -102,12 +108,16 @@ for latest in "${latestsFrappe[@]}"; do
 				fi
 
 				# Copy the shell scripts
-				for name in entrypoint; do
-					cp "docker-$name.sh" "$dir/$name.sh"
-					chmod 755 "$dir/$name.sh"
+				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
+					cp "docker-$name" "$dir/$name"
+					chmod 755 "$dir/$name"
+					sed -i \
+						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
+					"$dir/$name"
 				done
 
 				cp ".dockerignore" "$dir/.dockerignore"
+				cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml"
 
 				travisEnv='\n    - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 

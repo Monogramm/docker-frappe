@@ -116,16 +116,17 @@ bench_setup_apps() {
 }
 
 bench_setup() {
-  # Expecting first parameter to be the app
-  FRAPPE_APP_SETUP=${1}
-  if [ -n "${FRAPPE_APP_SETUP}" ]; then
+  # Expecting parameters to be a list of apps to (re)install
+  if [ "$#" -ne 0 ]; then
     wait_db
 
     log "Reinstalling with fresh database..."
     bench reinstall --yes
 
-    log "Installing ${FRAPPE_APP_SETUP}..."
-    bench install-app "${FRAPPE_APP_SETUP}"
+    for app in "$@"; do
+      log "Installing app $app..."
+      bench install-app "$app"
+    done
   else
     log "No app specified to reinstall"
   fi
@@ -217,10 +218,14 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
     log "Adding frappe to apps.txt..."
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
-
-    log "Adding ${FRAPPE_APP_INIT} to apps.txt..."
-    echo "${FRAPPE_APP_INIT}" >> "${FRAPPE_WD}/sites/apps.txt"
   fi
+
+  for app in "${FRAPPE_APP_INIT}"; do
+    if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
+      log "Adding $app to apps.txt..."
+      echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
+    fi
+  done
 
 else
   # Wait for another node to setup apps and sites
@@ -295,7 +300,7 @@ EOF
     wait_db
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE}..."
-    bench new-site "${FRAPPE_DEFAULT_SITE}" --db-type ${DB_TYPE}
+    bench new-site "${FRAPPE_DEFAULT_SITE}"
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
     echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
