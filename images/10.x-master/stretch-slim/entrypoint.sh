@@ -217,10 +217,14 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
     log "Adding frappe to apps.txt..."
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
-
-    log "Adding ${FRAPPE_APP_INIT} to apps.txt..."
-    echo "${FRAPPE_APP_INIT}" >> "${FRAPPE_WD}/sites/apps.txt"
   fi
+
+  for app in "${FRAPPE_APP_INIT}"; do
+    if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"
+      log "Adding $app to apps.txt..."
+      echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
+    fi
+  done
 
 else
   # Wait for another node to setup apps and sites
