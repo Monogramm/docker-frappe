@@ -300,7 +300,7 @@ EOF
     wait_db
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE}..."
-    bench new-site "${FRAPPE_DEFAULT_SITE}"
+    bench new-site "${FRAPPE_DEFAULT_SITE}" --force
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
     echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
