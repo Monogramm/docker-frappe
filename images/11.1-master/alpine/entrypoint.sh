@@ -136,25 +136,32 @@ bench_setup() {
 
 bench_update() {
   log "Starting update..."
-  bench update --no-git
+  bench update $@
   log "Update Finished"
 }
 
 bench_backup() {
   log "Starting backup..."
-  bench backup
+  bench backup $@
   log "Backup Finished"
 }
 
 bench_restore() {
-  i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
-  do
-      log "$i $file"
-      i="$(($i+1))"
-  done
+  if [ -n "${1}" ]; then
+    # List existing backup files
+    i=1
+    for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
+    do
+        log "$i $file"
+        i="$(($i+1))"
+    done
+    # Choose file number
+    read -p "Enter the number of file which you want to restore : " n
+  else
+    # Get file number from argument
+    n=$1
+  fi
 
-  read -p "Enter the number of file which you want to restore : " n
   i=1
   for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
   do
@@ -169,7 +176,7 @@ bench_restore() {
 
 bench_migrate() {
   log "Starting migration..."
-  bench migrate
+  bench migrate $@
   log "Migrate Finished"
 }
 
@@ -348,10 +355,10 @@ case "${NODE_TYPE}" in
   ("app") wait_db; pip_install; bench_app ;;
   ("setup") pip_install; bench_setup ${@:2} ;;
   ("setup-apps") pip_install; bench_setup_apps ;;
-  ("update") bench_update ;;
-  ("backup") bench_backup;;
-  ("restore") bench_restore ;;
-  ("migrate") bench_migrate ;;
+  ("update") bench_update ${@:2} ;;
+  ("backup") bench_backup ${@:2} ;;
+  ("restore") bench_restore ${@:2} ;;
+  ("migrate") bench_migrate ${@:2} ;;
   ("scheduler") bench_scheduler ;;
   ("worker-default") bench_worker default ;;
   ("worker-long") bench_worker long ;;

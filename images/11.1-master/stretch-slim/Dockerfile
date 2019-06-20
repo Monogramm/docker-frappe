@@ -48,9 +48,7 @@ RUN set -ex; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \
-    sudo bench setup sudoers $FRAPPE_USER; \
-    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
-    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
+    sudo bench setup sudoers $FRAPPE_USER
 
 # Alternative: replace previous run by this for manual install
 #RUN set -ex; \
