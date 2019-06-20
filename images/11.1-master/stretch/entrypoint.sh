@@ -299,8 +299,20 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    log "Creating new site at ${FRAPPE_DEFAULT_SITE}..."
-    bench new-site "${FRAPPE_DEFAULT_SITE}" --force
+    log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} db..."
+    if [ "${DB_TYPE}" = "mariadb" ]; then
+      bench new-site "${FRAPPE_DEFAULT_SITE}" \
+        --force \
+        --db-name ${DB_NAME} \
+        --admin-password ${ADMIN_PASSWORD} \
+        --mariadb-root-username ${DB_ROOT_LOGIN} \
+        --mariadb-root-password "${DB_ROOT_PASSWORD}"
+    else
+      bench new-site "${FRAPPE_DEFAULT_SITE}" \
+        --force \
+        --db-name ${DB_NAME} \
+        --admin-password ${ADMIN_PASSWORD}
+    fi
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
     echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
