@@ -71,7 +71,7 @@ services:
     command: --character_set_client=utf8 --bind-address=0.0.0.0 --character-set-client-handshake=FALSE --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode="ALLOW_INVALID_DATES"
     environment:
       - MYSQL_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
-      # Following parameters must NOT be set and are only there for documentation (Bench will install DB)
+      # Following parameters are not needed with Frappe 12 or higher since it will create DB itself
       - MYSQL_DATABASE=${FRAPPE_DB_NAME}
       - MYSQL_USER=${FRAPPE_DB_NAME}
       - MYSQL_PASSWORD=${FRAPPE_DB_PWD}
