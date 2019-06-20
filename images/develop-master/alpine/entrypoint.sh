@@ -136,7 +136,7 @@ bench_setup() {
 
 bench_update() {
   log "Starting update..."
-  bench update --no-git
+  bench update
   log "Update Finished"
 }
 
