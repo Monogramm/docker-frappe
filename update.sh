@@ -118,7 +118,6 @@ for latest in "${latestsFrappe[@]}"; do
 
 				cp ".dockerignore" "$dir/.dockerignore"
 
-				# Define bench version for frappe
 				case $frappe in
 					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
 					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
