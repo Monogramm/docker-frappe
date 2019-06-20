@@ -299,7 +299,7 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} db..."
+    log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
         --force \
