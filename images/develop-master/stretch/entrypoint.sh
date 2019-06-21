@@ -42,7 +42,7 @@ wait_apps() {
 
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
-          log 'Condition was not met in time!'
+          log 'Apps were not set in time!'
           exit 1
       fi
   done
@@ -60,7 +60,7 @@ wait_sites() {
 
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
-          log 'Condition was not met in time!'
+          log 'Site was not set in time!'
           exit 1
       fi
   done
