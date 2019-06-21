@@ -52,6 +52,89 @@ https://hub.docker.com/r/monogramm/docker-frappe/
     - `10-stretch`
     - `10-stretch-slim`
 
+# Auto configuration via environment variables
+
+The image supports auto configuration via environment variables.
+
+## Docker entrypoint configuration
+
+```sh
+# Time in seconds container will wait for DB to be up
+DOCKER_DB_TIMEOUT=120
+
+# MariaDb hosts allowed to log to the DB. Only needed with mariadb when database created by frappe
+DOCKER_DB_ALLOWED_HOSTS=172.%.%.%
+
+# Time in seconds container will wait for apps to be setup
+DOCKER_APPS_TIMEOUT=600
+
+# Time in seconds container will wait for sites to be setup
+DOCKER_SITES_TIMEOUT=900
+
+DOCKER_GUNICORN_PORT=8000
+DOCKER_GUNICORN_WORKERS=4
+DOCKER_GUNICORN_TIMEOUT=120
+```
+
+## Frappe configuration
+
+```sh
+# List of frappe apps (space separated) to init on startup (bench install-app)
+FRAPPE_APP_INIT=
+
+# Default site
+FRAPPE_DEFAULT_SITE=
+
+# Remove all sites on startup.
+FRAPPE_RESET_SITES=
+
+FRAPPE_LOGGING=1
+
+ADMIN_PASSWORD=frappe
+
+# Encryption key. Leave empty to generate a random base64 32 key
+ENCRYPTION_KEY=
+```
+
+## Database configuration
+
+```sh
+# DB type. Can either be mariadb or postgresql
+DB_TYPE=mariadb
+
+DB_HOST=db
+DB_PORT=3306
+
+# DB name. Is also used by frappe for the user name associated
+DB_NAME=frappe
+DB_PASSWORD=youshouldoverwritethis
+
+# DB root login. Only used for postgresql
+DB_ROOT_LOGIN=root
+
+# DB root password. Mandatory
+DB_ROOT_PASSWORD=mariadb_root_password
+```
+
+## Mail configuration
+
+```sh
+MAIL_MUTED=false
+MAIL_HOST=mail
+MAIL_PORT=587
+MAIL_USE_SSL=tls
+MAIL_LOGIN=frappe-mail
+MAIL_PASSWORD=youshouldoverwritethis
+```
+
+## Redis configuration
+
+```sh
+REDIS_CACHE_HOST=redis_cache
+REDIS_QUEUE_HOST=redis_queue
+REDIS_SOCKETIO_HOST=redis_socketio
+```
+
 # Questions / Issues
 If you got any questions or problems using the image, please visit our [Github Repository](https://github.com/Monogramm/docker-frappe) and write an issue.  
 
