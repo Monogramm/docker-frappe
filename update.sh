@@ -123,7 +123,7 @@ for latest in "${latestsFrappe[@]}"; do
 					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
 				esac
 
-				travisEnv='\n    - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
+				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
 				if [[ $1 == 'build' ]]; then
 					tag="$frappe-$variant"

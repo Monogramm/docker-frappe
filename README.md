@@ -25,7 +25,7 @@ The concept is the following:
 
 Check image [Monogramm/docker-erpnext](https://github.com/Monogramm/docker-erpnext) to see how to expand this image and build frappe apps.
 
-:construction: **This image is still in development!**
+:warning: **This image is still in beta and should not be used in production (yet)!**
 
 ## What is Frappe ?
 
@@ -39,18 +39,18 @@ Full-stack web application framework that uses Python and MariaDB on the server 
 
 https://hub.docker.com/r/monogramm/docker-frappe/
 
-* frappe develop branch
+* Frappe develop branch
     - `develop-alpine` `develop`
-    - `develop-stretch`
-    - `develop-stretch-slim`
-* frappe 11
+    - `develop-debian` `develop-stretch`
+    - `develop-debian-slim` `develop-stretch-slim`
+* Frappe 11
     - `11-alpine` `11` `alpine` `latest`
-    - `11-stretch` `stretch`
-    - `11-stretch-slim` `stretch-slim`
-* frappe 10 (branch 10.x.x for latest bug fixes)
+    - `11-debian` `debian` `11-stretch` `stretch`
+    - `11-debian-slim` `debian-slim` `11-stretch-slim` `stretch-slim`
+* Frappe 10 (branch 10.x.x for latest bug fixes)
     - `10-alpine` `10`
-    - `10-stretch`
-    - `10-stretch-slim`
+    - `10-debian` `10-stretch`
+    - `10-debian-slim` `10-stretch-slim`
 
 # Auto configuration via environment variables
 
