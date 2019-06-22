@@ -42,7 +42,7 @@ wait_apps() {
 
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
-          log 'Condition was not met in time!'
+          log 'Apps were not set in time!'
           exit 1
       fi
   done
@@ -60,7 +60,7 @@ wait_sites() {
 
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
-          log 'Condition was not met in time!'
+          log 'Site was not set in time!'
           exit 1
       fi
   done
@@ -123,7 +123,7 @@ bench_setup() {
     log "Reinstalling with fresh database..."
     bench reinstall --yes
 
-    for app in "$@"; do
+    for app in $@; do
       log "Installing app $app..."
       bench install-app "$app"
     done
@@ -227,7 +227,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
   fi
 
-  for app in "${FRAPPE_APP_INIT}"; do
+  for app in ${FRAPPE_APP_INIT}; do
     if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
       log "Adding $app to apps.txt..."
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
