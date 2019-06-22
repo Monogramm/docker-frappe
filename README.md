@@ -25,7 +25,7 @@ The concept is the following:
 
 Check image [Monogramm/docker-erpnext](https://github.com/Monogramm/docker-erpnext) to see how to expand this image and build frappe apps.
 
-:construction: **This image is still in development!**
+:warning: **This image is still in beta and should not be used in production (yet)!**
 
 ## What is Frappe ?
 
