@@ -102,8 +102,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
 
 VOLUME /home/frappe/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps
+    /home/$FRAPPE_USER/frappe-bench/sites
 
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
