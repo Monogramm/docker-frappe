@@ -41,16 +41,16 @@ https://hub.docker.com/r/monogramm/docker-frappe/
 
 * frappe develop branch
     - `develop-alpine` `develop`
-    - `develop-stretch`
-    - `develop-stretch-slim`
+    - `develop-debian`
+    - `develop-debian-slim`
 * frappe 11
     - `11-alpine` `11` `alpine` `latest`
-    - `11-stretch` `stretch`
-    - `11-stretch-slim` `stretch-slim`
+    - `11-debian` `debian`
+    - `11-debian-slim` `debian-slim`
 * frappe 10 (branch 10.x.x for latest bug fixes)
     - `10-alpine` `10`
-    - `10-stretch`
-    - `10-stretch-slim`
+    - `10-debian`
+    - `10-debian-slim`
 
 # Auto configuration via environment variables
 
