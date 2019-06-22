@@ -59,11 +59,30 @@ The image supports auto configuration via environment variables.
 ## Docker entrypoint configuration
 
 ```sh
+# The docker "node" type. Defines the behavior of the container.
+# This can either be set through command argument or environment variable.
+# Can be one of the following:
+# app
+# setup
+# setup-apps
+# update
+# backup
+# restore
+# migrate
+# scheduler
+# worker-default
+# worker-long
+# worker-short
+# node-socketio
+NODE_TYPE=
+
 # Time in seconds container will wait for DB to be up
 DOCKER_DB_TIMEOUT=120
 
-# MariaDb hosts allowed to log to the DB. Only needed with mariadb when database created by frappe
-DOCKER_DB_ALLOWED_HOSTS=172.%.%.%
+# MariaDb hosts allowed to log to the DB.
+# Only needed with mariadb when database created by frappe (frappe restricts to install IP by default).
+# In this case, use 172.%.%.% to allow any container on docker network, or % for any host.
+DOCKER_DB_ALLOWED_HOSTS=
 
 # Time in seconds container will wait for apps to be setup
 DOCKER_APPS_TIMEOUT=600

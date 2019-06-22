@@ -85,6 +85,9 @@ services:
     #restart: always
     depends_on:
       - frappe_app
+    environment:
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -97,6 +100,9 @@ services:
     #restart: always
     depends_on:
       - frappe_app
+    environment:
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -109,6 +115,9 @@ services:
     #restart: always
     depends_on:
       - frappe_app
+    environment:
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -121,6 +130,9 @@ services:
     #restart: always
     depends_on:
       - frappe_app
+    environment:
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -135,6 +147,9 @@ services:
       - 3000:3000
     depends_on:
       - frappe_app
+    environment:
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro

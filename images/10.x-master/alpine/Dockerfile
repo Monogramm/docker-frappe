@@ -71,7 +71,7 @@ RUN sudo chmod +x /entrypoint.sh
 
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
-    DOCKER_DB_ALLOWED_HOSTS=172.%.%.% \
+    DOCKER_DB_ALLOWED_HOSTS= \
     DOCKER_APPS_TIMEOUT=600 \
     DOCKER_SITES_TIMEOUT=900 \
     DOCKER_GUNICORN_PORT=8000 \

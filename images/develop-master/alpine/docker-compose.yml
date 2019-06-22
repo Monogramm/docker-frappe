@@ -87,6 +87,8 @@ services:
       - frappe_app
     environment:
       - NODE_TYPE=scheduler
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -100,6 +102,8 @@ services:
       - frappe_app
     environment:
       - NODE_TYPE=worker-default
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -113,6 +117,8 @@ services:
       - frappe_app
     environment:
       - NODE_TYPE=worker-long
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -126,6 +132,8 @@ services:
       - frappe_app
     environment:
       - NODE_TYPE=worker-short
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
@@ -142,6 +150,8 @@ services:
       - frappe_app
     environment:
       - NODE_TYPE=node-socketio
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
     volumes:
       - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
