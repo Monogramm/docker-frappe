@@ -18,7 +18,7 @@ WORKDIR /home/$FRAPPE_USER
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
-    sudo pip3 install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
+    sudo pip%%PIP_VERSION%% install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     bench --version; \
     npm install \
         chalk \
