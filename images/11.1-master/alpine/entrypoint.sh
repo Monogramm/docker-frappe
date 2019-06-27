@@ -260,6 +260,8 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     log "Creating common site config..."
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
+  "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
+  "developer_mode": ${DEVELOPER_MODE},
   "admin_password": "${ADMIN_PASSWORD}",
   "encryption_key": "${ENCRYPTION_KEY:-$(openssl rand -base64 32)}",
   "deny_multiple_logins": false,
@@ -286,6 +288,10 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "use_ssl": "${MAIL_USE_SSL}",
   "mail_login": "${MAIL_LOGIN}",
   "mail_password": "${MAIL_PASSWORD}",
+  "auto_email_id": "${MAIL_EMAIL_ID}",
+  "email_sender_name": "${MAIL_SENDER_NAME}",
+  "always_use_account_email_id_as_sender": ${MAIL_ALWAYS_EMAIL_ID_AS_SENDER},
+  "always_use_account_name_as_sender_name": ${MAIL_ALWAYS_NAME_AS_SENDER_NAME},
   "mute_emails": ${MAIL_MUTED},
   "redis_cache": "redis://${REDIS_CACHE_HOST}",
   "redis_queue": "redis://${REDIS_QUEUE_HOST}",

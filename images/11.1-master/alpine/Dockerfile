@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v11.1.36
+    FRAPPE_BRANCH=v11.1.37
 
 RUN addgroup -S $FRAPPE_USER; \
     adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
@@ -81,6 +81,8 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_DEFAULT_SITE= \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
+    GOOGLE_ANALYTICS_ID= \
+    DEVELOPER_MODE=0 \
     ADMIN_PASSWORD=frappe \
     ENCRYPTION_KEY= \
     DB_TYPE=mariadb \
@@ -93,9 +95,13 @@ ENV DOCKER_DB_TIMEOUT=120 \
     MAIL_MUTED=false \
     MAIL_HOST=mail \
     MAIL_PORT=587 \
-    MAIL_USE_SSL=tls \
+    MAIL_USE_SSL=1 \
     MAIL_LOGIN=frappe-mail \
     MAIL_PASSWORD=youshouldoverwritethis \
+    MAIL_EMAIL_ID= \
+    MAIL_SENDER_NAME=Notifications \
+    MAIL_ALWAYS_EMAIL_ID_AS_SENDER=0 \
+    MAIL_ALWAYS_NAME_AS_SENDER_NAME=0 \
     REDIS_CACHE_HOST=redis_cache \
     REDIS_QUEUE_HOST=redis_queue \
     REDIS_SOCKETIO_HOST=redis_socketio
