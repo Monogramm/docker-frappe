@@ -65,9 +65,16 @@ RUN set -ex; \
 #    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
 #    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
-# Copy docker entrypoint and set permissions
+# Copy docker entrypoint and private install script
 ADD ./entrypoint.sh /entrypoint.sh
-RUN sudo chmod +x /entrypoint.sh
+ADD install_private_app.sh /home/$FRAPPE_USER/install_private_app.sh
+
+# Set permissions
+RUN set -ex; \
+    sudo chmod +x \
+        /entrypoint.sh \
+        /home/$FRAPPE_USER/install_private_app.sh \
+    ;
 
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
