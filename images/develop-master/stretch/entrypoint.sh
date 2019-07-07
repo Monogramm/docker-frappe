@@ -94,21 +94,21 @@ bench_setup_apps() {
 
   if [ "${DB_TYPE}" = "mariadb" ] && [ -n "${DOCKER_DB_ALLOWED_HOSTS}" ]; then
     log "Updating MariaDB users allowed hosts..."
-    mysql -h ${DB_HOST} -P ${DB_PORT} \
-          -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
-          ${DB_NAME} \
-          -e "UPDATE mysql.user SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%' AND user != 'root';"
+    mysql -h "${DB_HOST}" -P "${DB_PORT}" \
+          -u "${DB_ROOT_LOGIN}" -p${DB_ROOT_PASSWORD} \
+          "${DB_NAME}" \
+          -e "UPDATE mysql.user SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%.%.%.%' AND user != 'root';"
 
     log "Updating MariaDB databases allowed hosts..."
-    mysql -h ${DB_HOST} -P ${DB_PORT} \
-          -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
-          ${DB_NAME} \
-          -e "UPDATE mysql.db SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%' AND user != 'root';"
+    mysql -h "${DB_HOST}" -P "${DB_PORT}" \
+          -u "${DB_ROOT_LOGIN}" -p${DB_ROOT_PASSWORD} \
+          "${DB_NAME}" \
+          -e "UPDATE mysql.db SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%.%.%.%' AND user != 'root';"
 
     log "Flushing MariaDB privileges..."
-    mysql -h ${DB_HOST} -P ${DB_PORT} \
-          -u ${DB_ROOT_LOGIN} -p${DB_ROOT_PASSWORD} \
-          ${DB_NAME} \
+    mysql -h "${DB_HOST}" -P "${DB_PORT}" \
+          -u "${DB_ROOT_LOGIN}" -p${DB_ROOT_PASSWORD} \
+          "${DB_NAME}" \
           -e "FLUSH PRIVILEGES;"
   fi
 

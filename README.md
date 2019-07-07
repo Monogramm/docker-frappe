@@ -81,7 +81,7 @@ DOCKER_DB_TIMEOUT=120
 
 # MariaDb hosts allowed to log to the DB.
 # Only needed with mariadb when database created by frappe (frappe restricts to install IP by default).
-# In this case, use 172.%.%.% to allow any container on docker network, or % for any host.
+# In this case, use 172.%.%.% to allow any container on docker network
 DOCKER_DB_ALLOWED_HOSTS=
 
 # Time in seconds container will wait for apps to be setup
