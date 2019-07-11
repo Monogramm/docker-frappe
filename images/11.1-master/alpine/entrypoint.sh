@@ -267,7 +267,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "deny_multiple_logins": false,
   "disable_website_cache": false,
   "dns_multitenant": false,
-  "host_name": "${FRAPPE_DEFAULT_SITE}",
+  "host_name": "${FRAPPE_DEFAULT_PROTOCOL}${FRAPPE_DEFAULT_SITE}",
   "serve_default_site": true,
   "frappe_user": "${FRAPPE_USER}",
   "auto_update": false,

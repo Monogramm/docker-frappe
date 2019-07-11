@@ -62,18 +62,18 @@ The image supports auto configuration via environment variables.
 # The docker "node" type. Defines the behavior of the container.
 # This can either be set through command argument or environment variable.
 # Can be one of the following:
-# app
-# setup
-# setup-apps
-# update
-# backup
-# restore
-# migrate
-# scheduler
-# worker-default
-# worker-long
-# worker-short
-# node-socketio
+#   app
+#   setup
+#   setup-apps
+#   update
+#   backup
+#   restore
+#   migrate
+#   scheduler
+#   worker-default
+#   worker-long
+#   worker-short
+#   node-socketio
 NODE_TYPE=
 
 # Time in seconds container will wait for DB to be up
@@ -101,6 +101,9 @@ DOCKER_GUNICORN_TIMEOUT=120
 # List of frappe apps (space separated) to init on startup (bench install-app)
 FRAPPE_APP_INIT=
 
+# Default protocol (should either be empty, or http:// or https:// when using SSL)
+FRAPPE_DEFAULT_PROTOCOL=
+
 # Default site
 FRAPPE_DEFAULT_SITE=
 
@@ -108,6 +111,10 @@ FRAPPE_DEFAULT_SITE=
 FRAPPE_RESET_SITES=
 
 FRAPPE_LOGGING=1
+
+GOOGLE_ANALYTICS_ID=
+
+DEVELOPER_MODE=0
 
 ADMIN_PASSWORD=frappe
 
