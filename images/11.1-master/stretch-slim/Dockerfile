@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v11.1.39
+    FRAPPE_BRANCH=v11.1.41
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -85,6 +85,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     DOCKER_GUNICORN_WORKERS=4 \
     DOCKER_GUNICORN_TIMEOUT=120 \
     FRAPPE_APP_INIT= \
+    FRAPPE_DEFAULT_PROTOCOL=http:// \
     FRAPPE_DEFAULT_SITE= \
     FRAPPE_RESET_SITES= \
     FRAPPE_LOGGING=1 \
