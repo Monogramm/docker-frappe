@@ -101,7 +101,7 @@ DOCKER_GUNICORN_TIMEOUT=120
 # List of frappe apps (space separated) to init on startup (bench install-app)
 FRAPPE_APP_INIT=
 
-# Default protocol (should either be empty or http:// or https:// when using SSL)
+# Default protocol (should either be empty, or http:// or https:// when using SSL)
 FRAPPE_DEFAULT_PROTOCOL=
 
 # Default site
