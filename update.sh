@@ -71,6 +71,22 @@ for latest in "${latestsFrappe[@]}"; do
 				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
+				# Copy the shell scripts
+				for name in entrypoint.sh redis_cache.conf nginx.conf .env install_private_app.sh; do
+					cp "docker-$name" "$dir/$name"
+					chmod 755 "$dir/$name"
+					sed -i \
+						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
+					"$dir/$name"
+				done
+
+				cp ".dockerignore" "$dir/.dockerignore"
+
+				case $frappe in
+					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
+					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
+				esac
+
 				template="Dockerfile-${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
 
@@ -101,29 +117,15 @@ for latest in "${latestsFrappe[@]}"; do
 					sed -ri -e '
 						s/%%VERSION%%/'"$latest"'/g;
 						s/%%BRANCH%%/'"$bench"'/g;
-					' "$dir/Dockerfile"
+						s/%%FRAPPE_VERSION%%/'"$major"'/g;
+					' "$dir/Dockerfile" "$dir/docker-compose.yml"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
 						s/%%BRANCH%%/'"$bench"'/g;
-					' "$dir/Dockerfile"
+						s/%%FRAPPE_VERSION%%/'"$major"'/g;
+					' "$dir/Dockerfile" "$dir/docker-compose.yml"
 				fi
-
-				# Copy the shell scripts
-				for name in entrypoint.sh redis_cache.conf nginx.conf .env install_private_app.sh; do
-					cp "docker-$name" "$dir/$name"
-					chmod 755 "$dir/$name"
-					sed -i \
-						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
-					"$dir/$name"
-				done
-
-				cp ".dockerignore" "$dir/.dockerignore"
-
-				case $frappe in
-					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
-					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
-				esac
 
 				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
