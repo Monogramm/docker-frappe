@@ -18,7 +18,7 @@ pip_install() {
   log "Install apps python packages..."
 
   cd "${FRAPPE_WD}"
-  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip3 install -q -e "apps/$file" --no-cache-dir; fi; done
+  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip install -q -e "apps/$file" --no-cache-dir; fi; done
 
   log "Apps python packages installed"
 }
