@@ -41,16 +41,20 @@ https://hub.docker.com/r/monogramm/docker-frappe/
 
 * Frappe develop branch
     - `develop-alpine` `develop`
-    - `develop-debian` `develop-stretch`
-    - `develop-debian-slim` `develop-stretch-slim`
+    - `develop-debian`
+    - `develop-debian-slim`
+* Frappe 12
+    - `12-alpine` `12` `alpine` `latest`
+    - `12-debian` `debian`
+    - `12-debian-slim` `debian-slim`
 * Frappe 11
-    - `11-alpine` `11` `alpine` `latest`
-    - `11-debian` `debian` `11-stretch` `stretch`
-    - `11-debian-slim` `debian-slim` `11-stretch-slim` `stretch-slim`
+    - `11-alpine` `11` `alpine`
+    - `11-debian` `debian`
+    - `11-debian-slim` `debian-slim`
 * Frappe 10 (branch 10.x.x for latest bug fixes)
     - `10-alpine` `10`
-    - `10-debian` `10-stretch`
-    - `10-debian-slim` `10-stretch-slim`
+    - `10-debian`
+    - `10-debian-slim`
 
 # Auto configuration via environment variables
 
@@ -209,4 +213,8 @@ A list of a few issues encountered during the development of this container for 
     * _References_:
         * https://discuss.erpnext.com/t/easy-install-for-v10-no-longer-works-fails-every-time-w-same-error-multiple-os/47899/14
         * https://github.com/frappe/frappe/pull/7286
+* New site fails while migrating the DocType: DocField with postgres database:
+    * _Solution_: none so far...
+    * _References_:
+        * https://github.com/frappe/frappe/issues/8093
 
