@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=develop
+    FRAPPE_BRANCH=v12.0.4
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \

@@ -94,11 +94,13 @@ for latest in "${latestsFrappe[@]}"; do
 				if [ "$major" = "10" ]; then
 					sed -ri -e '
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
+						s/%%PYTHON_VERSION%%/2/g;
 						s/%%PIP_VERSION%%//g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%PYTHON_VERSION%%/3/g;
 						s/%%PIP_VERSION%%/3/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi

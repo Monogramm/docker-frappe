@@ -5,7 +5,7 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v11.1.41
+    FRAPPE_BRANCH=v11.1.48
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
@@ -44,10 +44,14 @@ RUN set -ex; \
 
 # Setup Frappe
 RUN set -ex; \
-    bench init --frappe-branch $FRAPPE_BRANCH --no-auto-update --skip-redis-config-generation frappe-bench; \
+    bench init \
+        --frappe-branch $FRAPPE_BRANCH \
+        --no-auto-update \
+        --python $(which python3) \
+        --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
-    bench setup env; \
+    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
 # Alternative: replace previous run by this for manual install
