@@ -49,3 +49,6 @@ env: # Environments
   - VERSION=11.1 BENCH=master VARIANT=alpine
   - VERSION=11.1 BENCH=master VARIANT=stretch-slim
   - VERSION=11.1 BENCH=master VARIANT=stretch
+  - VERSION=12.0 BENCH=master VARIANT=alpine
+  - VERSION=12.0 BENCH=master VARIANT=stretch-slim
+  - VERSION=12.0 BENCH=master VARIANT=stretch
