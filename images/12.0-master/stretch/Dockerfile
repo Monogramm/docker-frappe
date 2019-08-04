@@ -44,7 +44,11 @@ RUN set -ex; \
 
 # Setup Frappe
 RUN set -ex; \
-    bench init --frappe-branch $FRAPPE_BRANCH --no-auto-update --skip-redis-config-generation frappe-bench; \
+    bench init \
+        --frappe-branch $FRAPPE_BRANCH \
+        --no-auto-update \
+        --python $(which python3) \
+        --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     bench setup env; \
