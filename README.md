@@ -48,9 +48,9 @@ https://hub.docker.com/r/monogramm/docker-frappe/
     - `12-debian` `debian`
     - `12-debian-slim` `debian-slim`
 * Frappe 11
-    - `11-alpine` `11` `alpine`
-    - `11-debian` `debian`
-    - `11-debian-slim` `debian-slim`
+    - `11-alpine` `11`
+    - `11-debian`
+    - `11-debian-slim`
 * Frappe 10 (branch 10.x.x for latest bug fixes)
     - `10-alpine` `10`
     - `10-debian`
