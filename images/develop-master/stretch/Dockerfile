@@ -51,7 +51,7 @@ RUN set -ex; \
         --skip-redis-config-generation frappe-bench; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
-    bench setup env; \
+    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
 # Alternative: replace previous run by this for manual install
