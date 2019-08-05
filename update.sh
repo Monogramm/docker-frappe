@@ -72,15 +72,13 @@ for latest in "${latestsFrappe[@]}"; do
 				mkdir -p "$dir"
 
 				# Copy the shell scripts
-				for name in entrypoint.sh redis_cache.conf nginx.conf .env install_private_app.sh; do
+				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
 					cp "docker-$name" "$dir/$name"
 					chmod 755 "$dir/$name"
 					sed -i \
 						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
 					"$dir/$name"
 				done
-
-				cp ".dockerignore" "$dir/.dockerignore"
 
 				case $frappe in
 					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
@@ -89,6 +87,9 @@ for latest in "${latestsFrappe[@]}"; do
 
 				template="Dockerfile-${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
+
+				cp ".dockerignore" "$dir/.dockerignore"
+				cp -r "./hooks" "$dir/hooks"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
@@ -118,13 +119,13 @@ for latest in "${latestsFrappe[@]}"; do
 				if [ "$latest" = "develop" ]; then
 					sed -ri -e '
 						s/%%VERSION%%/'"$latest"'/g;
-						s/%%BRANCH%%/'"$bench"'/g;
+						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" "$dir/docker-compose.yml"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
-						s/%%BRANCH%%/'"$bench"'/g;
+						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" "$dir/docker-compose.yml"
 				fi
