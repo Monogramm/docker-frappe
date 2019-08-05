@@ -71,7 +71,6 @@ RUN set -ex; \
 
 # Copy docker entrypoint and private install script
 ADD ./entrypoint.sh /entrypoint.sh
-ADD install_private_app.sh /home/$FRAPPE_USER/install_private_app.sh
 
 VOLUME /home/frappe/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
@@ -81,7 +80,6 @@ VOLUME /home/frappe/bench-repo \
 RUN set -ex; \
     sudo chmod +x \
         /entrypoint.sh \
-        /home/$FRAPPE_USER/install_private_app.sh \
     ; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
     sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
