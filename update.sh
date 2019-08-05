@@ -80,8 +80,6 @@ for latest in "${latestsFrappe[@]}"; do
 					"$dir/$name"
 				done
 
-				cp ".dockerignore" "$dir/.dockerignore"
-
 				case $frappe in
 					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
 					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
@@ -89,6 +87,9 @@ for latest in "${latestsFrappe[@]}"; do
 
 				template="Dockerfile-${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
+
+				cp ".dockerignore" "$dir/.dockerignore"
+				cp -r "./hooks" "$dir/hooks"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
@@ -118,13 +119,13 @@ for latest in "${latestsFrappe[@]}"; do
 				if [ "$latest" = "develop" ]; then
 					sed -ri -e '
 						s/%%VERSION%%/'"$latest"'/g;
-						s/%%BRANCH%%/'"$bench"'/g;
+						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" "$dir/docker-compose.yml"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
-						s/%%BRANCH%%/'"$bench"'/g;
+						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" "$dir/docker-compose.yml"
 				fi

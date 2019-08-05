@@ -1,11 +1,26 @@
 FROM monogramm/docker-frappe-base:stretch-slim
 
-LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
+ARG VCS_REF
+ARG BUILD_DATE
+ARG VERSION=v11.1.48
+
+LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
+      product="Frappe" \
+      version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name="Frappe" \
+      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
+      org.label-schema.url="https://frappe.io/" \
+      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v11.1.48
+    FRAPPE_BRANCH=${VERSION}
 
 RUN groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \

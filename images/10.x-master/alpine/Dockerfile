@@ -1,11 +1,26 @@
 FROM monogramm/docker-frappe-base:2.7-alpine
 
-LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>"
+ARG VCS_REF
+ARG BUILD_DATE
+ARG VERSION=v10.x.x
+
+LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
+      product="Frappe" \
+      version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name="Frappe" \
+      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
+      org.label-schema.url="https://frappe.io/" \
+      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_BRANCH=v10.x.x
+    FRAPPE_BRANCH=${VERSION}
 
 RUN addgroup -S $FRAPPE_USER; \
     adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
