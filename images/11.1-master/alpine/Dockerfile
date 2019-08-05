@@ -73,11 +73,21 @@ RUN set -ex; \
 ADD ./entrypoint.sh /entrypoint.sh
 ADD install_private_app.sh /home/$FRAPPE_USER/install_private_app.sh
 
+VOLUME /home/frappe/bench-repo \
+    /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites
+
 # Set permissions
 RUN set -ex; \
     sudo chmod +x \
         /entrypoint.sh \
         /home/$FRAPPE_USER/install_private_app.sh \
+    ; \
+    sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
+    sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
+    sudo chmod +rw \
+        "/home/$FRAPPE_USER"/frappe-bench/logs \
+        "/home/$FRAPPE_USER"/frappe-bench/logs/* \
     ;
 
 # Runtime environment variables
@@ -85,9 +95,11 @@ ENV DOCKER_DB_TIMEOUT=120 \
     DOCKER_DB_ALLOWED_HOSTS= \
     DOCKER_APPS_TIMEOUT=600 \
     DOCKER_SITES_TIMEOUT=900 \
+    DOCKER_GUNICORN_BIND_ADDRESS=0.0.0.0 \
     DOCKER_GUNICORN_PORT=8000 \
     DOCKER_GUNICORN_WORKERS=4 \
     DOCKER_GUNICORN_TIMEOUT=120 \
+    DOCKER_GUNICORN_LOGLEVEL=info \
     FRAPPE_APP_INIT= \
     FRAPPE_DEFAULT_PROTOCOL= \
     FRAPPE_DEFAULT_SITE= \
@@ -117,10 +129,6 @@ ENV DOCKER_DB_TIMEOUT=120 \
     REDIS_CACHE_HOST=redis_cache \
     REDIS_QUEUE_HOST=redis_queue \
     REDIS_SOCKETIO_HOST=redis_socketio
-
-VOLUME /home/frappe/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites
 
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 

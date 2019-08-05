@@ -94,9 +94,18 @@ DOCKER_APPS_TIMEOUT=600
 # Time in seconds container will wait for sites to be setup
 DOCKER_SITES_TIMEOUT=900
 
+DOCKER_GUNICORN_BIND_ADDRESS=0.0.0.0
 DOCKER_GUNICORN_PORT=8000
 DOCKER_GUNICORN_WORKERS=4
 DOCKER_GUNICORN_TIMEOUT=120
+DOCKER_GUNICORN_LOGLEVEL=info
+
+# If you want to enable SSL for ERPNext App
+# If using Let's Encrypt, you should set properties like this:
+#   certfile=/etc/letsencrypt/live/my.domain.com/fullchain.pem
+#   keyfile=/etc/letsencrypt/live/my.domain.com/privkey.pem
+DOCKER_GUNICORN_CERTFILE=
+DOCKER_GUNICORN_KEYFILE=
 ```
 
 ## Frappe configuration
