@@ -72,12 +72,22 @@ bench_app() {
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 
+
   log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
   cd "${FRAPPE_WD}/sites"
+
+  GUNICORN_ARGS="-t ${DOCKER_GUNICORN_TIMEOUT} --workers ${GUNICDOCKER_GUNICORN_WORKERSORN_WORKERS} --bind ${DOCKER_GUNICORN_BIND_ADDRESS}:${DOCKER_GUNICORN_PORT} --log-level ${DOCKER_GUNICORN_LOGLEVEL}"
+
+  if [ -n  "${DOCKER_GUNICORN_CERTFILE}" ]; then
+    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --certfile=${DOCKER_GUNICORN_CERTFILE}"
+  fi
+
+  if [ -n  "${DOCKER_GUNICORN_KEYFILE}" ]; then
+    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --keyfile=${DOCKER_GUNICORN_KEYFILE}"
+  fi
+
   "${FRAPPE_WD}/env/bin/gunicorn" \
-    -b "0.0.0.0:${DOCKER_GUNICORN_PORT}" \
-    -w "${DOCKER_GUNICORN_WORKERS}" \
-    -t "${DOCKER_GUNICORN_TIMEOUT}" \
+     $GUNICORN_ARGS \
     frappe.app:application --preload \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
