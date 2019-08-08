@@ -19,9 +19,9 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       org.label-schema.schema-version="1.0"
 
 # Build environment variables
-ENV DOCKER_TAG=frappe \
+ENV DOCKER_TAG=${TAG} \
     DOCKER_VCS_REF=${VCS_REF} \
-    DOCKER_BUILD_DATE=frappe \
+    DOCKER_BUILD_DATE=${BUILD_DATE} \
     FRAPPE_USER=frappe \
     BENCH_BRANCH=%%BENCH_BRANCH%% \
     FRAPPE_BRANCH=${VERSION}
