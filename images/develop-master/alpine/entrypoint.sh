@@ -184,6 +184,12 @@ bench_restore() {
   done
 }
 
+bench_setup_requirements() {
+  log "Starting setup of requirements..."
+  bench setup requirements $@
+  log "Requirements setup Finished"
+}
+
 bench_migrate() {
   log "Starting migration..."
   bench migrate $@
@@ -353,14 +359,25 @@ fi
 
 
 
-# Frappe automatic app setup
-if [ -n "${FRAPPE_APP_INIT}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; then
+if [ -n "${FRAPPE_APP_INIT}" ]; then
 
-  # Call bench setup for app
-  bench_setup "${FRAPPE_APP_INIT}"
+  # Frappe automatic app setup
+  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; then
 
-  echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
-  log "Docker Frappe automatic app setup ended"
+    # Call bench setup for app
+    bench_setup "${FRAPPE_APP_INIT}"
+
+    echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
+    log "Docker Frappe automatic app setup ended"
+
+  fi
+
+  # Frappe automatic app migration (based on container build properties)
+  if [ ! -f "${FRAPPE_WD}/sites/.docker-init" ] || ! grep "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
+    bench_setup_requirements
+    bench_migrate
+  fi
+  echo "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" > "${FRAPPE_WD}/sites/.docker-init"
 
 fi
 
