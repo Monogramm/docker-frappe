@@ -1,8 +1,9 @@
 FROM monogramm/docker-frappe-base:stretch
 
+ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v12.0.4
+ARG VERSION=v12.0.5
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
@@ -18,7 +19,10 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       org.label-schema.schema-version="1.0"
 
 # Build environment variables
-ENV FRAPPE_USER=frappe \
+ENV DOCKER_TAG=${TAG} \
+    DOCKER_VCS_REF=${VCS_REF} \
+    DOCKER_BUILD_DATE=${BUILD_DATE} \
+    FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
     FRAPPE_BRANCH=${VERSION}
 
