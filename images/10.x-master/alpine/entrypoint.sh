@@ -397,5 +397,5 @@ case "${NODE_TYPE}" in
   ("worker-long") bench_worker long ;;
   ("worker-short") bench_worker short ;;
   ("node-socketio") bench_socketio ;;
-  (*) ;;
+  (*) exec "$@" ;;
 esac
