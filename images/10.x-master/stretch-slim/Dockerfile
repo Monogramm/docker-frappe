@@ -33,7 +33,7 @@ RUN groupadd -r $FRAPPE_USER; \
 USER $FRAPPE_USER
 WORKDIR /home/$FRAPPE_USER
 
-# Setup Bench
+# Setup Bench and Frappe
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
@@ -59,15 +59,14 @@ RUN set -ex; \
         babel-preset-env \
         touch \
     ; \
-    bench setup socketio
-
-# Setup Frappe
-RUN set -ex; \
+    bench setup socketio; \
     bench init \
         --frappe-branch $FRAPPE_BRANCH \
         --no-auto-update \
         --python $(which python2) \
-        --skip-redis-config-generation frappe-bench; \
+        --skip-redis-config-generation frappe-bench \
+    ; \
+    rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python2) ; \
