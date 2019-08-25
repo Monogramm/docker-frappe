@@ -1,6 +1,33 @@
 version: "2"
 
 services:
+  # https://docs.docker.com/docker-hub/builds/automated-testing/
+  sut:
+    build:
+      context: ./
+      dockerfile: Dockerfile.${VARIANT}
+    command: bench run-tests --profile
+    container_name: sut
+    depends_on:
+      - frappe_db
+      - frappe_app
+      - frappe_web
+      - frappe_scheduler
+      - frappe_worker_default
+      - frappe_worker_long
+      - frappe_worker_short
+      - frappe_socketio
+      - frappe_redis_cache
+      - frappe_redis_queue
+      - frappe_redis_socketio
+    environment:
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+    volumes:
+      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
   frappe_app:
     # For development or CI, build from local Dockerfile
     build: ./
