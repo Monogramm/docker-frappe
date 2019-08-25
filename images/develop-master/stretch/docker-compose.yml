@@ -6,7 +6,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    command: bench run-tests --profile
+    command: /.docker_test.sh
     container_name: sut
     depends_on:
       - frappe_db
