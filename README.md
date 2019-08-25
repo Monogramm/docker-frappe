@@ -69,7 +69,8 @@ The image supports auto configuration via environment variables.
 # Can be one of the following:
 #   app
 #   setup
-#   setup-apps
+#   setup-database
+#   build-apps
 #   update
 #   backup
 #   restore
