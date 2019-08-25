@@ -3,7 +3,7 @@ FROM monogramm/docker-frappe-base:stretch-slim
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v12.0.5
+ARG VERSION=v12.0.8
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
@@ -88,7 +88,7 @@ RUN set -ex; \
 #    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
 # Copy docker entrypoint and private install script
-ADD ./entrypoint.sh /entrypoint.sh
+ADD ./entrypoint.sh ./docker_test.sh /
 
 VOLUME /home/frappe/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
@@ -98,6 +98,7 @@ VOLUME /home/frappe/bench-repo \
 RUN set -ex; \
     sudo chmod +x \
         /entrypoint.sh \
+        /docker_test.sh \
     ; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
     sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
