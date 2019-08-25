@@ -93,14 +93,14 @@ bench_app() {
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
-bench_setup_apps() {
-  log "Setup existing apps..."
-
-  cd "${FRAPPE_WD}"
-  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ]; then bench install-app "$file"; fi; done
-
+bench_build_apps() {
   log "Building apps assets..."
   bench build
+  log "Apps assets build Finished"
+}
+
+bench_setup_database() {
+  log "Setup database..."
 
   if [ "${DB_TYPE}" = "mariadb" ] && [ -n "${DOCKER_DB_ALLOWED_HOSTS}" ]; then
     log "Updating MariaDB users allowed hosts..."
@@ -122,7 +122,7 @@ bench_setup_apps() {
           -e "FLUSH PRIVILEGES;"
   fi
 
-  log "Setup Finished"
+  log "Database setup Finished"
 }
 
 bench_setup() {
@@ -141,7 +141,8 @@ bench_setup() {
     log "No app specified to reinstall"
   fi
 
-  bench_setup_apps
+  bench_build_apps
+  bench_setup_database
 }
 
 bench_update() {
@@ -387,7 +388,8 @@ fi
 case "${NODE_TYPE}" in
   ("app") wait_db; pip_install; bench_app ;;
   ("setup") pip_install; bench_setup ${@:2} ;;
-  ("setup-apps") pip_install; bench_setup_apps ;;
+  ("setup-database") bench_setup_database ;;
+  ("build-apps") pip_install; bench_build_apps ;;
   ("update") bench_update ${@:2} ;;
   ("backup") bench_backup ${@:2} ;;
   ("restore") bench_restore ${@:2} ;;
