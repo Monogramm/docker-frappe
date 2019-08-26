@@ -37,7 +37,7 @@ wait_apps() {
   s=10
   l=${DOCKER_APPS_TIMEOUT}
   while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
-      log "Waiting..."
+      log "Waiting apps..."
       sleep "$s"
 
       i="$(($i+$s))"
@@ -55,12 +55,30 @@ wait_sites() {
   s=10
   l=${DOCKER_SITES_TIMEOUT}
   while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
-      log "Waiting..."
+      log "Waiting site..."
       sleep "$s"
 
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
+          exit 1
+      fi
+  done
+}
+
+wait_container() {
+  log "Waiting for docker container init..."
+
+  i=0
+  s=10
+  l=${DOCKER_INIT_TIMEOUT}
+  while [ ! -f "${FRAPPE_WD}/sites/.docker-init" ]; do
+      log "Waiting init..."
+      sleep "$s"
+
+      i="$(($i+$s))"
+      if [ "$i" = "$l" ]; then
+          log 'Container was not initialized in time!'
           exit 1
       fi
   done
@@ -253,7 +271,9 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
 
 else
   # Wait for another node to setup apps and sites
+  wait_sites
   wait_apps
+  wait_container
 fi
 
 
