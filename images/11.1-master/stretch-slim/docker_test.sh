@@ -4,10 +4,10 @@ echo "Waiting to ensure everything is fully ready for the tests..."
 sleep 60
 
 echo "Checking content of sites directory..."
-if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]
-    || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]
-    || [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]
-    || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]
+if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] \
+    || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] \
+    || [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] \
+    || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ] \
     || [ ! -f "${FRAPPE_WD}/sites/.docker-init" ]; then
     echo 'Apps and site are not initalized!'
     exit 1
