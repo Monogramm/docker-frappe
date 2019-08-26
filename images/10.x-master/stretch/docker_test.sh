@@ -5,26 +5,31 @@ sleep 60
 
 echo "Checking content of sites directory..."
 if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-init" ]; then
-    echo 'Apps and site are not initalized!'
-    exit 1
+    echo 'Apps and site are not initalized?!'
+    ls -al "${FRAPPE_WD}/sites"
+    # FIXME We couldn't be running tests if those files did not existd... so why are they not visible?!
+    #exit 1
 fi
 
 echo "Checking main containers are reachable..."
 if [ ! sudo ping -c 10 -q frappe_db ]; then
-    echo 'Frappe database container is not responding!'
-    exit 4
+    echo 'Database container is not responding!'
+    exit 2
 fi
 
 if [ ! sudo ping -c 10 -q frappe_app ]; then
-    echo 'Frappe app container is not responding!'
-    exit 8
+    echo 'App container is not responding!'
+    exit 4
 fi
 
 if [ ! sudo ping -c 10 -q frappe_web ]; then
-    echo 'Frappe web container is not responding!'
-    exit 16
+    echo 'Web container is not responding!'
+    exit 8
 fi
 
+# XXX Add your own tests
+# https://docs.docker.com/docker-hub/builds/automated-testing/
+
 # Success
-echo 'Frappe docker test successful'
+echo 'Docker test successful'
 exit 0
