@@ -3,9 +3,7 @@ version: "2"
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
   sut:
-    build:
-      context: ./
-      dockerfile: Dockerfile
+    build: .
     command: sh /docker_test.sh
     container_name: sut
     depends_on:
