@@ -89,8 +89,8 @@ for latest in "${latestsFrappe[@]}"; do
 				cp "$template" "$dir/Dockerfile"
 
 				cp ".dockerignore" "$dir/.dockerignore"
-				cp "docker_test.sh" "$dir/docker_test.sh"
 				cp -r "./hooks" "$dir/hooks"
+				cp -r "./test" "$dir/"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then

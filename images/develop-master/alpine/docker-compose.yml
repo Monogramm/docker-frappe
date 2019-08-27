@@ -3,9 +3,9 @@ version: "2"
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
   sut:
-    build: .
-    command: sh /docker_test.sh
-    container_name: sut
+    build:
+      context: ./test
+      dockerfile: Dockerfile
     depends_on:
       - frappe_db
       - frappe_app
