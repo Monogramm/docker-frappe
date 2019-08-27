@@ -292,6 +292,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
   ;
 
   # Init common site config
@@ -354,12 +355,7 @@ EOF
     log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
     sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
       "${FRAPPE_WD}/sites/assets" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"* \
     ;
     ls -al "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"
 
