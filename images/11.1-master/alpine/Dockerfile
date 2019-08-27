@@ -88,7 +88,7 @@ RUN set -ex; \
 #    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
 # Copy docker entrypoint and private install script
-ADD ./entrypoint.sh ./docker_test.sh /
+ADD ./entrypoint.sh /
 
 VOLUME /home/frappe/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
@@ -98,7 +98,6 @@ VOLUME /home/frappe/bench-repo \
 RUN set -ex; \
     sudo chmod +x \
         /entrypoint.sh \
-        /docker_test.sh \
     ; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
     sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
