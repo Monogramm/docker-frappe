@@ -4,8 +4,10 @@ set -e
 # Container node type. Can be set by command argument or env var
 NODE_TYPE=${NODE_TYPE:-${1}}
 
-# Frappe working directory (frappe user set at build time)
-FRAPPE_WD="/home/frappe/frappe-bench"
+# Frappe user
+FRAPPE_USER=frappe
+# Frappe working directory
+FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
 # -------------------------------------------------------------------
 # Frappe Bench management functions
@@ -247,8 +249,8 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
 fi
 
 
-log "Setup folders and files owner to frappe..."
-sudo chown -R "frappe:frappe" \
+log "Setup folders and files owner to ${FRAPPE_USER}..."
+sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
   "${FRAPPE_WD}/sites" \
   "${FRAPPE_WD}/logs"
 
@@ -291,7 +293,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
   ;
-  sudo chown -R "frappe:frappe" \
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/sites/assets" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
@@ -299,6 +301,8 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+  ;
+  ls -al "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"
 
   # Init common site config
   if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
@@ -314,7 +318,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "dns_multitenant": false,
   "host_name": "${FRAPPE_DEFAULT_PROTOCOL}${FRAPPE_DEFAULT_SITE}",
   "serve_default_site": true,
-  "frappe_user": "frappe",
+  "frappe_user": "${FRAPPE_USER}",
   "auto_update": false,
   "update_bench_on_update": true,
   "shallow_clone": true,
