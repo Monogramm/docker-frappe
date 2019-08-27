@@ -88,7 +88,7 @@ RUN set -ex; \
 #    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
 # Copy docker entrypoint and private install script
-ADD ./entrypoint.sh ./docker_test.sh /
+ADD ./entrypoint.sh /
 
 VOLUME /home/frappe/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
@@ -98,7 +98,6 @@ VOLUME /home/frappe/bench-repo \
 RUN set -ex; \
     sudo chmod +x \
         /entrypoint.sh \
-        /docker_test.sh \
     ; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
     sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
@@ -110,8 +109,9 @@ RUN set -ex; \
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
     DOCKER_DB_ALLOWED_HOSTS= \
-    DOCKER_APPS_TIMEOUT=600 \
-    DOCKER_SITES_TIMEOUT=900 \
+    DOCKER_APPS_TIMEOUT=900 \
+    DOCKER_SITES_TIMEOUT=600 \
+    DOCKER_INIT_TIMEOUT=120 \
     DOCKER_GUNICORN_BIND_ADDRESS=0.0.0.0 \
     DOCKER_GUNICORN_PORT=8000 \
     DOCKER_GUNICORN_WORKERS=4 \

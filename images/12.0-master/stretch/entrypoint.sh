@@ -4,7 +4,9 @@ set -e
 # Container node type. Can be set by command argument or env var
 NODE_TYPE=${NODE_TYPE:-${1}}
 
-# Frappe working directory (frappe user set at build time)
+# Frappe user
+FRAPPE_USER=frappe
+# Frappe working directory
 FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
 # -------------------------------------------------------------------
@@ -37,7 +39,7 @@ wait_apps() {
   s=10
   l=${DOCKER_APPS_TIMEOUT}
   while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
-      log "Waiting..."
+      log "Waiting apps..."
       sleep "$s"
 
       i="$(($i+$s))"
@@ -55,12 +57,30 @@ wait_sites() {
   s=10
   l=${DOCKER_SITES_TIMEOUT}
   while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
-      log "Waiting..."
+      log "Waiting site..."
       sleep "$s"
 
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
+          exit 1
+      fi
+  done
+}
+
+wait_container() {
+  log "Waiting for docker container init..."
+
+  i=0
+  s=10
+  l=${DOCKER_INIT_TIMEOUT}
+  while [ ! -f "${FRAPPE_WD}/sites/.docker-init" ]; do
+      log "Waiting init..."
+      sleep "$s"
+
+      i="$(($i+$s))"
+      if [ "$i" = "$l" ]; then
+          log 'Container was not initialized in time!'
           exit 1
       fi
   done
@@ -253,7 +273,9 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
 
 else
   # Wait for another node to setup apps and sites
+  wait_sites
   wait_apps
+  wait_container
 fi
 
 
@@ -263,13 +285,14 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
 
   log "Creating default directories for sites/${FRAPPE_DEFAULT_SITE}..."
   mkdir -p \
-      "${FRAPPE_WD}/sites/assets" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+    "${FRAPPE_WD}/sites/assets" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
   ;
 
   # Init common site config
@@ -328,6 +351,11 @@ EOF
   # Init current site
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
+
+    log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
+    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/" \
+    ;
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
