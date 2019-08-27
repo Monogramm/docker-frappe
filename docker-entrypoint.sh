@@ -293,16 +293,6 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
   ;
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-    "${FRAPPE_WD}/sites/assets" \
-    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
-    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
-    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
-    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
-    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
-    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
-  ;
-  ls -al "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"
 
   # Init common site config
   if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
@@ -361,7 +351,18 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
+    log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
+    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/assets" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+    ;
     ls -al "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"
+
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
