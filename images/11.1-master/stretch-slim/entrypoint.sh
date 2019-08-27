@@ -354,10 +354,8 @@ EOF
 
     log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
     sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/sites/assets" \
-      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"* \
+      "${FRAPPE_WD}/" \
     ;
-    ls -al "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
