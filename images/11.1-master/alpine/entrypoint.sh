@@ -5,7 +5,7 @@ set -e
 NODE_TYPE=${NODE_TYPE:-${1}}
 
 # Frappe working directory (frappe user set at build time)
-FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
+FRAPPE_WD="/home/frappe/frappe-bench"
 
 # -------------------------------------------------------------------
 # Frappe Bench management functions
@@ -247,8 +247,8 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
 fi
 
 
-log "Setup folders and files owner to ${FRAPPE_USER}..."
-sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+log "Setup folders and files owner to frappe..."
+sudo chown -R "frappe:frappe" \
   "${FRAPPE_WD}/sites" \
   "${FRAPPE_WD}/logs"
 
@@ -291,7 +291,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
   ;
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+  sudo chown -R "frappe:frappe" \
     "${FRAPPE_WD}/sites/assets" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
@@ -314,7 +314,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "dns_multitenant": false,
   "host_name": "${FRAPPE_DEFAULT_PROTOCOL}${FRAPPE_DEFAULT_SITE}",
   "serve_default_site": true,
-  "frappe_user": "${FRAPPE_USER}",
+  "frappe_user": "frappe",
   "auto_update": false,
   "update_bench_on_update": true,
   "shallow_clone": true,
