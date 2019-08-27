@@ -291,6 +291,9 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
   ;
+  chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites/assets" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/"
 
   # Init common site config
   if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
