@@ -356,10 +356,10 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
-    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/" \
-    ;
+    #log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
+    #sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    #  "${FRAPPE_WD}/sites" \
+    #;
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
