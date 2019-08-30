@@ -5,7 +5,7 @@ set -e
 NODE_TYPE=${NODE_TYPE:-${1}}
 
 # Frappe user
-FRAPPE_USER=frappe
+FRAPPE_USER=${FRAPPE_USER:-frappe}
 # Frappe working directory
 FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
@@ -253,10 +253,10 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
 fi
 
 
-log "Setup folders and files owner to ${FRAPPE_USER}..."
+log "Setup logs folders and files owner to ${FRAPPE_USER}..."
 sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-  "${FRAPPE_WD}/sites" \
-  "${FRAPPE_WD}/logs"
+  "${FRAPPE_WD}/logs" \
+;
 
 
 # Frappe automatic app init
@@ -356,10 +356,11 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    #log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
-    #sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-    #  "${FRAPPE_WD}/sites" \
-    #;
+    # FIXME New bug with Debian where owners is not set properly...
+    log "Setup sites folders and files owner to ${FRAPPE_USER}..."
+    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites" \
+    ;
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
