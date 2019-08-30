@@ -125,6 +125,9 @@ FRAPPE_DEFAULT_SITE=
 # Remove all sites on startup.
 FRAPPE_RESET_SITES=
 
+# Reinstall with database.
+FRAPPE_REINSTALL_DATABASE=
+
 FRAPPE_LOGGING=1
 
 GOOGLE_ANALYTICS_ID=

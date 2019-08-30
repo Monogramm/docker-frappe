@@ -147,7 +147,7 @@ bench_setup_database() {
 
 bench_setup() {
   # Expecting parameters to be a list of apps to (re)install
-  if [ "$#" -ne 0 ]; then
+  if [ "$#" -ne 0 ] || [ -n "${FRAPPE_REINSTALL_DATABASE}" ]; then
     wait_db
 
     log "Reinstalling with fresh database..."
