@@ -45,6 +45,8 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
+          log 'Check the following nodes logs for details:'
+          tail -n 50 "${FRAPPE_WD}/logs/"*.log
           exit 1
       fi
   done
@@ -81,6 +83,8 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
+          log 'Check the following nodes logs for details:'
+          tail -n 50 "${FRAPPE_WD}/logs/"*.log
           exit 1
       fi
   done
@@ -147,7 +151,7 @@ bench_setup_database() {
 
 bench_setup() {
   # Expecting parameters to be a list of apps to (re)install
-  if [ "$#" -ne 0 ]; then
+  if [ "$#" -ne 0 ] || [ -n "${FRAPPE_REINSTALL_DATABASE}" ]; then
     wait_db
 
     log "Reinstalling with fresh database..."

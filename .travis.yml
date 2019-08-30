@@ -31,6 +31,7 @@ script:
   - docker-compose ps "frappe_db" | grep "Up"
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose ps "frappe_web" | grep "Up"
+  - docker-compose ps "sut" | grep "Exit 0"
   # Test container restart
   - docker-compose down
   - travis_retry docker-compose up -d && sleep 60
@@ -39,6 +40,8 @@ script:
   - docker-compose ps "frappe_db" | grep "Up"
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose ps "frappe_web" | grep "Up"
+  - echo 'Wait until test finished (1-2 minutes)' && sleep 90
+  - docker-compose ps "sut" | grep "Exit 0"
 
 notifications:
   email: false
