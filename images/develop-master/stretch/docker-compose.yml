@@ -22,6 +22,8 @@ services:
       - frappe_redis_queue
       - frappe_redis_socketio
     environment:
+      # Container setup
+      - NODE_TYPE=test
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
     volumes:

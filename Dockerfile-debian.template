@@ -26,7 +26,8 @@ ENV DOCKER_TAG=${TAG} \
     BENCH_BRANCH=%%BENCH_BRANCH%% \
     FRAPPE_BRANCH=${VERSION}
 
-RUN groupadd -r $FRAPPE_USER; \
+RUN set -ex; \
+    groupadd -r $FRAPPE_USER; \
     useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
     echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
@@ -90,7 +91,7 @@ RUN set -ex; \
 # Copy docker entrypoint and private install script
 ADD ./entrypoint.sh /
 
-VOLUME /home/frappe/bench-repo \
+VOLUME /home/$FRAPPE_USER/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
     /home/$FRAPPE_USER/frappe-bench/sites
 
@@ -104,6 +105,9 @@ RUN set -ex; \
     sudo chmod +rw \
         "/home/$FRAPPE_USER"/frappe-bench/logs \
         "/home/$FRAPPE_USER"/frappe-bench/logs/* \
+    ; \
+    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+        "/home/$FRAPPE_USER/frappe-bench" \
     ;
 
 # Runtime environment variables

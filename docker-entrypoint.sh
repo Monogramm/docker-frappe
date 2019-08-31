@@ -5,7 +5,7 @@ set -e
 NODE_TYPE=${NODE_TYPE:-${1}}
 
 # Frappe user
-FRAPPE_USER=frappe
+FRAPPE_USER=${FRAPPE_USER:-frappe}
 # Frappe working directory
 FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
@@ -253,18 +253,27 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
 fi
 
 
-log "Setup folders and files owner to ${FRAPPE_USER}..."
+log "Setup logs folders and files owner to ${FRAPPE_USER}..."
 sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-  "${FRAPPE_WD}/sites" \
-  "${FRAPPE_WD}/logs"
+  "${FRAPPE_WD}/logs" \
+;
 
 
 # Frappe automatic app init
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
+  log "Setup sites folders and files owner to ${FRAPPE_USER}..."
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites" \
+  ;
+
   # Init apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
     log "Adding frappe to apps.txt..."
+    sudo touch "${FRAPPE_WD}/sites/apps.txt"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/apps.txt" \
+    ;
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
   fi
 
@@ -298,10 +307,24 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
   ;
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites/assets" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
+  ;
 
   # Init common site config
   if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
     log "Creating common site config..."
+    sudo touch "${FRAPPE_WD}/sites/common_site_config.json"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/common_site_config.json" \
+    ;
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
   "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
@@ -350,15 +373,19 @@ EOF
     cp \
       "${FRAPPE_WD}/sites/common_site_config.json" \
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" \
+    ;
   fi
 
   # Init current site
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    log "Ensure ${FRAPPE_USER} has permissions on sites/${FRAPPE_DEFAULT_SITE}..."
+    # FIXME New bug with Debian where owners is not set properly...
+    log "Setup sites folders and files owner to ${FRAPPE_USER}..."
     sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/" \
+      "${FRAPPE_WD}/sites" \
     ;
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
@@ -377,6 +404,10 @@ EOF
     fi
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
+    sudo touch "${FRAPPE_WD}/sites/currentsite.txt"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/currentsite.txt" \
+    ;
     echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
   fi
 
