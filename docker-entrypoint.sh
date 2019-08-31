@@ -253,6 +253,12 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
 fi
 
 
+log "Setup logs folders and files owner to ${FRAPPE_USER}..."
+sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+  "${FRAPPE_WD}/logs" \
+;
+
+
 # Frappe automatic app init
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
@@ -438,12 +444,6 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   echo "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" > "${FRAPPE_WD}/sites/.docker-init"
 
 fi
-
-
-log "Setup logs folders and files owner to ${FRAPPE_USER}..."
-sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-  "${FRAPPE_WD}/logs" \
-;
 
 
 
