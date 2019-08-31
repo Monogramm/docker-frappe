@@ -256,9 +256,18 @@ fi
 # Frappe automatic app init
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
+  log "Setup sites folders and files owner to ${FRAPPE_USER}..."
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites" \
+  ;
+
   # Init apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
     log "Adding frappe to apps.txt..."
+    sudo touch "${FRAPPE_WD}/sites/apps.txt"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/apps.txt" \
+    ;
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
   fi
 
@@ -292,10 +301,24 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
   ;
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites/assets" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/files" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/public/files" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
+    "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
+  ;
 
   # Init common site config
   if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
     log "Creating common site config..."
+    sudo touch "${FRAPPE_WD}/sites/common_site_config.json"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/common_site_config.json" \
+    ;
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
   "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
@@ -344,6 +367,9 @@ EOF
     cp \
       "${FRAPPE_WD}/sites/common_site_config.json" \
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/site_config.json" \
+    ;
   fi
 
   # Init current site
@@ -372,6 +398,10 @@ EOF
     fi
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
+    sudo touch "${FRAPPE_WD}/sites/currentsite.txt"
+    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+      "${FRAPPE_WD}/sites/currentsite.txt" \
+    ;
     echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
   fi
 
