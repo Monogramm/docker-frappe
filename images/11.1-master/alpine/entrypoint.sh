@@ -368,7 +368,7 @@ EOF
       "${FRAPPE_WD}/sites/common_site_config.json" \
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/sites/site_config.json" \
+      "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" \
     ;
   fi
 
