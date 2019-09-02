@@ -42,6 +42,10 @@ script:
   - docker-compose ps "frappe_web" | grep "Up"
   - echo 'Wait until test finished (1-2 minutes)' && sleep 90
   - docker-compose ps "sut" | grep "Exit 0"
+  # Test container backup, restore and migrate
+  - docker-compose run --rm "frappe_app" backup
+  - docker-compose run --rm "frappe_app" restore
+  - docker-compose run --rm "frappe_app" migrate
 
 notifications:
   email: false
