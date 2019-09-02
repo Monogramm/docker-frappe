@@ -16,6 +16,8 @@ log() {
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
 }
 
+
+
 pip_install() {
   log "Install apps python packages..."
 
@@ -450,13 +452,13 @@ fi
 # Execute task based on node type
 case "${NODE_TYPE}" in
   ("app") wait_db; pip_install; bench_app ;;
-  ("setup") pip_install; bench_setup ${@:2} ;;
+  ("setup") pip_install; shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
   ("build-apps") pip_install; bench_build_apps ;;
-  ("update") bench_update ${@:2} ;;
-  ("backup") bench_backup ${@:2} ;;
-  ("restore") bench_restore ${@:2} ;;
-  ("migrate") bench_migrate ${@:2} ;;
+  ("update") shift; bench_update $@ ;;
+  ("backup") shift; bench_backup $@ ;;
+  ("restore") shift; bench_restore $@ ;;
+  ("migrate") shift; bench_migrate $@ ;;
   ("scheduler") bench_scheduler ;;
   ("worker-default") bench_worker default ;;
   ("worker-long") bench_worker long ;;
