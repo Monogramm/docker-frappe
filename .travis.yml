@@ -43,8 +43,11 @@ script:
   - echo 'Wait until test finished (1-2 minutes)' && sleep 90
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container backup, restore and migrate
+  - docker-compose run --rm "frappe_app" backup --help
   - docker-compose run --rm "frappe_app" backup
+  - docker-compose run --rm "frappe_app" restore --help
   - docker-compose run --rm "frappe_app" restore
+  - docker-compose run --rm "frappe_app" migrate --help
   - docker-compose run --rm "frappe_app" migrate
 
 notifications:
