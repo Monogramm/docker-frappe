@@ -204,23 +204,21 @@ bench_backup() {
 bench_restore() {
   setup_log_owner
 
-  # List existing backup files
-  log "List existing backup files:"
-  i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
-  do
-    log "    $i. $file"
-    i="$(($i+1))"
-  done
-
   if [ "$#" -eq 0 ]; then
+    log "List existing backup files:"
+    i=1
+    for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+    do
+      log "    $i. $file"
+      i="$(($i+1))"
+    done
     # Choose file number
     read -p "Enter the file number which you want to restore : " n
   else
     # Get file number from argument
     n=$1
   fi
-  log "You have choosen to restore backup file number $n"
+  log "You have chosen to restore backup file number $n"
 
   i=1
   for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
@@ -228,9 +226,14 @@ bench_restore() {
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
       bench --force restore $file
+      log "Backup successfully restored."
+      exit 0
     fi;
     i="$(($i+1))"
   done
+
+  log "Requested backup was not found!"
+  exit 1
 }
 
 bench_setup_requirements() {
