@@ -13,7 +13,9 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # Frappe Bench management functions
 
 log() {
-  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
+  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 display_logs() {
@@ -21,14 +23,14 @@ display_logs() {
 }
 
 setup_log_owner() {
-  log "Setup logs folders and files owner to ${FRAPPE_USER}..."
+  echo "Setup logs folders and files owner to ${FRAPPE_USER}..."
   sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/logs" \
   ;
 }
 
 setup_sites_owner() {
-  # FIXME New bug with Debian where owners is not set properly...
+  # FIXME New bug with Debian where owners is not set properly??!
   log "Setup sites folders and files owner to ${FRAPPE_USER}..."
   sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/sites" \
@@ -295,13 +297,12 @@ bench_socketio() {
 # -------------------------------------------------------------------
 # Runtime
 
+setup_log_owner
 
 if [ -n "${FRAPPE_RESET_SITES}" ]; then
   log "Removing sites: ${FRAPPE_RESET_SITES}"
   rm -rf "${FRAPPE_WD}/sites/${FRAPPE_RESET_SITES}"
 fi
-
-setup_log_owner
 
 
 # Frappe automatic app init
