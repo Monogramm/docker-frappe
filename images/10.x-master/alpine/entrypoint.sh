@@ -227,7 +227,7 @@ bench_restore() {
       log "Restoring backup file number $n: $file. Please wait..."
       bench --force restore $file
       log "Backup successfully restored."
-      exit 0
+      exit
     fi;
     i="$(($i+1))"
   done
