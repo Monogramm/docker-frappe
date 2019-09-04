@@ -194,25 +194,33 @@ bench_update() {
   log "Update Finished"
 }
 
-bench_backup() {
-  setup_log_owner
-  log "Starting backup..."
-  bench backup $@
-  log "Backup Finished. Available backups:"
-  ls -al "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
-}
-
-bench_restore() {
-  setup_log_owner
-
-  if [ "$#" -eq 0 ]; then
-    log "List existing backup files:"
+list_backups() {
+  if [ -d "sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
+    log "Available backups:"
     i=1
     for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
     do
       log "    $i. $file"
       i="$(($i+1))"
     done
+  else
+    log "No available backups."
+  fi
+}
+
+bench_backup() {
+  setup_log_owner
+  log "Starting backup..."
+  bench backup $@
+  log "Backup Finished."
+  list_backups
+}
+
+bench_restore() {
+  setup_log_owner
+
+  if [ "$#" -eq 0 ]; then
+    list_backups
     # Choose file number
     read -p "Enter the file number which you want to restore : " n
   else
