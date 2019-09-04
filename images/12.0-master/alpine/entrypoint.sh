@@ -318,6 +318,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     fi
   done
 
+  # TODO remove anything from apps.txt which is not in apps folder?
+
 else
   # Wait for another node to setup apps and sites
   wait_sites
