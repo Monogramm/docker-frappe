@@ -207,7 +207,7 @@ bench_restore() {
   # List existing backup files
   log "List existing backup files:"
   i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
+  for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
   do
     log "    $i. $file"
     i="$(($i+1))"
@@ -223,7 +223,7 @@ bench_restore() {
   log "You have choosen to restore backup file number $n"
 
   i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
+  for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
   do
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
