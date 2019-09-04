@@ -16,21 +16,21 @@ echo "Checking main containers are reachable..."
 if ! sudo ping -c 10 -q frappe_db ; then
     echo 'Database container is not responding!'
     echo 'Check the following logs for details:'
-    cat logs/*.log
+    tail -n 100 logs/*.log
     exit 2
 fi
 
 if ! sudo ping -c 10 -q frappe_app ; then
     echo 'App container is not responding!'
     echo 'Check the following logs for details:'
-    cat logs/*.log
+    tail -n 100 logs/*.log
     exit 4
 fi
 
 if ! sudo ping -c 10 -q frappe_web ; then
     echo 'Web container is not responding!'
     echo 'Check the following logs for details:'
-    cat logs/*.log
+    tail -n 100 logs/*.log
     exit 8
 fi
 
@@ -40,5 +40,5 @@ fi
 # Success
 echo 'Docker test successful'
 echo 'Check the following logs for details:'
-cat logs/*.log
+tail -n 100 logs/*.log
 exit 0

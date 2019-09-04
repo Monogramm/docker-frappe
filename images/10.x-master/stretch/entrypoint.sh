@@ -41,6 +41,10 @@ pip_install() {
   log "Apps python packages installed"
 }
 
+display_logs() {
+  tail -n 100 "${FRAPPE_WD}/logs/"*.log
+}
+
 wait_db() {
   log "Waiting for DB at ${DB_HOST}:${DB_PORT} to start up..."
   dockerize -wait \
@@ -62,7 +66,7 @@ wait_apps() {
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
           log 'Check the following logs for details:'
-          cat "${FRAPPE_WD}/logs/"*.log
+          display_logs
           exit 1
       fi
   done
@@ -82,7 +86,7 @@ wait_sites() {
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
           log 'Check the following logs for details:'
-          cat "${FRAPPE_WD}/logs/"*.log
+          display_logs
           exit 1
       fi
   done
@@ -102,7 +106,7 @@ wait_container() {
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
           log 'Check the following logs for details:'
-          cat "${FRAPPE_WD}/logs/"*.log
+          display_logs
           exit 1
       fi
   done
