@@ -16,6 +16,20 @@ log() {
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
 }
 
+setup_log_owner() {
+  log "Setup logs folders and files owner to ${FRAPPE_USER}..."
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/logs" \
+  ;
+}
+
+setup_sites_owner() {
+  # FIXME New bug with Debian where owners is not set properly...
+  log "Setup sites folders and files owner to ${FRAPPE_USER}..."
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites" \
+  ;
+}
 
 
 pip_install() {
@@ -47,8 +61,8 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          log 'Check the following nodes logs for details:'
-          tail -n 50 "${FRAPPE_WD}/logs/"*.log
+          log 'Check the following logs for details:'
+          cat "${FRAPPE_WD}/logs/"*.log
           exit 1
       fi
   done
@@ -67,6 +81,8 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
+          log 'Check the following logs for details:'
+          cat "${FRAPPE_WD}/logs/"*.log
           exit 1
       fi
   done
@@ -85,8 +101,8 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          log 'Check the following nodes logs for details:'
-          tail -n 50 "${FRAPPE_WD}/logs/"*.log
+          log 'Check the following logs for details:'
+          cat "${FRAPPE_WD}/logs/"*.log
           exit 1
       fi
   done
@@ -172,19 +188,22 @@ bench_setup() {
 }
 
 bench_update() {
+  setup_log_owner
   log "Starting update..."
   bench update $@
   log "Update Finished"
 }
 
 bench_backup() {
+  setup_log_owner
   log "Starting backup..."
   bench backup $@
   log "Backup Finished"
 }
 
 bench_restore() {
-  if [ -n "${1}" ]; then
+  setup_log_owner
+  if [ "$#" -ne 0 ]; then
     # List existing backup files
     i=1
     for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
@@ -193,7 +212,7 @@ bench_restore() {
         i="$(($i+1))"
     done
     # Choose file number
-    read -p "Enter the number of file which you want to restore : " n
+    read -p "Enter the number of files which you want to restore : " n
   else
     # Get file number from argument
     n=$1
@@ -212,12 +231,14 @@ bench_restore() {
 }
 
 bench_setup_requirements() {
+  setup_log_owner
   log "Starting setup of requirements..."
   bench setup requirements $@
   log "Requirements setup Finished"
 }
 
 bench_migrate() {
+  setup_log_owner
   log "Starting migration..."
   bench migrate $@
   log "Migrate Finished"
@@ -254,20 +275,13 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
   rm -rf "${FRAPPE_WD}/sites/${FRAPPE_RESET_SITES}"
 fi
 
-
-log "Setup logs folders and files owner to ${FRAPPE_USER}..."
-sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-  "${FRAPPE_WD}/logs" \
-;
+setup_log_owner
 
 
 # Frappe automatic app init
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
-  log "Setup sites folders and files owner to ${FRAPPE_USER}..."
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-    "${FRAPPE_WD}/sites" \
-  ;
+  setup_sites_owner
 
   # Init apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
@@ -384,11 +398,7 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    # FIXME New bug with Debian where owners is not set properly...
-    log "Setup sites folders and files owner to ${FRAPPE_USER}..."
-    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/sites" \
-    ;
+    setup_sites_owner
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
