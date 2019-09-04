@@ -13,9 +13,7 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # Frappe Bench management functions
 
 log() {
-  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
 }
 
 display_logs() {
@@ -23,10 +21,7 @@ display_logs() {
 }
 
 setup_log_owner() {
-  echo "Setup logs folders and files owner to ${FRAPPE_USER}..."
-  sudo touch \
-    "${FRAPPE_WD}/logs/${NODE_TYPE}.log" \
-    "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+  log "Setup logs folders and files owner to ${FRAPPE_USER}..."
   sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/logs" \
   ;
