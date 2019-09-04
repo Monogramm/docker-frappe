@@ -24,6 +24,9 @@ display_logs() {
 
 setup_log_owner() {
   echo "Setup logs folders and files owner to ${FRAPPE_USER}..."
+  sudo touch \
+    "${FRAPPE_WD}/logs/${NODE_TYPE}.log" \
+    "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
   sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/logs" \
   ;
