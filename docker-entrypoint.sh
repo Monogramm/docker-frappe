@@ -198,7 +198,8 @@ bench_backup() {
   setup_log_owner
   log "Starting backup..."
   bench backup $@
-  log "Backup Finished"
+  log "Backup Finished. Available backups:"
+  ls -al "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
 }
 
 bench_restore() {
