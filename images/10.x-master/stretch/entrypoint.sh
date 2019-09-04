@@ -16,6 +16,10 @@ log() {
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
 }
 
+display_logs() {
+  tail -n 100 "${FRAPPE_WD}/logs/"*.log
+}
+
 setup_log_owner() {
   log "Setup logs folders and files owner to ${FRAPPE_USER}..."
   sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
@@ -39,10 +43,6 @@ pip_install() {
   ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip install -q -e "apps/$file" --no-cache-dir; fi; done
 
   log "Apps python packages installed"
-}
-
-display_logs() {
-  tail -n 100 "${FRAPPE_WD}/logs/"*.log
 }
 
 wait_db() {
@@ -112,11 +112,15 @@ wait_container() {
   done
 }
 
-bench_app() {
+bench_doctor() {
   log "Checking diagnostic info..."
   bench doctor \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+}
+
+bench_app() {
+  bench_doctor
 
 
   log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
@@ -485,6 +489,7 @@ fi
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
+  ("doctor") wait_db; bench_doctor ;;
   ("app") wait_db; pip_install; bench_app ;;
   ("setup") pip_install; shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
