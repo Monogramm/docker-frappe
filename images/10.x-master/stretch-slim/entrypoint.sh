@@ -226,14 +226,17 @@ bench_restore() {
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
       bench --force restore $file
-      log "Backup successfully restored."
-      exit
+      break
     fi;
     i="$(($i+1))"
   done
 
-  log "Requested backup was not found!"
-  exit 1
+  if [ "$n" = "$i" ]; then
+    log "Backup successfully restored."
+  else
+    log "Requested backup was not found!"
+    exit 1
+  fi
 }
 
 bench_setup_requirements() {
