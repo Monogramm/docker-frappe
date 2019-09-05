@@ -13,7 +13,9 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # Frappe Bench management functions
 
 log() {
-  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
+  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 }
 
 display_logs() {
