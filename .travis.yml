@@ -19,7 +19,7 @@ script:
   - travis_retry docker-compose build
   - docker images
   # Test container run
-  - travis_retry docker-compose up -d && sleep 60
+  - travis_retry docker-compose up -d && sleep 20
   - docker-compose ps
   - docker-compose logs
   - docker-compose ps "frappe_db" | grep "Up" || exit 1
@@ -34,14 +34,23 @@ script:
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container restart
   - docker-compose down
-  - travis_retry docker-compose up -d && sleep 60
+  - travis_retry docker-compose up -d && sleep 20
   - docker-compose ps
   - docker-compose logs
   - docker-compose ps "frappe_db" | grep "Up"
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until test finished (1-2 minutes)' && sleep 90
+  - echo 'Wait until test finished (1-2 minutes)' && sleep 120
   - docker-compose ps "sut" | grep "Exit 0"
+  # Test container migrate, backup and restore
+  - docker-compose run --rm "frappe_app" bench migrate --help
+  - docker-compose run --rm "frappe_app" migrate
+  - docker-compose run --rm "frappe_app" bench backup --help
+  - docker-compose run --rm "frappe_app" backup && sleep 5
+  - docker-compose run --rm "frappe_app" backup && sleep 5
+  - docker-compose run --rm "frappe_app" backup && sleep 5
+  - docker-compose run --rm "frappe_app" bench restore --help
+  - docker-compose run --rm "frappe_app" restore 1
 
 notifications:
   email: false

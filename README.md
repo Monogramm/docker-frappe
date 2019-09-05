@@ -67,6 +67,7 @@ The image supports auto configuration via environment variables.
 # The docker "node" type. Defines the behavior of the container.
 # This can either be set through command argument or environment variable.
 # Can be one of the following:
+#   doctor
 #   app
 #   setup
 #   setup-database

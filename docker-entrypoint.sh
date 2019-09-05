@@ -16,6 +16,26 @@ log() {
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
 }
 
+display_logs() {
+  tail -n 100 "${FRAPPE_WD}/logs/"*.log
+}
+
+setup_log_owner() {
+  log "Setup logs folders and files owner to ${FRAPPE_USER}..."
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/logs" \
+  ;
+}
+
+setup_sites_owner() {
+  # FIXME New bug with Debian where owners is not set properly??!
+  log "Setup sites folders and files owner to ${FRAPPE_USER}..."
+  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites" \
+  ;
+}
+
+
 pip_install() {
   log "Install apps python packages..."
 
@@ -45,8 +65,8 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          log 'Check the following nodes logs for details:'
-          tail -n 50 "${FRAPPE_WD}/logs/"*.log
+          log 'Check the following logs for details:'
+          display_logs
           exit 1
       fi
   done
@@ -65,6 +85,8 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
+          log 'Check the following logs for details:'
+          display_logs
           exit 1
       fi
   done
@@ -83,18 +105,22 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          log 'Check the following nodes logs for details:'
-          tail -n 50 "${FRAPPE_WD}/logs/"*.log
+          log 'Check the following logs for details:'
+          display_logs
           exit 1
       fi
   done
 }
 
-bench_app() {
+bench_doctor() {
   log "Checking diagnostic info..."
   bench doctor \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+}
+
+bench_app() {
+  bench_doctor
 
 
   log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
@@ -170,52 +196,75 @@ bench_setup() {
 }
 
 bench_update() {
+  setup_log_owner
   log "Starting update..."
   bench update $@
   log "Update Finished"
 }
 
+list_backups() {
+  if [ -d "sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
+    log "Available backups:"
+    i=1
+    for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+    do
+      log "    $i. $file"
+      i="$(($i+1))"
+    done
+  else
+    log "No available backups."
+  fi
+}
+
 bench_backup() {
+  setup_log_owner
   log "Starting backup..."
   bench backup $@
-  log "Backup Finished"
+  log "Backup Finished."
+  list_backups
 }
 
 bench_restore() {
-  if [ -n "${1}" ]; then
-    # List existing backup files
-    i=1
-    for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
-    do
-        log "$i $file"
-        i="$(($i+1))"
-    done
+  setup_log_owner
+
+  if [ "$#" -eq 0 ]; then
+    list_backups
     # Choose file number
-    read -p "Enter the number of file which you want to restore : " n
+    read -p "Enter the file number which you want to restore : " n
   else
     # Get file number from argument
     n=$1
   fi
+  log "You have chosen to restore backup file number $n"
 
   i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}/private/backups/*"
+  for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
   do
-      if [ "$n" = "$i" ]; then
-        log "You have choosed $i $file"
-        log "Please wait ..."
-        bench --force restore $file
-      fi;
-      i="$(($i+1))"
+    if [ "$n" = "$i" ]; then
+      log "Restoring backup file number $n: $file. Please wait..."
+      bench --force restore $file
+      break
+    fi;
+    i="$(($i+1))"
   done
+
+  if [ "$n" = "$i" ]; then
+    log "Backup successfully restored."
+  else
+    log "Requested backup was not found!"
+    exit 1
+  fi
 }
 
 bench_setup_requirements() {
+  setup_log_owner
   log "Starting setup of requirements..."
   bench setup requirements $@
   log "Requirements setup Finished"
 }
 
 bench_migrate() {
+  setup_log_owner
   log "Starting migration..."
   bench migrate $@
   log "Migrate Finished"
@@ -246,6 +295,7 @@ bench_socketio() {
 # -------------------------------------------------------------------
 # Runtime
 
+setup_log_owner
 
 if [ -n "${FRAPPE_RESET_SITES}" ]; then
   log "Removing sites: ${FRAPPE_RESET_SITES}"
@@ -253,19 +303,10 @@ if [ -n "${FRAPPE_RESET_SITES}" ]; then
 fi
 
 
-log "Setup logs folders and files owner to ${FRAPPE_USER}..."
-sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-  "${FRAPPE_WD}/logs" \
-;
-
-
 # Frappe automatic app init
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
-  log "Setup sites folders and files owner to ${FRAPPE_USER}..."
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-    "${FRAPPE_WD}/sites" \
-  ;
+  setup_sites_owner
 
   # Init apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
@@ -283,6 +324,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
     fi
   done
+
+  # TODO remove anything from apps.txt which is not in apps folder?
 
 else
   # Wait for another node to setup apps and sites
@@ -382,11 +425,7 @@ EOF
   if [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
     wait_db
 
-    # FIXME New bug with Debian where owners is not set properly...
-    log "Setup sites folders and files owner to ${FRAPPE_USER}..."
-    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/sites" \
-    ;
+    setup_sites_owner
 
     log "Creating new site at ${FRAPPE_DEFAULT_SITE} with ${DB_TYPE} database..."
     if [ "${DB_TYPE}" = "mariadb" ]; then
@@ -449,14 +488,15 @@ fi
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
+  ("doctor") wait_db; bench_doctor ;;
   ("app") wait_db; pip_install; bench_app ;;
-  ("setup") pip_install; bench_setup ${@:2} ;;
+  ("setup") pip_install; shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
   ("build-apps") pip_install; bench_build_apps ;;
-  ("update") bench_update ${@:2} ;;
-  ("backup") bench_backup ${@:2} ;;
-  ("restore") bench_restore ${@:2} ;;
-  ("migrate") bench_migrate ${@:2} ;;
+  ("update") shift; bench_update $@ ;;
+  ("backup") shift; bench_backup $@ ;;
+  ("restore") shift; bench_restore $@ ;;
+  ("migrate") shift; bench_migrate $@ ;;
   ("scheduler") bench_scheduler ;;
   ("worker-default") bench_worker default ;;
   ("worker-long") bench_worker long ;;

@@ -88,6 +88,7 @@ for latest in "${latestsFrappe[@]}"; do
 				cp ".dockerignore" "$dir/.dockerignore"
 				cp -r "./hooks" "$dir/hooks"
 				cp -r "./test" "$dir/"
+				cp "docker-compose.test.yml" "$dir/docker-compose.test.yml"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then

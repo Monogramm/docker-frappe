@@ -23,11 +23,12 @@ services:
       - frappe_redis_socketio
     environment:
       # Container setup
-      - NODE_TYPE=test
+      - NODE_TYPE=sut
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -37,6 +38,7 @@ services:
     # For production, download prebuilt image
     #image: monogramm:docker-frappe:%%FRAPPE_VERSION%%
     container_name: frappe_app
+    command: app
     #restart: always
     ports:
       - 8000:8000
@@ -45,8 +47,6 @@ services:
     links:
       - frappe_db
     environment:
-      # Container setup
-      - NODE_TYPE=app
       # Frappe setup
       - FRAPPE_APP_INIT=frappe
       - FRAPPE_DEFAULT_PROTOCOL=http://
@@ -127,8 +127,9 @@ services:
       - NODE_TYPE=scheduler
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -145,8 +146,9 @@ services:
       - NODE_TYPE=worker-default
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -163,8 +165,9 @@ services:
       - NODE_TYPE=worker-long
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -181,8 +184,9 @@ services:
       - NODE_TYPE=worker-short
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -202,8 +206,9 @@ services:
       - NODE_TYPE=node-socketio
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
