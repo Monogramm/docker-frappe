@@ -121,6 +121,7 @@ wait_container() {
 }
 
 bench_doctor() {
+  setup_log_owner
   log "Checking diagnostic info..."
   bench doctor \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
