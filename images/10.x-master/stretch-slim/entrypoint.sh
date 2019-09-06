@@ -12,15 +12,23 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # -------------------------------------------------------------------
 # Frappe Bench management functions
 
+reset_log() {
+  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+}
+
 log() {
-  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@"
+  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 }
 
 display_logs() {
-  tail -n 100 "${FRAPPE_WD}/logs/"*.log
+  tail -n 100 "${FRAPPE_WD}"/logs/*.log
 }
 
-setup_log_owner() {
+setup_logs_owner() {
   log "Setup logs folders and files owner to ${FRAPPE_USER}..."
   sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/logs" \
@@ -113,6 +121,7 @@ wait_container() {
 }
 
 bench_doctor() {
+  setup_logs_owner
   log "Checking diagnostic info..."
   bench doctor \
     | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
@@ -196,17 +205,17 @@ bench_setup() {
 }
 
 bench_update() {
-  setup_log_owner
+  setup_logs_owner
   log "Starting update..."
   bench update $@
   log "Update Finished"
 }
 
 list_backups() {
-  if [ -d "sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
+  if [ -d "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
     log "Available backups:"
     i=1
-    for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+    for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
     do
       log "    $i. $file"
       i="$(($i+1))"
@@ -217,7 +226,7 @@ list_backups() {
 }
 
 bench_backup() {
-  setup_log_owner
+  setup_logs_owner
   log "Starting backup..."
   bench backup $@
   log "Backup Finished."
@@ -225,7 +234,7 @@ bench_backup() {
 }
 
 bench_restore() {
-  setup_log_owner
+  setup_logs_owner
 
   if [ "$#" -eq 0 ]; then
     list_backups
@@ -238,7 +247,7 @@ bench_restore() {
   log "You have chosen to restore backup file number $n"
 
   i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+  for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
   do
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
@@ -257,14 +266,14 @@ bench_restore() {
 }
 
 bench_setup_requirements() {
-  setup_log_owner
+  setup_logs_owner
   log "Starting setup of requirements..."
   bench setup requirements $@
   log "Requirements setup Finished"
 }
 
 bench_migrate() {
-  setup_log_owner
+  setup_logs_owner
   log "Starting migration..."
   bench migrate $@
   log "Migrate Finished"
@@ -295,7 +304,8 @@ bench_socketio() {
 # -------------------------------------------------------------------
 # Runtime
 
-setup_log_owner
+reset_log
+setup_logs_owner
 
 if [ -n "${FRAPPE_RESET_SITES}" ]; then
   log "Removing sites: ${FRAPPE_RESET_SITES}"
