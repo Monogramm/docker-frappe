@@ -25,7 +25,7 @@ log() {
 }
 
 display_logs() {
-  tail -n 100 "${FRAPPE_WD}/logs/"*.log
+  tail -n 100 "${FRAPPE_WD}"/logs/*.log
 }
 
 setup_log_owner() {
@@ -211,10 +211,10 @@ bench_update() {
 }
 
 list_backups() {
-  if [ -d "sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
+  if [ -d "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
     log "Available backups:"
     i=1
-    for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+    for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
     do
       log "    $i. $file"
       i="$(($i+1))"
@@ -246,7 +246,7 @@ bench_restore() {
   log "You have chosen to restore backup file number $n"
 
   i=1
-  for file in "sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+  for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
   do
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
