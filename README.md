@@ -117,13 +117,16 @@ DOCKER_GUNICORN_KEYFILE=
 # List of frappe apps (space separated) to init on startup (bench install-app)
 FRAPPE_APP_INIT=
 
+# Reset apps.txt. If set and not empty, apps.txt older content will be removed on startup and only contain the content of FRAPPE_APP_INIT
+FRAPPE_APP_RESET=
+
 # Default protocol (should either be empty, or http:// or https:// when using SSL)
 FRAPPE_DEFAULT_PROTOCOL=
 
 # Default site
 FRAPPE_DEFAULT_SITE=
 
-# Remove all sites on startup.
+# Remove all sites data on startup. This should only be used for dev / test environments
 FRAPPE_RESET_SITES=
 
 # Reinstall with database.

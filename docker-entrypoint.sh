@@ -124,8 +124,8 @@ bench_doctor() {
   setup_logs_owner
   log "Checking diagnostic info..."
   bench doctor \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_app() {
@@ -148,8 +148,8 @@ bench_app() {
   "${FRAPPE_WD}/env/bin/gunicorn" \
      $GUNICORN_ARGS \
     frappe.app:application --preload \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_build_apps() {
@@ -282,22 +282,22 @@ bench_migrate() {
 bench_scheduler() {
   log "Starting scheduler..."
   bench schedule \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_worker() {
   log "Starting $1 worker..."
   bench worker --queue "$1" \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_socketio() {
   log "Starting socketio..."
   node "${FRAPPE_WD}/apps/frappe/socketio.js" \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 
@@ -319,7 +319,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   setup_sites_owner
 
   # Init apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ -n "${FRAPPE_APP_RESET}"]; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
