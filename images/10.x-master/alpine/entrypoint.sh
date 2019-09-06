@@ -12,6 +12,12 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # -------------------------------------------------------------------
 # Frappe Bench management functions
 
+reset_log() {
+  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+}
+
 log() {
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
@@ -297,6 +303,7 @@ bench_socketio() {
 # -------------------------------------------------------------------
 # Runtime
 
+reset_log
 setup_log_owner
 
 if [ -n "${FRAPPE_RESET_SITES}" ]; then
