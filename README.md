@@ -97,6 +97,9 @@ DOCKER_APPS_TIMEOUT=600
 # Time in seconds container will wait for sites to be setup
 DOCKER_SITES_TIMEOUT=900
 
+# Set any value to enable display of all log files if container crashes
+DOCKER_DEBUG=
+
 DOCKER_GUNICORN_BIND_ADDRESS=0.0.0.0
 DOCKER_GUNICORN_PORT=8000
 DOCKER_GUNICORN_WORKERS=4

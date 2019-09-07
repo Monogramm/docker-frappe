@@ -12,7 +12,9 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # -------------------------------------------------------------------
 # Frappe Bench management functions
 
-reset_log() {
+reset_logs() {
+  sudo mkdir -p "${FRAPPE_WD}/logs/";
+
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
@@ -25,7 +27,11 @@ log() {
 }
 
 display_logs() {
-  tail -n 100 "${FRAPPE_WD}"/logs/*.log
+  if [ -d "${FRAPPE_WD}/logs/" ]; then
+    sudo tail -n 100 "${FRAPPE_WD}"/logs/*.log
+  else
+    log "Logs directory does not exist!"
+  fi
 }
 
 setup_logs_owner() {
@@ -73,8 +79,10 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          log 'Check the following logs for details:'
-          display_logs
+          if [ -n "${DOCKER_DEBUG}" ]; then
+            log 'Check the following logs for details:'
+            display_logs
+          fi
           exit 1
       fi
   done
@@ -93,8 +101,10 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
-          log 'Check the following logs for details:'
-          display_logs
+          if [ -n "${DOCKER_DEBUG}" ]; then
+            log 'Check the following logs for details:'
+            display_logs
+          fi
           exit 1
       fi
   done
@@ -113,8 +123,10 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          log 'Check the following logs for details:'
-          display_logs
+          if [ -n "${DOCKER_DEBUG}" ]; then
+            log 'Check the following logs for details:'
+            display_logs
+          fi
           exit 1
       fi
   done
@@ -304,7 +316,7 @@ bench_socketio() {
 # -------------------------------------------------------------------
 # Runtime
 
-reset_log
+reset_logs
 setup_logs_owner
 
 if [ -n "${FRAPPE_RESET_SITES}" ]; then
