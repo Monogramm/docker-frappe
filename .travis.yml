@@ -49,6 +49,8 @@ script:
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
+  - docker-compose run --rm "frappe_app" backup && sleep 5
+  - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" bench restore --help
   - docker-compose run --rm "frappe_app" restore 1
 
