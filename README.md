@@ -68,7 +68,6 @@ The image supports auto configuration via environment variables.
 # This can either be set through command argument or environment variable.
 # Can be one of the following:
 #   doctor
-#   app
 #   setup
 #   setup-database
 #   build-apps
@@ -76,6 +75,7 @@ The image supports auto configuration via environment variables.
 #   backup
 #   restore
 #   migrate
+#   app
 #   scheduler
 #   worker-default
 #   worker-long
