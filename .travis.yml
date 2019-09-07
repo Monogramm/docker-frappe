@@ -62,6 +62,9 @@ matrix:
     - env: VERSION=develop BENCH=master VARIANT=alpine
     - env: VERSION=develop BENCH=master VARIANT=stretch-slim
     - env: VERSION=develop BENCH=master VARIANT=stretch
+    - env: VERSION=12.1 BENCH=master VARIANT=alpine
+    - env: VERSION=12.1 BENCH=master VARIANT=stretch-slim
+    - env: VERSION=12.1 BENCH=master VARIANT=stretch
     - env: VERSION=12.0 BENCH=master VARIANT=alpine
 
 env: # Environments
