@@ -361,7 +361,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   setup_sites_owner
 
   # Init apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ -n "${FRAPPE_APP_RESET}"]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ -n "${FRAPPE_APP_RESET}" ]; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
