@@ -129,7 +129,7 @@ FRAPPE_DEFAULT_PROTOCOL=
 # Default site
 FRAPPE_DEFAULT_SITE=
 
-# Remove all sites data on startup. This should only be used for dev / test environments
+# Remove all sites data on startup if set to 1. This should only be used for dev / test environments
 FRAPPE_RESET_SITES=
 
 # Reinstall with database.

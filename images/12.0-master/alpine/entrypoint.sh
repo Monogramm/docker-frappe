@@ -349,9 +349,9 @@ bench_socketio() {
 reset_logs
 setup_logs_owner
 
-if [ -n "${FRAPPE_RESET_SITES}" ]; then
-  log "Removing sites: ${FRAPPE_RESET_SITES}"
-  rm -rf "${FRAPPE_WD}/sites/${FRAPPE_RESET_SITES}"
+if [ "${FRAPPE_RESET_SITES}" -eq 1 ]; then
+  log "Removing all sites!"
+  rm -rf "${FRAPPE_WD}/sites/"
 fi
 
 
@@ -464,6 +464,7 @@ EOF
 
   # Check default site config
   if [ ! -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" ]; then
+    # TODO Not really clean to copy common config to site... better to create specific properties
     log "Creating ${FRAPPE_DEFAULT_SITE} site config from common config..."
     cp \
       "${FRAPPE_WD}/sites/common_site_config.json" \
