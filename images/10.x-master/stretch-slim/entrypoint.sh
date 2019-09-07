@@ -224,8 +224,17 @@ bench_update() {
 }
 
 list_backups() {
+  if [ -z "${FRAPPE_DEFAULT_SITE}" ]; then
+    if [ -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
+      FRAPPE_DEFAULT_SITE=$(cat "${FRAPPE_WD}/sites/currentsite.txt")
+    else
+      log "Could not define the Frappe current site!"
+      exit 1
+    fi
+  fi
+
   if [ -d "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
-    log "Available backups:"
+    log "Available backups for site ${FRAPPE_DEFAULT_SITE}:"
     i=1
     for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
     do
