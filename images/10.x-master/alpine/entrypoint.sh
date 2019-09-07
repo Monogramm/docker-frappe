@@ -9,6 +9,7 @@ FRAPPE_USER=${FRAPPE_USER:-frappe}
 # Frappe working directory
 FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
+
 # -------------------------------------------------------------------
 # Frappe Bench management functions
 
@@ -53,6 +54,7 @@ setup_sites_owner() {
 pip_install() {
   log "Install apps python packages..."
 
+  # TODO Store pip install output in log file
   cd "${FRAPPE_WD}"
   ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip install -q -e "apps/$file" --no-cache-dir; fi; done
 
@@ -136,37 +138,15 @@ bench_doctor() {
   setup_logs_owner
   log "Checking diagnostic info..."
   bench doctor \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
-}
-
-bench_app() {
-  bench_doctor
-
-
-  log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
-  cd "${FRAPPE_WD}/sites"
-
-  GUNICORN_ARGS="-t ${DOCKER_GUNICORN_TIMEOUT} --workers ${DOCKER_GUNICORN_WORKERS} --bind ${DOCKER_GUNICORN_BIND_ADDRESS}:${DOCKER_GUNICORN_PORT} --log-level ${DOCKER_GUNICORN_LOGLEVEL}"
-
-  if [ -n  "${DOCKER_GUNICORN_CERTFILE}" ]; then
-    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --certfile=${DOCKER_GUNICORN_CERTFILE}"
-  fi
-
-  if [ -n  "${DOCKER_GUNICORN_KEYFILE}" ]; then
-    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --keyfile=${DOCKER_GUNICORN_KEYFILE}"
-  fi
-
-  "${FRAPPE_WD}/env/bin/gunicorn" \
-     $GUNICORN_ARGS \
-    frappe.app:application --preload \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 }
 
 bench_build_apps() {
   log "Building apps assets..."
-  bench build
+  bench build \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Apps assets build Finished"
 }
 
@@ -202,11 +182,15 @@ bench_setup() {
     wait_db
 
     log "Reinstalling with fresh database..."
-    bench reinstall --yes
+    bench reinstall --yes \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
     for app in $@; do
       log "Installing app $app..."
-      bench install-app "$app"
+      bench install-app "$app" \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     done
   else
     log "No app specified to reinstall"
@@ -219,7 +203,9 @@ bench_setup() {
 bench_update() {
   setup_logs_owner
   log "Starting update..."
-  bench update $@
+  bench update $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Update Finished"
 }
 
@@ -249,7 +235,9 @@ list_backups() {
 bench_backup() {
   setup_logs_owner
   log "Starting backup..."
-  bench backup $@
+  bench backup $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Backup Finished."
   list_backups
 }
@@ -272,7 +260,9 @@ bench_restore() {
   do
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
-      bench --force restore $file
+      bench --force restore $file \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
       break
     fi;
     i="$(($i+1))"
@@ -289,15 +279,46 @@ bench_restore() {
 bench_setup_requirements() {
   setup_logs_owner
   log "Starting setup of requirements..."
-  bench setup requirements $@
+  bench setup requirements $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Requirements setup Finished"
 }
 
 bench_migrate() {
   setup_logs_owner
   log "Starting migration..."
-  bench migrate $@
+  bench migrate $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Migrate Finished"
+}
+
+
+# -------------------------------------------------------------------
+# Frappe Bench service functions
+
+bench_app() {
+  bench_doctor
+
+  log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
+  cd "${FRAPPE_WD}/sites"
+
+  GUNICORN_ARGS="-t ${DOCKER_GUNICORN_TIMEOUT} --workers ${DOCKER_GUNICORN_WORKERS} --bind ${DOCKER_GUNICORN_BIND_ADDRESS}:${DOCKER_GUNICORN_PORT} --log-level ${DOCKER_GUNICORN_LOGLEVEL}"
+
+  if [ -n  "${DOCKER_GUNICORN_CERTFILE}" ]; then
+    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --certfile=${DOCKER_GUNICORN_CERTFILE}"
+  fi
+
+  if [ -n  "${DOCKER_GUNICORN_KEYFILE}" ]; then
+    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --keyfile=${DOCKER_GUNICORN_KEYFILE}"
+  fi
+
+  "${FRAPPE_WD}/env/bin/gunicorn" \
+     $GUNICORN_ARGS \
+    frappe.app:application --preload \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_scheduler() {
@@ -519,8 +540,8 @@ fi
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
+  # Management tasks
   ("doctor") wait_db; bench_doctor ;;
-  ("app") wait_db; pip_install; bench_app ;;
   ("setup") pip_install; shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
   ("build-apps") pip_install; bench_build_apps ;;
@@ -528,10 +549,13 @@ case "${NODE_TYPE}" in
   ("backup") shift; bench_backup $@ ;;
   ("restore") shift; bench_restore $@ ;;
   ("migrate") shift; bench_migrate $@ ;;
+  # Service tasks
+  ("app") wait_db; pip_install; bench_app ;;
   ("scheduler") bench_scheduler ;;
   ("worker-default") bench_worker default ;;
   ("worker-long") bench_worker long ;;
   ("worker-short") bench_worker short ;;
   ("node-socketio") bench_socketio ;;
+  # TODO Add a cron task ?
   (*) exec "$@" ;;
 esac
