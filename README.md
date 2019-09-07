@@ -97,7 +97,7 @@ DOCKER_APPS_TIMEOUT=600
 # Time in seconds container will wait for sites to be setup
 DOCKER_SITES_TIMEOUT=900
 
-# Set any value to enable display of all log files if container crashes
+# Set to 1 to enable display of all log files if container crashes
 DOCKER_DEBUG=
 
 DOCKER_GUNICORN_BIND_ADDRESS=0.0.0.0
@@ -120,7 +120,7 @@ DOCKER_GUNICORN_KEYFILE=
 # List of frappe apps (space separated) to init on startup (bench install-app)
 FRAPPE_APP_INIT=
 
-# Reset apps.txt. If set and not empty, apps.txt older content will be removed on startup and only contain the content of FRAPPE_APP_INIT
+# Reset apps.txt. If set to 1, apps.txt older content will be removed on startup and only contain the content of FRAPPE_APP_INIT
 FRAPPE_APP_RESET=
 
 # Default protocol (should either be empty, or http:// or https:// when using SSL)
@@ -132,7 +132,7 @@ FRAPPE_DEFAULT_SITE=
 # Remove all sites data on startup if set to 1. This should only be used for dev / test environments
 FRAPPE_RESET_SITES=
 
-# Reinstall with database.
+# Reinstall database. If set to 1, database will be resinstalled. This should only be used for dev / test environments
 FRAPPE_REINSTALL_DATABASE=
 
 FRAPPE_LOGGING=1
