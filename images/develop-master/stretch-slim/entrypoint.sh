@@ -81,7 +81,7 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          if [ -n "${DOCKER_DEBUG}" ]; then
+          if [ "${DOCKER_DEBUG}" -eq 1 ]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -103,7 +103,7 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
-          if [ -n "${DOCKER_DEBUG}" ]; then
+          if [ "${DOCKER_DEBUG}" -eq 1 ]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -125,7 +125,7 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          if [ -n "${DOCKER_DEBUG}" ]; then
+          if [ "${DOCKER_DEBUG}" -eq 1 ]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -178,7 +178,7 @@ bench_setup_database() {
 
 bench_setup() {
   # Expecting parameters to be a list of apps to (re)install
-  if [ "$#" -ne 0 ] || [ -n "${FRAPPE_REINSTALL_DATABASE}" ]; then
+  if [ "$#" -ne 0 ] || [ "${FRAPPE_REINSTALL_DATABASE}" -eq 1 ]; then
     wait_db
 
     log "Reinstalling with fresh database..."
@@ -306,11 +306,11 @@ bench_app() {
 
   GUNICORN_ARGS="-t ${DOCKER_GUNICORN_TIMEOUT} --workers ${DOCKER_GUNICORN_WORKERS} --bind ${DOCKER_GUNICORN_BIND_ADDRESS}:${DOCKER_GUNICORN_PORT} --log-level ${DOCKER_GUNICORN_LOGLEVEL}"
 
-  if [ -n  "${DOCKER_GUNICORN_CERTFILE}" ]; then
+  if [ -n "${DOCKER_GUNICORN_CERTFILE}" ]; then
     GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --certfile=${DOCKER_GUNICORN_CERTFILE}"
   fi
 
-  if [ -n  "${DOCKER_GUNICORN_KEYFILE}" ]; then
+  if [ -n "${DOCKER_GUNICORN_KEYFILE}" ]; then
     GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --keyfile=${DOCKER_GUNICORN_KEYFILE}"
   fi
 
@@ -361,7 +361,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   setup_sites_owner
 
   # Init apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ -n "${FRAPPE_APP_RESET}" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ "${FRAPPE_APP_RESET}" -eq 1 ]; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
@@ -518,7 +518,7 @@ fi
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
   # Frappe automatic app setup
-  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [ "${FRAPPE_REINSTALL_DATABASE}" -eq 1 ]; then
 
     # Call bench setup for app
     bench_setup "${FRAPPE_APP_INIT}"
