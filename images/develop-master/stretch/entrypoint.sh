@@ -9,10 +9,13 @@ FRAPPE_USER=${FRAPPE_USER:-frappe}
 # Frappe working directory
 FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 
+
 # -------------------------------------------------------------------
 # Frappe Bench management functions
 
-reset_log() {
+reset_logs() {
+  sudo mkdir -p "${FRAPPE_WD}/logs/";
+
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
@@ -25,7 +28,11 @@ log() {
 }
 
 display_logs() {
-  tail -n 100 "${FRAPPE_WD}"/logs/*.log
+  if [ -d "${FRAPPE_WD}/logs/" ]; then
+    sudo tail -n 100 "${FRAPPE_WD}"/logs/*.log
+  else
+    log "Logs directory does not exist!"
+  fi
 }
 
 setup_logs_owner() {
@@ -47,6 +54,7 @@ setup_sites_owner() {
 pip_install() {
   log "Install apps python packages..."
 
+  # TODO Store pip install output in log file
   cd "${FRAPPE_WD}"
   ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip3 install -q -e "apps/$file" --no-cache-dir; fi; done
 
@@ -73,8 +81,10 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          log 'Check the following logs for details:'
-          display_logs
+          if [ -n "${DOCKER_DEBUG}" ]; then
+            log 'Check the following logs for details:'
+            display_logs
+          fi
           exit 1
       fi
   done
@@ -93,8 +103,10 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
-          log 'Check the following logs for details:'
-          display_logs
+          if [ -n "${DOCKER_DEBUG}" ]; then
+            log 'Check the following logs for details:'
+            display_logs
+          fi
           exit 1
       fi
   done
@@ -113,8 +125,10 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          log 'Check the following logs for details:'
-          display_logs
+          if [ -n "${DOCKER_DEBUG}" ]; then
+            log 'Check the following logs for details:'
+            display_logs
+          fi
           exit 1
       fi
   done
@@ -124,37 +138,15 @@ bench_doctor() {
   setup_logs_owner
   log "Checking diagnostic info..."
   bench doctor \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
-}
-
-bench_app() {
-  bench_doctor
-
-
-  log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
-  cd "${FRAPPE_WD}/sites"
-
-  GUNICORN_ARGS="-t ${DOCKER_GUNICORN_TIMEOUT} --workers ${DOCKER_GUNICORN_WORKERS} --bind ${DOCKER_GUNICORN_BIND_ADDRESS}:${DOCKER_GUNICORN_PORT} --log-level ${DOCKER_GUNICORN_LOGLEVEL}"
-
-  if [ -n  "${DOCKER_GUNICORN_CERTFILE}" ]; then
-    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --certfile=${DOCKER_GUNICORN_CERTFILE}"
-  fi
-
-  if [ -n  "${DOCKER_GUNICORN_KEYFILE}" ]; then
-    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --keyfile=${DOCKER_GUNICORN_KEYFILE}"
-  fi
-
-  "${FRAPPE_WD}/env/bin/gunicorn" \
-     $GUNICORN_ARGS \
-    frappe.app:application --preload \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 }
 
 bench_build_apps() {
   log "Building apps assets..."
-  bench build
+  bench build \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Apps assets build Finished"
 }
 
@@ -190,11 +182,15 @@ bench_setup() {
     wait_db
 
     log "Reinstalling with fresh database..."
-    bench reinstall --yes
+    bench reinstall --yes \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
     for app in $@; do
       log "Installing app $app..."
-      bench install-app "$app"
+      bench install-app "$app" \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     done
   else
     log "No app specified to reinstall"
@@ -207,13 +203,24 @@ bench_setup() {
 bench_update() {
   setup_logs_owner
   log "Starting update..."
-  bench update $@
+  bench update $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Update Finished"
 }
 
 list_backups() {
+  if [ -z "${FRAPPE_DEFAULT_SITE}" ]; then
+    if [ -f "${FRAPPE_WD}/sites/currentsite.txt" ]; then
+      FRAPPE_DEFAULT_SITE=$(cat "${FRAPPE_WD}/sites/currentsite.txt")
+    else
+      log "Could not define the Frappe current site!"
+      exit 1
+    fi
+  fi
+
   if [ -d "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups" ]; then
-    log "Available backups:"
+    log "Available backups for site ${FRAPPE_DEFAULT_SITE}:"
     i=1
     for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
     do
@@ -228,7 +235,9 @@ list_backups() {
 bench_backup() {
   setup_logs_owner
   log "Starting backup..."
-  bench backup $@
+  bench backup $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Backup Finished."
   list_backups
 }
@@ -251,7 +260,9 @@ bench_restore() {
   do
     if [ "$n" = "$i" ]; then
       log "Restoring backup file number $n: $file. Please wait..."
-      bench --force restore $file
+      bench --force restore $file \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
       break
     fi;
     i="$(($i+1))"
@@ -268,15 +279,46 @@ bench_restore() {
 bench_setup_requirements() {
   setup_logs_owner
   log "Starting setup of requirements..."
-  bench setup requirements $@
+  bench setup requirements $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Requirements setup Finished"
 }
 
 bench_migrate() {
   setup_logs_owner
   log "Starting migration..."
-  bench migrate $@
+  bench migrate $@ \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Migrate Finished"
+}
+
+
+# -------------------------------------------------------------------
+# Frappe Bench service functions
+
+bench_app() {
+  bench_doctor
+
+  log "Starting app on port ${DOCKER_GUNICORN_PORT}..."
+  cd "${FRAPPE_WD}/sites"
+
+  GUNICORN_ARGS="-t ${DOCKER_GUNICORN_TIMEOUT} --workers ${DOCKER_GUNICORN_WORKERS} --bind ${DOCKER_GUNICORN_BIND_ADDRESS}:${DOCKER_GUNICORN_PORT} --log-level ${DOCKER_GUNICORN_LOGLEVEL}"
+
+  if [ -n  "${DOCKER_GUNICORN_CERTFILE}" ]; then
+    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --certfile=${DOCKER_GUNICORN_CERTFILE}"
+  fi
+
+  if [ -n  "${DOCKER_GUNICORN_KEYFILE}" ]; then
+    GUNICORN_ARGS="${DOCKER_GUNICORN_ARGS} --keyfile=${DOCKER_GUNICORN_KEYFILE}"
+  fi
+
+  "${FRAPPE_WD}/env/bin/gunicorn" \
+     $GUNICORN_ARGS \
+    frappe.app:application --preload \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_scheduler() {
@@ -304,12 +346,12 @@ bench_socketio() {
 # -------------------------------------------------------------------
 # Runtime
 
-reset_log
+reset_logs
 setup_logs_owner
 
-if [ -n "${FRAPPE_RESET_SITES}" ]; then
-  log "Removing sites: ${FRAPPE_RESET_SITES}"
-  rm -rf "${FRAPPE_WD}/sites/${FRAPPE_RESET_SITES}"
+if [ "${FRAPPE_RESET_SITES}" -eq 1 ]; then
+  log "Removing all sites!"
+  rm -rf "${FRAPPE_WD}/sites/"
 fi
 
 
@@ -319,7 +361,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   setup_sites_owner
 
   # Init apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ -n "${FRAPPE_APP_RESET}"]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ -n "${FRAPPE_APP_RESET}" ]; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
@@ -422,6 +464,7 @@ EOF
 
   # Check default site config
   if [ ! -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" ]; then
+    # TODO Not really clean to copy common config to site... better to create specific properties
     log "Creating ${FRAPPE_DEFAULT_SITE} site config from common config..."
     cp \
       "${FRAPPE_WD}/sites/common_site_config.json" \
@@ -498,8 +541,8 @@ fi
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
+  # Management tasks
   ("doctor") wait_db; bench_doctor ;;
-  ("app") wait_db; pip_install; bench_app ;;
   ("setup") pip_install; shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
   ("build-apps") pip_install; bench_build_apps ;;
@@ -507,10 +550,13 @@ case "${NODE_TYPE}" in
   ("backup") shift; bench_backup $@ ;;
   ("restore") shift; bench_restore $@ ;;
   ("migrate") shift; bench_migrate $@ ;;
+  # Service tasks
+  ("app") wait_db; pip_install; bench_app ;;
   ("scheduler") bench_scheduler ;;
   ("worker-default") bench_worker default ;;
   ("worker-long") bench_worker long ;;
   ("worker-short") bench_worker short ;;
   ("node-socketio") bench_socketio ;;
+  # TODO Add a cron task ?
   (*) exec "$@" ;;
 esac
