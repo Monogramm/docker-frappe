@@ -65,11 +65,14 @@ services:
       - DB_PASSWORD=${FRAPPE_DB_PWD}
       - DB_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
       # Mail setup
+      - MAIL_MUTED=true
       - MAIL_HOST=${FRAPPE_MAIL_HOST}
       - MAIL_PORT=587
       - MAIL_USE_SSL=tls
       - MAIL_LOGIN=${FRAPPE_SMTP_USER}
       - MAIL_PASSWORD=${FRAPPE_SMTP_PWD}
+      - MAIL_EMAIL_ID=${FRAPPE_SMTP_USER}@${FRAPPE_MAIL_HOST}
+      - MAIL_SENDER_NAME=ERPNext
       # Redis setup
       - REDIS_CACHE_HOST=frappe_redis_cache
       - REDIS_QUEUE_HOST=frappe_redis_queue
