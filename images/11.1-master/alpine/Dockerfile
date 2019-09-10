@@ -3,7 +3,7 @@ FROM monogramm/docker-frappe-base:alpine
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v11.1.55
+ARG VERSION=v11.1.56
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
