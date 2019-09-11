@@ -422,29 +422,32 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     ;
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
-  "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
-  "developer_mode": ${DEVELOPER_MODE},
-  "admin_password": "${ADMIN_PASSWORD}",
-  "encryption_key": "${ENCRYPTION_KEY:-$(openssl rand -base64 32)}",
   "deny_multiple_logins": false,
   "disable_website_cache": false,
   "dns_multitenant": false,
-  "host_name": "${FRAPPE_DEFAULT_PROTOCOL}${FRAPPE_DEFAULT_SITE}",
   "serve_default_site": true,
   "frappe_user": "${FRAPPE_USER}",
   "auto_update": false,
   "update_bench_on_update": true,
   "shallow_clone": true,
   "rebase_on_pull": false,
+  "redis_cache": "redis://${REDIS_CACHE_HOST}",
+  "redis_queue": "redis://${REDIS_QUEUE_HOST}",
+  "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}",
   "logging": "${FRAPPE_LOGGING}",
+  "root_login": "${DB_ROOT_LOGIN}",
+  "root_password": "${DB_ROOT_PASSWORD}",
   "db_type": "${DB_TYPE}",
   "db_host": "${DB_HOST}",
   "db_port": ${DB_PORT},
   "db_name": "${DB_NAME}",
   "db_user": "${DB_NAME}",
   "db_password": "${DB_PASSWORD}",
-  "root_login": "${DB_ROOT_LOGIN}",
-  "root_password": "${DB_ROOT_PASSWORD}",
+  "host_name": "${FRAPPE_DEFAULT_PROTOCOL}${FRAPPE_DEFAULT_SITE}",
+  "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
+  "developer_mode": ${DEVELOPER_MODE},
+  "admin_password": "${ADMIN_PASSWORD}",
+  "encryption_key": "${ENCRYPTION_KEY:-$(openssl rand -base64 32)}",
   "mail_server": "${MAIL_HOST}",
   "mail_port": ${MAIL_PORT},
   "use_ssl": "${MAIL_USE_SSL}",
@@ -454,10 +457,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "email_sender_name": "${MAIL_SENDER_NAME}",
   "always_use_account_email_id_as_sender": ${MAIL_ALWAYS_EMAIL_ID_AS_SENDER},
   "always_use_account_name_as_sender_name": ${MAIL_ALWAYS_NAME_AS_SENDER_NAME},
-  "mute_emails": ${MAIL_MUTED},
-  "redis_cache": "redis://${REDIS_CACHE_HOST}",
-  "redis_queue": "redis://${REDIS_QUEUE_HOST}",
-  "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}"
+  "mute_emails": ${MAIL_MUTED}
 }
 EOF
   fi
