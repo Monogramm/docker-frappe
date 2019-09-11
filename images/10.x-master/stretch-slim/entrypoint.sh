@@ -351,7 +351,7 @@ setup_logs_owner
 
 if [ "${FRAPPE_RESET_SITES}" == "1" ]; then
   log "Removing all sites!"
-  rm -rf "${FRAPPE_WD}/sites/"
+  rm -rf "${FRAPPE_WD}/sites/*"
 fi
 
 
