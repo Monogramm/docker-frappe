@@ -135,6 +135,9 @@ FRAPPE_RESET_SITES=
 # Reinstall database. If set to 1, database will be resinstalled. This should only be used for dev / test environments
 FRAPPE_REINSTALL_DATABASE=
 
+# Build options passed to the bench build command. Can be used with --restore to copy the public assets instead of symlinking them
+FRAPPE_BUILD_OPTIONS=
+
 FRAPPE_LOGGING=1
 
 GOOGLE_ANALYTICS_ID=

@@ -93,8 +93,7 @@ ADD ./entrypoint.sh /
 
 VOLUME /home/$FRAPPE_USER/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps
+    /home/$FRAPPE_USER/frappe-bench/sites
 
 # Set permissions
 RUN set -ex; \
@@ -129,6 +128,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_DEFAULT_SITE= \
     FRAPPE_RESET_SITES= \
     FRAPPE_REINSTALL_DATABASE= \
+    FRAPPE_BUILD_OPTIONS= \
     FRAPPE_LOGGING=1 \
     GOOGLE_ANALYTICS_ID= \
     DEVELOPER_MODE=0 \

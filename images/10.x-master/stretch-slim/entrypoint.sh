@@ -144,7 +144,7 @@ bench_doctor() {
 
 bench_build_apps() {
   log "Building apps assets..."
-  bench build \
+  bench build ${FRAPPE_BUILD_OPTIONS} \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Apps assets build Finished"
