@@ -21,24 +21,31 @@ script:
   # Test container run
   - travis_retry docker-compose up -d && sleep 20
   - docker-compose ps
-  - docker-compose logs
+  - docker-compose logs "frappe_db"
   - docker-compose ps "frappe_db" | grep "Up" || exit 1
+  - docker-compose logs "frappe_app"
   - docker-compose ps "frappe_app" | grep "Up" || exit 1
+  - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up" || exit 1
   - echo 'Wait until sites and apps database installed (4-5 minutes)' && sleep 300
   - docker-compose ps
-  - docker-compose logs
+  - docker-compose logs "frappe_db"
   - docker-compose ps "frappe_db" | grep "Up"
+  - docker-compose logs "frappe_app"
   - docker-compose ps "frappe_app" | grep "Up"
+  - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
+  - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container restart
   - docker-compose down
   - travis_retry docker-compose up -d && sleep 20
   - docker-compose ps
-  - docker-compose logs
+  - docker-compose logs "frappe_db"
   - docker-compose ps "frappe_db" | grep "Up"
+  - docker-compose logs "frappe_app"
   - docker-compose ps "frappe_app" | grep "Up"
+  - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
   - echo 'Wait until test finished (1-2 minutes)' && sleep 120
   - docker-compose logs "sut"
