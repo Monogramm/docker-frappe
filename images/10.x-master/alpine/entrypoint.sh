@@ -54,9 +54,14 @@ setup_sites_owner() {
 pip_install() {
   log "Install apps python packages..."
 
-  # TODO Store pip install output in log file
   cd "${FRAPPE_WD}"
-  ls apps/ | while read -r file; do  if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then ./env/bin/pip install -q -e "apps/$file" --no-cache-dir; fi; done
+  ls apps/ | while read -r file; do
+    if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then
+      ./env/bin/pip install -q -e "apps/$file" --no-cache-dir \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    fi;
+  done
 
   log "Apps python packages installed"
 }
