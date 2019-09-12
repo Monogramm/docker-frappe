@@ -93,6 +93,7 @@ ADD ./entrypoint.sh /
 
 VOLUME /home/$FRAPPE_USER/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites \
     /home/$FRAPPE_USER/frappe-bench/sites
 
 # Set permissions
