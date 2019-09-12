@@ -487,12 +487,16 @@ EOF
         --db-name ${DB_NAME} \
         --admin-password ${ADMIN_PASSWORD} \
         --mariadb-root-username ${DB_ROOT_LOGIN} \
-        --mariadb-root-password "${DB_ROOT_PASSWORD}"
+        --mariadb-root-password "${DB_ROOT_PASSWORD}" \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     else
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
         --force \
         --db-name ${DB_NAME} \
-        --admin-password ${ADMIN_PASSWORD}
+        --admin-password ${ADMIN_PASSWORD} \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     fi
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
@@ -504,7 +508,9 @@ EOF
   fi
 
   log "Using site at ${FRAPPE_DEFAULT_SITE}..."
-  bench use "${FRAPPE_DEFAULT_SITE}"
+  bench use "${FRAPPE_DEFAULT_SITE}" \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
   echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-site-init"
   log "Docker Frappe automatic site setup ended"
