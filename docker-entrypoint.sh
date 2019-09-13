@@ -386,8 +386,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   # Remove anything from bench which is not in apps.txt
   if [ -n "${FRAPPE_DEFAULT_SITE}" ]; then
     log "Bench apps:"
-    bench list-apps --site "${FRAPPE_DEFAULT_SITE}" 
-    for app in $(bench list-apps --site "${FRAPPE_DEFAULT_SITE}"); do
+    bench --site "${FRAPPE_DEFAULT_SITE}" list-apps
+    for app in $(bench --site "${FRAPPE_DEFAULT_SITE}" list-apps); do
       if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
         log "Removing $app from bench..."
         bench remove-from-installed-apps "$app"
