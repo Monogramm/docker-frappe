@@ -375,6 +375,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
   fi
 
+  # Remove any missing app to init in apps.txt
   for app in ${FRAPPE_APP_INIT}; do
     if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
       log "Adding $app to apps.txt..."
@@ -382,7 +383,13 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     fi
   done
 
-  # TODO remove anything from apps.txt which is not in apps folder?
+  # Remove anything from bench which is not in apps.txt
+  for app in $(bench list-apps); do
+    if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
+      log "Removing $app from bench..."
+      bench remove-from-installed-apps "$app"
+    fi
+  done
 
 else
   # Wait for another node to setup apps and sites
