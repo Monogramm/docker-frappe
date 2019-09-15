@@ -86,7 +86,7 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          if [ "${DOCKER_DEBUG}" == "1" ]; then
+          if [[ "${DOCKER_DEBUG}" == "1" ]]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -108,7 +108,7 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
-          if [ "${DOCKER_DEBUG}" == "1" ]; then
+          if [[ "${DOCKER_DEBUG}" == "1" ]]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -130,7 +130,7 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          if [ "${DOCKER_DEBUG}" == "1" ]; then
+          if [[ "${DOCKER_DEBUG}" == "1" ]]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -196,7 +196,7 @@ bench_setup_database() {
 
 bench_setup() {
   # Expecting parameters to be a list of apps to (re)install
-  if [ "$#" -ne 0 ] || [ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]; then
+  if [ "$#" -ne 0 ] || [[ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]]; then
     wait_db
 
     log "Reinstalling with fresh database..."
@@ -367,7 +367,7 @@ bench_socketio() {
 reset_logs
 setup_logs_owner
 
-if [ "${FRAPPE_RESET_SITES}" == "1" ]; then
+if [[ "${FRAPPE_RESET_SITES}" == "1" ]]; then
   log "Removing all sites!"
   rm -rf "${FRAPPE_WD}/sites/*"
 fi
@@ -393,7 +393,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   fi
 
   # Init apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ "${FRAPPE_APP_RESET}" == "1" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [[ "${FRAPPE_APP_RESET}" == "1" ]]; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
@@ -555,7 +555,7 @@ fi
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
   # Frappe automatic app setup
-  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [[ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]]; then
 
     # Call bench setup for app
     bench_setup "${FRAPPE_APP_INIT}"
