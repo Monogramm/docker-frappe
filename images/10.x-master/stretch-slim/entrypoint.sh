@@ -551,7 +551,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   fi
 
   # Frappe automatic app migration (based on container build properties)
-  if [ ! -f "${FRAPPE_WD}/sites/.docker-init" ] || ! grep "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
+  if [ -f "${FRAPPE_WD}/sites/.docker-init" ] && ! grep "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
     bench_setup_requirements
     bench_build_apps
     bench_migrate
