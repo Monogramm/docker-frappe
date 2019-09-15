@@ -1,4 +1,4 @@
-FROM monogramm/docker-frappe:alpine
+FROM %%IMAGE_NAME%%
 
 ADD docker_test.sh /docker_test.sh
 

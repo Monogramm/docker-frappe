@@ -36,6 +36,11 @@ fi
 
 # XXX Add your own tests
 # https://docs.docker.com/docker-hub/builds/automated-testing/
+# https://frappe.io/docs/user/en/testing
+# https://frappe.io/docs/user/en/guides/automated-testing/unit-testing
+#echo "Executing frappe app tests..."
+#bench run-tests --profile --app frappe
+## TODO Test result of tests
 
 # Success
 echo 'Docker test successful'
