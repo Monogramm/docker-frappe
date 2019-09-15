@@ -96,14 +96,17 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
 						s/%%PIP_VERSION%%//g;
-					' "$dir/Dockerfile" "$dir/entrypoint.sh" "$dir/.env" "$dir/test/Dockerfile"
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
 						s/%%PIP_VERSION%%/3/g;
-					' "$dir/Dockerfile" "$dir/entrypoint.sh" "$dir/.env" "$dir/test/Dockerfile"
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
+				sed -ri -e '
+					s/%%VARIANT%%/'"$variant"'/g;
+				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then
 					sed -ri -e '
