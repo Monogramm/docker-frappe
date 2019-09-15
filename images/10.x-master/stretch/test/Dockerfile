@@ -6,7 +6,7 @@ FROM docker-frappe:10-2.7-stretch
 ADD docker_test.sh /docker_test.sh
 
 RUN set -ex; \
-    test "2.7-stretch" == "debian-slim" && apt-get update && apt-get install iputils-ping; \
+    test "2.7-stretch" == "stretch-slim" && apt-get update && apt-get install iputils-ping; \
     sudo chmod 755 /docker_test.sh;
 
 CMD ["/docker_test.sh"]
