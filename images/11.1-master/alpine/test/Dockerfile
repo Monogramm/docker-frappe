@@ -6,6 +6,7 @@ FROM docker-frappe:11-alpine
 ADD docker_test.sh /docker_test.sh
 
 RUN set -ex; \
+    test "alpine" == "debian-slim" && apt-get update && apt-get install ping; \
     sudo chmod 755 /docker_test.sh;
 
 CMD ["/docker_test.sh"]
