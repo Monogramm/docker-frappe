@@ -1,4 +1,7 @@
-FROM %%IMAGE_NAME%%
+# For development or CI, build from local Dockerfile
+FROM docker-frappe:%%FRAPPE_VERSION%%-%%VARIANT%%
+# For production, download prebuilt image
+#FROM monogramm/docker-frappe:%%FRAPPE_VERSION%%
 
 ADD docker_test.sh /docker_test.sh
 
