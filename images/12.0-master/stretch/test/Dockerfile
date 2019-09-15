@@ -6,7 +6,7 @@ FROM docker-frappe:12-stretch
 ADD docker_test.sh /docker_test.sh
 
 RUN set -ex; \
-    test 'stretch' = 'stretch-slim' && sudo apt-get update && sudo apt-get install iputils-ping; \
+    test 'stretch' = 'stretch-slim' && sudo apt-get update && sudo apt-get install -y --allow-unauthenticated iputils-ping; \
     sudo chmod 755 /docker_test.sh;
 
 CMD ["/docker_test.sh"]
