@@ -142,9 +142,22 @@ wait_container() {
 bench_doctor() {
   setup_logs_owner
   log "Checking diagnostic info..."
-  bench doctor \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  if bench doctor; then
+    log "Everything seems to be good with your Frappe environment and background workers."
+  else
+    log "Error(s) detected in your Frappe environment and background workers!!!"
+    bench doctor \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+
+    # Remove any module not found from bench installed apps
+    for app in $(bench doctor 3>&1 1>&2 2>&3 | grep 'ModuleNotFoundError: ' | cut -d"'" -f 2); do
+      log "Removing $app from bench..."
+      bench remove-from-installed-apps "$app" \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    done
+  fi
 }
 
 bench_build_apps() {
@@ -365,6 +378,20 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
 
   setup_sites_owner
 
+  # Remove anything from apps.txt which is not in requested through docker
+  if [ -f "${FRAPPE_WD}/sites/apps.txt" ]; then
+    log "Checking bench apps to remove before init..."
+
+    for app in $(cat ${FRAPPE_WD}/sites/apps.txt); do
+      if ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
+        log "Removing $app from bench..."
+        bench remove-from-installed-apps "$app" \
+          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      fi
+    done
+  fi
+
   # Init apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ "${FRAPPE_APP_RESET}" == "1" ]; then
     log "Adding frappe to apps.txt..."
@@ -382,18 +409,6 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
     fi
   done
-
-  # Remove anything from bench which is not in apps.txt
-  if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ -d "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}" ]; then
-    log "Bench apps:"
-    bench --site "${FRAPPE_DEFAULT_SITE}" list-apps
-    for app in $(bench --site "${FRAPPE_DEFAULT_SITE}" list-apps); do
-      if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
-        log "Removing $app from bench..."
-        bench remove-from-installed-apps "$app"
-      fi
-    done
-  fi
 
 else
   # Wait for another node to setup apps and sites
