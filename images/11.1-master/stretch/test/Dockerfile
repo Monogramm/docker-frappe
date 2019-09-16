@@ -1,7 +1,6 @@
 # For development or CI, build from local Dockerfile
-FROM docker-frappe:11-stretch
 # For production, download prebuilt image
-#FROM monogramm/docker-frappe:11
+FROM monogramm/docker-frappe:11-stretch
 
 ADD docker_test.sh /docker_test.sh
 
