@@ -16,7 +16,7 @@ before_script:
 script:
   - cd "$dir"
   # Prepare test image for local build version and variant
-  - sed -i -e "s|monogramm/||g" Dockerfile_test
+  - sed -i -e "s|monogramm/||g" test/Dockerfile
   # Test container build
   - travis_retry docker-compose build
   - docker images
