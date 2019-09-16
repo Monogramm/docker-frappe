@@ -104,6 +104,9 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%PIP_VERSION%%/3/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
+				sed -ri -e '
+					s/%%VARIANT%%/'"$variant"'/g;
+				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then
 					sed -ri -e '
@@ -120,13 +123,13 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%VERSION%%/'"$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
-					' "$dir/Dockerfile" "$dir/docker-compose.yml"
+					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
-					' "$dir/Dockerfile" "$dir/docker-compose.yml"
+					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
 				fi
 
 				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"

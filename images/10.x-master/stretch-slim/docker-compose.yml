@@ -35,9 +35,9 @@ services:
 
   frappe_app:
     # For development or CI, build from local Dockerfile
-    build: ./
     # For production, download prebuilt image
-    #image: monogramm:docker-frappe:10
+    build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_app
     command: app
     #restart: always
@@ -120,10 +120,7 @@ services:
       - /srv/erpnext/db:/var/lib/mysql
 
   frappe_scheduler:
-    # For development or CI, build from local Dockerfile
-    build: ./
-    # For production, download prebuilt image
-    #image: monogramm:docker-frappe:10
+    image: ${IMAGE_NAME}
     container_name: frappe_scheduler
     command: scheduler
     #restart: always
@@ -139,10 +136,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_default:
-    # For development or CI, build from local Dockerfile
-    build: ./
-    # For production, download prebuilt image
-    #image: monogramm:docker-frappe:10
+    image: ${IMAGE_NAME}
     container_name: frappe_worker_default
     command: worker-default
     #restart: always
@@ -158,10 +152,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_long:
-    # For development or CI, build from local Dockerfile
-    build: ./
-    # For production, download prebuilt image
-    #image: monogramm:docker-frappe:10
+    image: ${IMAGE_NAME}
     container_name: frappe_worker_long
     command: worker-long
     #restart: always
@@ -177,10 +168,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_short:
-    # For development or CI, build from local Dockerfile
-    build: ./
-    # For production, download prebuilt image
-    #image: monogramm:docker-frappe:10
+    image: ${IMAGE_NAME}
     container_name: frappe_worker_short
     command: worker-short
     #restart: always
@@ -196,10 +184,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   frappe_socketio:
-    # For development or CI, build from local Dockerfile
-    build: ./
-    # For production, download prebuilt image
-    #image: monogramm:docker-frappe:10
+    image: ${IMAGE_NAME}
     container_name: frappe_socketio
     command: node-socketio
     #restart: always

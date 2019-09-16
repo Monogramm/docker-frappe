@@ -86,7 +86,7 @@ wait_apps() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          if [ "${DOCKER_DEBUG}" == "1" ]; then
+          if test "${DOCKER_DEBUG}" = "1"; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -108,7 +108,7 @@ wait_sites() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
-          if [ "${DOCKER_DEBUG}" == "1" ]; then
+          if test "${DOCKER_DEBUG}" = "1"; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -130,7 +130,7 @@ wait_container() {
       i="$(($i+$s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          if [ "${DOCKER_DEBUG}" == "1" ]; then
+          if test "${DOCKER_DEBUG}" = "1"; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -142,9 +142,22 @@ wait_container() {
 bench_doctor() {
   setup_logs_owner
   log "Checking diagnostic info..."
-  bench doctor \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  if bench doctor; then
+    log "Everything seems to be good with your Frappe environment and background workers."
+  else
+    log "Error(s) detected in your Frappe environment and background workers!!!"
+    bench doctor \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+
+    # Remove any module not found from bench installed apps
+    for app in $(bench doctor 3>&1 1>&2 2>&3 | grep 'ModuleNotFoundError: ' | cut -d"'" -f 2); do
+      log "Removing $app from bench..."
+      bench remove-from-installed-apps "$app" \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    done
+  fi
 }
 
 bench_build_apps() {
@@ -183,7 +196,7 @@ bench_setup_database() {
 
 bench_setup() {
   # Expecting parameters to be a list of apps to (re)install
-  if [ "$#" -ne 0 ] || [ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]; then
+  if [ "$#" -ne 0 ] || test "${FRAPPE_REINSTALL_DATABASE}" = "1"; then
     wait_db
 
     log "Reinstalling with fresh database..."
@@ -354,7 +367,7 @@ bench_socketio() {
 reset_logs
 setup_logs_owner
 
-if [ "${FRAPPE_RESET_SITES}" == "1" ]; then
+if test "${FRAPPE_RESET_SITES}" = "1"; then
   log "Removing all sites!"
   rm -rf "${FRAPPE_WD}/sites/*"
 fi
@@ -365,8 +378,22 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
 
   setup_sites_owner
 
+  # Remove anything from apps.txt which is not in requested through docker
+  if [ -f "${FRAPPE_WD}/sites/apps.txt" ]; then
+    log "Checking bench apps to remove before init..."
+
+    for app in $(cat ${FRAPPE_WD}/sites/apps.txt); do
+      if ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
+        log "Removing $app from bench..."
+        bench remove-from-installed-apps "$app" \
+          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      fi
+    done
+  fi
+
   # Init apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ "${FRAPPE_APP_RESET}" == "1" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || test "${FRAPPE_APP_RESET}" = "1"; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
     sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
@@ -382,18 +409,6 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
     fi
   done
-
-  # Remove anything from bench which is not in apps.txt
-  if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ -d "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}" ]; then
-    log "Bench apps:"
-    bench --site "${FRAPPE_DEFAULT_SITE}" list-apps
-    for app in $(bench --site "${FRAPPE_DEFAULT_SITE}" list-apps); do
-      if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
-        log "Removing $app from bench..."
-        bench remove-from-installed-apps "$app"
-      fi
-    done
-  fi
 
 else
   # Wait for another node to setup apps and sites
@@ -540,7 +555,7 @@ fi
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
   # Frappe automatic app setup
-  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]; then
+  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || test "${FRAPPE_REINSTALL_DATABASE}" = "1"; then
 
     # Call bench setup for app
     bench_setup "${FRAPPE_APP_INIT}"
@@ -551,7 +566,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   fi
 
   # Frappe automatic app migration (based on container build properties)
-  if [ ! -f "${FRAPPE_WD}/sites/.docker-init" ] || ! grep "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
+  if [ -f "${FRAPPE_WD}/sites/.docker-init" ] && ! grep "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
     bench_setup_requirements
     bench_build_apps
     bench_migrate
