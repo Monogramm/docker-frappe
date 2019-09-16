@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eo pipefail
 
+declare -A shebang=(
+	[stretch]='bash'
+	[stretch-slim]='bash'
+	[alpine]='sh'
+)
+
 declare -A base=(
 	[stretch]='debian'
 	[stretch-slim]='debian'
@@ -96,12 +102,14 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
 						s/%%PIP_VERSION%%//g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
 						s/%%PIP_VERSION%%/3/g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
 				sed -ri -e '
