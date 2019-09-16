@@ -141,6 +141,7 @@ wait_container() {
 
 bench_doctor() {
   setup_logs_owner
+
   log "Checking diagnostic info..."
   if bench doctor; then
     log "Everything seems to be good with your Frappe environment and background workers."
@@ -383,7 +384,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     log "Checking bench apps to remove before init..."
 
     for app in $(cat ${FRAPPE_WD}/sites/apps.txt); do
-      if ! "${app}" = "frappe" && ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
+      if test ! "${app}" = "frappe" && ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
         log "Removing $app from bench..."
         bench remove-from-installed-apps "$app" \
           | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
