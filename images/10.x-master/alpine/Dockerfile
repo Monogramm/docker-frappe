@@ -91,11 +91,6 @@ RUN set -ex; \
 # Copy docker entrypoint and private install script
 ADD ./entrypoint.sh /
 
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps
-
 # Set permissions
 RUN set -ex; \
     sudo chmod +x \
@@ -111,6 +106,11 @@ RUN set -ex; \
         "/home/$FRAPPE_USER/frappe-bench" \
     ;
 
+VOLUME /home/$FRAPPE_USER/bench-repo \
+    /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites \
+    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
+
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
     DOCKER_DB_ALLOWED_HOSTS= \
@@ -125,6 +125,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     DOCKER_GUNICORN_LOGLEVEL=info \
     FRAPPE_APP_INIT= \
     FRAPPE_APP_RESET= \
+    FRAPPE_APP_PROTECTED=frappe \
     FRAPPE_DEFAULT_PROTOCOL= \
     FRAPPE_DEFAULT_SITE= \
     FRAPPE_RESET_SITES= \

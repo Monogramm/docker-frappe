@@ -120,8 +120,13 @@ DOCKER_GUNICORN_KEYFILE=
 # List of frappe apps (space separated) to init on startup (bench install-app)
 FRAPPE_APP_INIT=
 
-# Reset apps.txt. If set to 1, apps.txt older content will be removed on startup and only contain the content of FRAPPE_APP_INIT
+# Reset apps.txt
+# If set to 1, apps.txt older content will be removed on startup and only contain the content of FRAPPE_APP_INIT
 FRAPPE_APP_RESET=
+
+# Protected apps that shall never be removed automatically
+# Mostly used to secure that frappe and erpnext are not removed due to misconfiguration
+FRAPPE_APP_PROTECTED=frappe
 
 # Default protocol (should either be empty, or http:// or https:// when using SSL)
 FRAPPE_DEFAULT_PROTOCOL=
@@ -129,13 +134,16 @@ FRAPPE_DEFAULT_PROTOCOL=
 # Default site
 FRAPPE_DEFAULT_SITE=
 
-# Remove all sites data on startup if set to 1. This should only be used for dev / test environments
+# Remove all sites data on startup if set to 1
+# This should only be used for dev / test environments
 FRAPPE_RESET_SITES=
 
-# Reinstall database. If set to 1, database will be resinstalled. This should only be used for dev / test environments
+# Reinstall database
+# If set to 1, database will be resinstalled. This should only be used for dev / test environments
 FRAPPE_REINSTALL_DATABASE=
 
-# Build options passed to the bench build command. Can be used with --restore to copy the public assets instead of symlinking them
+# Build options passed to the bench build command
+# Can be used with --restore to copy the public assets instead of symlinking them
 FRAPPE_BUILD_OPTIONS=
 
 FRAPPE_LOGGING=1
@@ -146,7 +154,8 @@ DEVELOPER_MODE=0
 
 ADMIN_PASSWORD=frappe
 
-# Encryption key. Leave empty to generate a random base64 32 key
+# Encryption key
+# Leave empty to generate a random base64 32 key
 ENCRYPTION_KEY=
 ```
 

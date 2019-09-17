@@ -153,10 +153,14 @@ bench_doctor() {
 
     # Remove any module not found from bench installed apps
     for app in $(bench doctor 3>&1 1>&2 2>&3 | grep 'ModuleNotFoundError: ' | cut -d"'" -f 2); do
-      log "Removing $app from bench..."
-      bench remove-from-installed-apps "$app" \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      if ! echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${app}( |$)"; then
+        log "Removing '$app' from bench..."
+        bench remove-from-installed-apps "$app" \
+          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      else
+        log "The application '$app' was not found but cannot be removed because it is protected!!"
+      fi
     done
   fi
 }
@@ -206,7 +210,7 @@ bench_setup() {
       | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
     for app in $@; do
-      log "Installing app $app..."
+      log "Installing app '$app'..."
       bench install-app "$app" \
         | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
         | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
@@ -384,8 +388,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     log "Checking bench apps to remove before init..."
 
     for app in $(cat ${FRAPPE_WD}/sites/apps.txt); do
-      if [[ ! "${app}" == "frappe" ]] && ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
-        log "Removing $app from bench..."
+      if ! echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${app}( |$)" && ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
+        log "Removing '$app' from bench..."
         bench remove-from-installed-apps "$app" \
           | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
           | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
@@ -406,7 +410,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   # Remove any missing app to init in apps.txt
   for app in ${FRAPPE_APP_INIT}; do
     if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
-      log "Adding $app to apps.txt..."
+      log "Adding '$app' to apps.txt..."
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
     fi
   done
