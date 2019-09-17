@@ -94,7 +94,7 @@ ADD ./entrypoint.sh /
 VOLUME /home/$FRAPPE_USER/bench-repo \
     /home/$FRAPPE_USER/frappe-bench/logs \
     /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps
+    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
 
 # Set permissions
 RUN set -ex; \
