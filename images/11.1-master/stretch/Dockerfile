@@ -3,7 +3,7 @@ FROM monogramm/docker-frappe-base:stretch
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v11.1.56
+ARG VERSION=v11.1.57
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
