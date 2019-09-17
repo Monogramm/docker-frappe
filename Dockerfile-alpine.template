@@ -91,11 +91,6 @@ RUN set -ex; \
 # Copy docker entrypoint and private install script
 ADD ./entrypoint.sh /
 
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
-
 # Set permissions
 RUN set -ex; \
     sudo chmod +x \
@@ -110,6 +105,11 @@ RUN set -ex; \
     sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
         "/home/$FRAPPE_USER/frappe-bench" \
     ;
+
+VOLUME /home/$FRAPPE_USER/bench-repo \
+    /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites \
+    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
 
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
