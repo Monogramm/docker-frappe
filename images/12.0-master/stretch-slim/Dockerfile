@@ -1,5 +1,5 @@
 ##
-##    Docker container for Frappe.
+##    Docker image for Frappe applications.
 ##    Copyright (C) 2019  Monogramm
 ##
 ##    This program is free software: you can redistribute it and/or modify
