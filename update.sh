@@ -7,6 +7,12 @@ declare -A shebang=(
 	[alpine]='sh'
 )
 
+declare -A testbase=(
+	[stretch]='debian'
+	[stretch-slim]='debian-slim'
+	[alpine]='alpine'
+)
+
 declare -A base=(
 	[stretch]='debian'
 	[stretch-slim]='debian'
@@ -113,7 +119,7 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
 				sed -ri -e '
-					s/%%VARIANT%%/'"$variant"'/g;
+					s/%%VARIANT%%/'"${testbase[$variant]}"'/g;
 				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then
