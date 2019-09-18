@@ -11,7 +11,9 @@
 
 # Frappe custom Docker container
 
-Docker image for Frappe applications.
+:whale: Docker image for Frappe applications.
+
+:warning: **This image is still in beta and should not be used in production (yet)!**
 
 This image was inspired by several other containers developed by the community:
 * [emadshaaban92/docker-compose-erpnext](https://github.com/emadshaaban92/docker-compose-erpnext/) / [BizzoTech/docker-frappe](https://github.com/BizzoTech/docker-frappe) for the "_simple_" docker-compose setup
@@ -23,10 +25,9 @@ The concept is the following:
 * the application container sets all the environment variables, the other containers wait for setup to be done
 * provide postgresql compatibility
 * the container detects and execute migration automatically
+* the container detects missing modules / apps and remove them automatically
 
 Check image [Monogramm/docker-erpnext](https://github.com/Monogramm/docker-erpnext) to see how to expand this image and build frappe apps.
-
-:warning: **This image is still in beta and should not be used in production (yet)!**
 
 ## What is Frappe ?
 
