@@ -294,6 +294,10 @@ bench_restore() {
   else
     # Get file number from argument
     n=$1
+
+    # TODO Allow to pass the name of the file instead ?
+    # TODO Allow to pass the private and public files archive as well
+
   fi
   log "You have chosen to restore backup file number $n"
 
