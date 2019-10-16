@@ -67,6 +67,8 @@ setup_sites_owner() {
   ;
 }
 
+# TODO Function to escape double quotes for variables inserted in JSON
+
 
 pip_install() {
   log "Install apps python packages..."
