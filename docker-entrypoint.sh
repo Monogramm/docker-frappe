@@ -164,6 +164,13 @@ bench_doctor() {
   log "Checking diagnostic info..."
   if bench doctor; then
     log "Everything seems to be good with your Frappe environment and background workers."
+    # Doctor might return successfully but display in logs scheduler is disabled/inactive:
+    # -----Checking scheduler status-----
+    # Scheduler disabled for localhost
+    # Scheduler inactive for localhost
+    # Workers online: 3
+    # -----localhost Jobs-----
+    # TODO Check scheduler status in logs and enable them: bench enable-scheduler
   else
     log "Error(s) detected in your Frappe environment and background workers!!!"
     bench doctor \
@@ -338,6 +345,7 @@ bench_migrate() {
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Migrate Finished"
+  # TODO Call bench doctor ?
 }
 
 
