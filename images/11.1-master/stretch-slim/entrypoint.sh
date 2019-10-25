@@ -67,6 +67,8 @@ setup_sites_owner() {
   ;
 }
 
+# TODO Function to escape double quotes for variables inserted in JSON
+
 
 pip_install() {
   log "Install apps python packages..."
@@ -160,9 +162,25 @@ bench_doctor() {
   setup_logs_owner
 
   log "Checking diagnostic info..."
+
   if bench doctor; then
+
     log "Everything seems to be good with your Frappe environment and background workers."
+    # Bench Doctor might return successfully but display in logs scheduler is disabled/inactive:
+    # -----Checking scheduler status-----
+    # Scheduler disabled for localhost
+    # Scheduler inactive for localhost
+    # Workers online: 3
+    # -----localhost Jobs-----
+
+    # TODO Only enable if doctor says the scheduler is disabled/inactive
+    log "Enabling schedulers for current site..."
+    bench enable-scheduler \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+
   else
+
     log "Error(s) detected in your Frappe environment and background workers!!!"
     bench doctor \
       | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
@@ -179,6 +197,7 @@ bench_doctor() {
         log "The application '$app' was not found but cannot be removed because it is protected!!"
       fi
     done
+
   fi
 }
 
@@ -280,6 +299,9 @@ bench_backup() {
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Backup Finished."
   list_backups
+
+  # Call bench doctor after backup
+  bench_doctor
 }
 
 bench_restore() {
@@ -292,6 +314,10 @@ bench_restore() {
   else
     # Get file number from argument
     n=$1
+
+    # TODO Allow to pass the name of the file instead ?
+    # TODO Allow to pass the private and public files archive as well
+
   fi
   log "You have chosen to restore backup file number $n"
 
@@ -310,6 +336,8 @@ bench_restore() {
 
   if [ "$n" = "$i" ]; then
     log "Backup successfully restored."
+    # Call bench doctor after backup
+    bench_doctor
   else
     log "Requested backup was not found!"
     exit 1
@@ -332,6 +360,9 @@ bench_migrate() {
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Migrate Finished"
+
+  # Call bench doctor after migrate
+  bench_doctor
 }
 
 
