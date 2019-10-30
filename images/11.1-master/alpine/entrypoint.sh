@@ -316,12 +316,29 @@ bench_restore() {
     read -p "Enter the public files archive name which you want to restore (or press enter for none): " public
     read -p "Enter the private files archive name which you want to restore (or press enter for none): " private
   else
-    # Allow to pass the file name from argument
-    file=$1
 
-    # Allow to pass the private and public files archive as well
-    public=$2
-    private=$3
+    case ${1} in
+      (*[!0-9]*|'') # Not a number: assume all args are file names
+        file=$1
+        public=$2
+        private=$3
+        ;;
+      (*) # A number: assume all args are numbers
+        i=1
+        for f in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+        do
+          if [ "$1" = "$i" ]; then
+            file=$f
+          elif [ "$2" = "$i" ]; then
+            public=$f
+          elif [ "$3" = "$i" ]; then
+            private=$f
+          fi
+          i="$(($i+1))"
+        done
+        ;;
+    esac
+
   fi
 
   # Little helpers to allow to only set the name of the files instead of path
