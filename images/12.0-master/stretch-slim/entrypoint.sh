@@ -309,32 +309,69 @@ bench_restore() {
 
   if [ "$#" -eq 0 ]; then
     list_backups
-    # Choose file number
-    read -p "Enter the file number which you want to restore : " n
-  else
-    # Get file number from argument
-    n=$1
+    # Choose file name
+    read -p "Enter the SQL file name which you want to restore: " file
 
-    # TODO Allow to pass the name of the file instead ?
-    # TODO Allow to pass the private and public files archive as well
+    # Allow to set the private and public files archive as well
+    read -p "Enter the public files archive name which you want to restore (or press enter for none): " public
+    read -p "Enter the private files archive name which you want to restore (or press enter for none): " private
+  else
+
+    case ${1} in
+      (*[!0-9]*|'') # Not a number: assume all args are file names
+        file=$1
+        public=$2
+        private=$3
+        ;;
+      (*) # A number: assume all args are numbers
+        i=1
+        for f in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
+        do
+          if [ "$1" = "$i" ]; then
+            file=$f
+          elif [ "$2" = "$i" ]; then
+            public=$f
+          elif [ "$3" = "$i" ]; then
+            private=$f
+          fi
+          i="$(($i+1))"
+        done
+        ;;
+    esac
 
   fi
-  log "You have chosen to restore backup file number $n"
 
-  i=1
-  for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
-  do
-    if [ "$n" = "$i" ]; then
-      log "Restoring backup file number $n: $file. Please wait..."
-      bench --force restore $file \
+  # Little helpers to allow to only set the name of the files instead of path
+  if [ -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups/${file}" ]; then
+    file="${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups/${file}"
+  fi
+  if [ -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups/${public}" ]; then
+    public="${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups/${public}"
+  fi
+  if [ -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups/${private}" ]; then
+    private="${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/private/backups/${private}"
+  fi
+
+  log "You have chosen to restore backup file '$file'"
+  if [ -f "$file" ]; then
+      RESTORE_ARGS=
+      if [ -f "$public" ]; then
+        log "Public files backup will also be restored: '$public'"
+        RESTORE_ARGS="${RESTORE_ARGS} --with-public-files $public"
+      elif [ -n "$public" ]; then
+        log "Requested public files backup '$public' was not found!"
+      fi
+      if [ -f "$private" ]; then
+        log "Private files backup will also be restored: '$private'"
+        RESTORE_ARGS="${RESTORE_ARGS} --with-private-files $private"
+      elif [ -n "$private" ]; then
+        log "Requested private files backup '$private' was not found!"
+      fi
+
+      bench --force restore ${RESTORE_ARGS} "$file" \
         | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
         | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
-      break
-    fi;
-    i="$(($i+1))"
-  done
 
-  if [ "$n" = "$i" ]; then
     log "Backup successfully restored."
     # Call bench doctor after backup
     bench_doctor

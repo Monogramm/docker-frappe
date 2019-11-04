@@ -52,9 +52,10 @@ script:
   - echo 'Wait until test finished (1-2 minutes)' && sleep 120
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
-  # Test container migrate, backup and restore
+  # Test container migrate
   - docker-compose run --rm "frappe_app" bench migrate --help
   - docker-compose run --rm "frappe_app" migrate
+  # Test container backup
   - docker-compose run --rm "frappe_app" bench backup --help
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
@@ -62,6 +63,7 @@ script:
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" bench restore --help
+  # Test container "old" restore (file number instead of file name)
   - docker-compose run --rm "frappe_app" restore 1
 
 notifications:
