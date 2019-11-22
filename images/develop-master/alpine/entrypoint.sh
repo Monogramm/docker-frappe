@@ -457,6 +457,11 @@ bench_socketio() {
 reset_logs
 setup_logs_owner
 
+if [ -f "/before_${NODE_TYPE}_init.sh" ]; then
+  log "Executin custom script before '${NODE_TYPE}' init..."
+  "/before_${NODE_TYPE}_init.sh"
+fi
+
 if [[ "${FRAPPE_RESET_SITES}" == "1" ]]; then
   log "Removing all sites!"
   rm -rf "${FRAPPE_WD}/sites/*"
@@ -663,6 +668,11 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   fi
   echo "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" > "${FRAPPE_WD}/sites/.docker-init"
 
+fi
+
+if [ -f "/after_${NODE_TYPE}_init.sh" ]; then
+  log "Executin custom script after '${NODE_TYPE}' init..."
+  "/after_${NODE_TYPE}_init.sh"
 fi
 
 
