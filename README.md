@@ -26,6 +26,7 @@ The concept is the following:
 * provide postgresql compatibility
 * the container detects and execute migration automatically
 * the container detects missing modules / apps and remove them automatically
+* allow before and after '_node_' custom scripts
 
 Check image [Monogramm/docker-erpnext](https://github.com/Monogramm/docker-erpnext) to see how to expand this image and build frappe apps.
 
