@@ -15,12 +15,12 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM monogramm/docker-frappe-base:stretch
+FROM monogramm/docker-frappe-base:alpine
 
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v11.1.63
+ARG VERSION=v12.1.0
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
@@ -44,8 +44,8 @@ ENV DOCKER_TAG=${TAG} \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
-    groupadd -r $FRAPPE_USER; \
-    useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
+    addgroup -S $FRAPPE_USER; \
+    adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
     echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
 USER $FRAPPE_USER
