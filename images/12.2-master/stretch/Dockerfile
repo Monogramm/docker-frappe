@@ -20,7 +20,7 @@ FROM monogramm/docker-frappe-base:stretch
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v12.2.0
+ARG VERSION=v12.2.1
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
@@ -150,6 +150,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_BUILD_OPTIONS= \
     FRAPPE_LOGGING=1 \
     GOOGLE_ANALYTICS_ID= \
+    ALLOW_TESTS=0 \
     DEVELOPER_MODE=0 \
     ADMIN_PASSWORD=frappe \
     ENCRYPTION_KEY= \
