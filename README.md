@@ -13,8 +13,6 @@
 
 :whale: Docker image for Frappe applications.
 
-:warning: **This image is still in beta and should not be used in production (yet)!**
-
 This image was inspired by several other containers developed by the community:
 * [emadshaaban92/docker-compose-erpnext](https://github.com/emadshaaban92/docker-compose-erpnext/) / [BizzoTech/docker-frappe](https://github.com/BizzoTech/docker-frappe) for the "_simple_" docker-compose setup
 * [donysukardi/docker-frappe](https://github.com/donysukardi/docker-frappe) for the alpine variant (actually the source for BizzoTech images)

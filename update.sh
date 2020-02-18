@@ -2,32 +2,26 @@
 set -eo pipefail
 
 declare -A shebang=(
-	[stretch]='bash'
-	[stretch-slim]='bash'
+	[debian]='bash'
+	[debian-slim]='bash'
 	[alpine]='sh'
 )
 
-declare -A testbase=(
-	[stretch]='debian'
-	[stretch-slim]='debian-slim'
-	[alpine]='alpine'
-)
-
 declare -A base=(
-	[stretch]='debian'
-	[stretch-slim]='debian'
+	[debian]='debian'
+	[debian-slim]='debian'
 	[alpine]='alpine'
 )
 
 declare -A compose=(
-	[stretch]='mariadb'
-	[stretch-slim]='mariadb'
+	[debian]='mariadb'
+	[debian-slim]='mariadb'
 	[alpine]='postgres'
 )
 
 variants=(
-	stretch
-	stretch-slim
+	debian
+	debian-slim
 	alpine
 )
 
@@ -119,7 +113,7 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
 				sed -ri -e '
-					s/%%VARIANT%%/'"${testbase[$variant]}"'/g;
+					s/%%VARIANT%%/'"$variant"'/g;
 				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then

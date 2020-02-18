@@ -15,12 +15,12 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM monogramm/docker-frappe-base:stretch-slim
+FROM monogramm/docker-frappe-base:debian
 
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v11.1.64
+ARG VERSION=v12.2.1
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \

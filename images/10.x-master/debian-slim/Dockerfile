@@ -15,12 +15,12 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM monogramm/docker-frappe-base:stretch
+FROM monogramm/docker-frappe-base:2.7-debian-slim
 
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v11.1.64
+ARG VERSION=v10.x.x
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
@@ -55,7 +55,7 @@ WORKDIR /home/$FRAPPE_USER
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     git clone -b $BENCH_BRANCH --depth 1 https://github.com/frappe/bench bench-repo; \
-    sudo pip3 install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
+    sudo pip install -e /home/$FRAPPE_USER/bench-repo --no-cache-dir; \
     bench --version; \
     npm install \
         chalk \
@@ -81,13 +81,13 @@ RUN set -ex; \
     bench init \
         --frappe-branch $FRAPPE_BRANCH \
         --no-auto-update \
-        --python $(which python3) \
+        --python $(which python2) \
         --skip-redis-config-generation frappe-bench \
     ; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
-    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3) ; \
+    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python2) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
 # Alternative: replace previous run by this for manual install
