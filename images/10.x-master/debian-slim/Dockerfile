@@ -17,6 +17,8 @@
 ##
 FROM monogramm/docker-frappe-base:2.7-debian-slim
 
+ARG VERSION=v10.x.x
+
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
@@ -162,7 +164,6 @@ CMD ["app"]
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION=v10.x.x
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
