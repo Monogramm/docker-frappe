@@ -36,6 +36,7 @@ RUN set -ex; \
         sudo \
         wget \
         nodejs \
+        node-gyp \
         npm \
         python-mysqldb \
         git \
