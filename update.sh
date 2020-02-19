@@ -1,21 +1,33 @@
 #!/bin/bash
 set -eo pipefail
 
+declare -A shebang=(
+	[buster]='bash'
+	[slim-buster]='bash'
+	[alpine]='sh'
+)
+
 declare -A base=(
-	[stretch]='debian'
-	[stretch-slim]='debian'
+	[buster]='debian'
+	[slim-buster]='debian'
 	[alpine]='alpine'
 )
 
 declare -A compose=(
-	[stretch]='mariadb'
-	[stretch-slim]='mariadb'
+	[buster]='mariadb'
+	[slim-buster]='mariadb'
+	[alpine]='postgres'
+)
+
+declare -A compose=(
+	[buster]='mariadb'
+	[slim-buster]='mariadb'
 	[alpine]='postgres'
 )
 
 variants=(
-	stretch
-	stretch-slim
+	buster
+	slim-buster
 	alpine
 )
 
@@ -71,19 +83,66 @@ for latest in "${latestsFrappe[@]}"; do
 				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
+				shortVariant=${variant/slim-/}
+				majorVersion=${version:0:1}
+				if [[ "$majorVersion" = "2" && "${base[$variant]}" = "debian" ]]; then
+					majorVersion=
+				fi
+
+				# Copy the shell scripts
+				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
+					cp "docker-$name" "$dir/$name"
+					chmod 755 "$dir/$name"
+				done
+
+				case $frappe in
+					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
+					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
+				esac
+
 				template="Dockerfile-${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
+
+				cp ".dockerignore" "$dir/.dockerignore"
+				cp -r "./hooks" "$dir/hooks"
+				cp -r "./test" "$dir/"
+				cp "docker-compose.test.yml" "$dir/docker-compose.test.yml"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
 					sed -ri -e '
-						s/%%VARIANT%%/'"2.7-$variant"'/g;
-					' "$dir/Dockerfile"
+						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%MAJOR_VERSION%%/'"$majorVersion"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
+						s/%%PYTHON_VERSION%%/2/g;
+						s/%%NODE_VERSION%%/8/g;
+						s/%%PIP_VERSION%%//g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
+				elif [ "$major" = "11" ]; then
+					sed -ri -e '
+						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%MAJOR_VERSION%%/'"$majorVersion"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
+						s/%%PYTHON_VERSION%%/3/g;
+						s/%%NODE_VERSION%%/8/g;
+						s/%%PIP_VERSION%%/3/g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
-					' "$dir/Dockerfile"
+						s/%%MAJOR_VERSION%%/'"$majorVersion"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
+						s/%%PYTHON_VERSION%%/3/g;
+						s/%%NODE_VERSION%%/12/g;
+						s/%%PIP_VERSION%%/3/g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
+				sed -ri -e '
+					s/%%VARIANT%%/'"$variant"'/g;
+				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then
 					sed -ri -e '
@@ -98,33 +157,18 @@ for latest in "${latestsFrappe[@]}"; do
 				if [ "$latest" = "develop" ]; then
 					sed -ri -e '
 						s/%%VERSION%%/'"$latest"'/g;
-						s/%%BRANCH%%/'"$bench"'/g;
-					' "$dir/Dockerfile"
+						s/%%BENCH_BRANCH%%/'"$bench"'/g;
+						s/%%FRAPPE_VERSION%%/'"$major"'/g;
+					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
-						s/%%BRANCH%%/'"$bench"'/g;
-					' "$dir/Dockerfile"
+						s/%%BENCH_BRANCH%%/'"$bench"'/g;
+						s/%%FRAPPE_VERSION%%/'"$major"'/g;
+					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
 				fi
 
-				# Copy the shell scripts
-				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
-					cp "docker-$name" "$dir/$name"
-					chmod 755 "$dir/$name"
-					sed -i \
-						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
-					"$dir/$name"
-				done
-
-				cp ".dockerignore" "$dir/.dockerignore"
-
-				# Define bench version for frappe
-				case $frappe in
-					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
-					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
-				esac
-
-				travisEnv='\n    - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
+				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
 				if [[ $1 == 'build' ]]; then
 					tag="$frappe-$variant"

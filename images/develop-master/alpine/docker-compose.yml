@@ -1,9 +1,45 @@
 version: "2"
 
 services:
+  # https://docs.docker.com/docker-hub/builds/automated-testing/
+  sut:
+    build:
+      context: ./test
+      dockerfile: Dockerfile
+    command: sh /docker_test.sh
+    # Only for travis-ci, do not name test container in dockerhub
+    container_name: sut
+    depends_on:
+      - frappe_db
+      - frappe_app
+      - frappe_web
+      - frappe_scheduler
+      - frappe_worker_default
+      - frappe_worker_long
+      - frappe_worker_short
+      - frappe_socketio
+      - frappe_redis_cache
+      - frappe_redis_queue
+      - frappe_redis_socketio
+    environment:
+      # Container setup
+      - NODE_TYPE=sut
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+      - DOCKER_DEBUG=1
+    volumes_from:
+      - frappe_app
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
   frappe_app:
+    # For development or CI, build from local Dockerfile
+    # For production, download prebuilt image
     build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_app
+    command: app
     #restart: always
     ports:
       - 8000:8000
@@ -12,12 +48,15 @@ services:
     links:
       - frappe_db
     environment:
-      # Container setup
-      - NODE_TYPE=app
       # Frappe setup
       - FRAPPE_APP_INIT=frappe
+      - FRAPPE_APP_RESET=1
+      - FRAPPE_DEFAULT_PROTOCOL=http://
       - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
+      - FRAPPE_BUILD_OPTIONS=--restore
       - FRAPPE_LOGGING=1
+      - DEVELOPER_MODE=0
+      - ALLOW_TESTS=1
       #- ADMIN_USER=Administrator
       - ADMIN_PASSWORD=${FRAPPE_ADMIN_PWD}
       - ENCRYPTION_KEY=${FRAPPE_ENCRYPTION_KEY}
@@ -27,6 +66,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=${FRAPPE_DB_NAME}
       - DB_PASSWORD=${FRAPPE_DB_PWD}
+      - DB_ROOT_LOGIN=${FRAPPE_DB_ROOT_LOGIN}
       - DB_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
       # Mail setup
       - MAIL_MUTED=true
@@ -35,6 +75,8 @@ services:
       - MAIL_USE_SSL=tls
       - MAIL_LOGIN=${FRAPPE_SMTP_USER}
       - MAIL_PASSWORD=${FRAPPE_SMTP_PWD}
+      - MAIL_EMAIL_ID=${FRAPPE_SMTP_USER}@${FRAPPE_MAIL_HOST}
+      - MAIL_SENDER_NAME=ERPNext
       # Redis setup
       - REDIS_CACHE_HOST=frappe_redis_cache
       - REDIS_QUEUE_HOST=frappe_redis_queue
@@ -72,7 +114,7 @@ services:
     tty: true
     command: postgres -c 'max_connections=500'
     environment:
-      - POSTGRES_USER=root
+      - POSTGRES_USER=${FRAPPE_DB_ROOT_LOGIN}
       - POSTGRES_PASSWORD=${FRAPPE_DB_ROOT_PWD}
     volumes:
       - /srv/erpnext/db/data:/var/lib/postgresql/data
@@ -80,59 +122,71 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   frappe_scheduler:
-    build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_scheduler
     #restart: always
     depends_on:
       - frappe_app
     environment:
       - NODE_TYPE=scheduler
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_default:
-    build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_worker_default
     #restart: always
     depends_on:
       - frappe_app
     environment:
       - NODE_TYPE=worker-default
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_long:
-    build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_worker_long
     #restart: always
     depends_on:
       - frappe_app
     environment:
       - NODE_TYPE=worker-long
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_short:
-    build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_worker_short
     #restart: always
     depends_on:
       - frappe_app
     environment:
       - NODE_TYPE=worker-short
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
   frappe_socketio:
-    build: ./
+    image: ${IMAGE_NAME}
     container_name: frappe_socketio
     command: node-socketio
     #restart: always
@@ -142,8 +196,11 @@ services:
       - frappe_app
     environment:
       - NODE_TYPE=node-socketio
+      # Docker setup
+      - DOCKER_APPS_TIMEOUT=900
+    volumes_from:
+      - frappe_app
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
