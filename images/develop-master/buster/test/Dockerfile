@@ -1,6 +1,6 @@
 # For development or CI, build from local Dockerfile
 # For production, download prebuilt image
-FROM monogramm/docker-frappe:develop-buster
+FROM docker-frappe:develop-buster
 
 ADD docker_test.sh /docker_test.sh
 

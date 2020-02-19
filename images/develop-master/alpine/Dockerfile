@@ -60,7 +60,10 @@ RUN set -ex; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
+    node --version; \
+    npm --version; \
     npm install -g yarn; \
+    yarn --version; \
     mv /usr/bin/wkhtmltopdf /usr/bin/wkhtmltopdf-origin; \
     echo $'#!/usr/bin/env sh\n\
           Xvfb :0 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & \n\
@@ -123,7 +126,7 @@ RUN set -ex; \
         --frappe-branch $FRAPPE_BRANCH \
         --no-auto-update \
         --python $(which python3) \
-        --skip-redis-config-generation frappe-bench \
+        --skip-redis-config-generation --no-backups frappe-bench \
     ; \
     rm -rf node_modules; \
     cd frappe-bench; \

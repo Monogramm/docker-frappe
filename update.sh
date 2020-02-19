@@ -150,7 +150,7 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile"
 				else
 					sed -ri -e '
-						s/%%BENCH_OPTIONS%%/--skip-redis-config-generation/g;
+						s/%%BENCH_OPTIONS%%/--skip-redis-config-generation --no-backups/g;
 					' "$dir/Dockerfile"
 				fi
 
