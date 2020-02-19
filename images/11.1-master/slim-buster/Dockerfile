@@ -17,7 +17,7 @@
 ##
 FROM python:3-slim-buster
 
-ARG NODE_VERSION=12
+ARG NODE_VERSION=8
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ARG WKHTMLTOX_VERSION=0.12.4
@@ -28,7 +28,7 @@ RUN set -ex; \
     apt-get update; \
     apt-get install -y software-properties-common gnupg2 curl; \
     apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8; \
-    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian %%SHORT_VARIANT%% main"; \
+    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian buster main"; \
     curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | bash -; \
     curl -sS "https://dl.yarnpkg.com/debian/pubkey.gpg" | apt-key add -; \
     apt-get update; \

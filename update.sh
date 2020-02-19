@@ -83,6 +83,7 @@ for latest in "${latestsFrappe[@]}"; do
 				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
+				shortVariant=${variant/slim-/}
 				# Copy the shell scripts
 				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
 					cp "docker-$name" "$dir/$name"
@@ -105,15 +106,26 @@ for latest in "${latestsFrappe[@]}"; do
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
 					sed -ri -e '
-						s/%%VARIANT%%/'"2.7-$variant"'/g;
+						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
 						s/%%NODE_VERSION%%/8/g;
 						s/%%PIP_VERSION%%//g;
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
+				elif [ "$major" = "11" ]; then
+					sed -ri -e '
+						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
+						s/%%PYTHON_VERSION%%/3/g;
+						s/%%NODE_VERSION%%/8/g;
+						s/%%PIP_VERSION%%/3/g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
 						s/%%NODE_VERSION%%/12/g;
 						s/%%PIP_VERSION%%/3/g;

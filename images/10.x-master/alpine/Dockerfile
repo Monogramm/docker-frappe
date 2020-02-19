@@ -15,9 +15,9 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM python:2-2.7-alpine
+FROM python:2-alpine
 
-ARG DOCKERIZE_VERSION v0.6.1
+ARG DOCKERIZE_VERSION=v0.6.1
 
 # Frappe base environment
 RUN set -ex; \

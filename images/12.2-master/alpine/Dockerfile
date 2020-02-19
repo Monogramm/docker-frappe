@@ -17,7 +17,7 @@
 ##
 FROM python:3-alpine
 
-ARG DOCKERIZE_VERSION v0.6.1
+ARG DOCKERIZE_VERSION=v0.6.1
 
 # Frappe base environment
 RUN set -ex; \
