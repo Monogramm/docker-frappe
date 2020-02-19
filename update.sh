@@ -2,26 +2,32 @@
 set -eo pipefail
 
 declare -A shebang=(
-	[debian]='bash'
-	[debian-slim]='bash'
+	[buster]='bash'
+	[slim-buster]='bash'
 	[alpine]='sh'
 )
 
 declare -A base=(
-	[debian]='debian'
-	[debian-slim]='debian'
+	[buster]='debian'
+	[slim-buster]='debian'
 	[alpine]='alpine'
 )
 
 declare -A compose=(
-	[debian]='mariadb'
-	[debian-slim]='mariadb'
+	[buster]='mariadb'
+	[slim-buster]='mariadb'
+	[alpine]='postgres'
+)
+
+declare -A compose=(
+	[buster]='mariadb'
+	[slim-buster]='mariadb'
 	[alpine]='postgres'
 )
 
 variants=(
-	debian
-	debian-slim
+	buster
+	slim-buster
 	alpine
 )
 
@@ -101,6 +107,7 @@ for latest in "${latestsFrappe[@]}"; do
 					sed -ri -e '
 						s/%%VARIANT%%/'"2.7-$variant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
+						s/%%NODE_VERSION%%/8/g;
 						s/%%PIP_VERSION%%//g;
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
@@ -108,6 +115,7 @@ for latest in "${latestsFrappe[@]}"; do
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
+						s/%%NODE_VERSION%%/12/g;
 						s/%%PIP_VERSION%%/3/g;
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"

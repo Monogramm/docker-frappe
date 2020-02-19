@@ -15,69 +15,77 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM python:3-alpine
+FROM python:3-buster
 
-ARG DOCKERIZE_VERSION v0.6.1
+ARG NODE_VERSION=12
+
+ENV DEBIAN_FRONTEND="noninteractive"
+ARG WKHTMLTOX_VERSION=0.12.4
+ARG DOCKERIZE_VERSION=v0.6.1
 
 # Frappe base environment
 RUN set -ex; \
-    apk add --update \
+    apt-get update; \
+    apt-get install -y software-properties-common gnupg2 curl; \
+    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8; \
+    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian %%SHORT_VARIANT%% main"; \
+    curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | bash -; \
+    curl -sS "https://dl.yarnpkg.com/debian/pubkey.gpg" | apt-key add -; \
+    apt-get update; \
+    apt-get install -y --allow-unauthenticated \
+        sudo \
         wget \
         nodejs \
-        nodejs-npm \
+        python-mysqldb \
         git \
-        alpine-sdk \
-        linux-headers \
-        busybox-suid \
-        py%%MAJOR_VERSION%%-setuptools \
+        build-essential \
+        python%%MAJOR_VERSION%%-setuptools \
         python%%MAJOR_VERSION%%-dev \
         libffi-dev \
-        openntpd \
+        libssl-dev  \
+        ntp \
         screen \
         mariadb-client \
         mariadb-common \
-        mariadb-dev \
         postgresql-client \
-        postgresql-dev \
-        postgresql-libs \
-        libxslt \
-        libxslt-dev \
-        py%%MAJOR_VERSION%%-openssl \
-        py%%MAJOR_VERSION%%-ldap3 \
-        tiff-dev \
-        jpeg-dev \
-        lcms2-dev \
+        postgresql-client-common \
+        libxslt1.1 \
+        libxslt1-dev \
+        libcrypto++-dev \
+        python%%MAJOR_VERSION%%-openssl \
+        python%%MAJOR_VERSION%%-ldap3 \
+        libtiff5-dev \
+        libjpeg62-turbo-dev \
+        liblcms2-dev \
         libwebp-dev \
-        zlib-dev \
-        freetype-dev \
-        xvfb \
-        ttf-freefont \
+        tcl8.6-dev \
+        tk8.6-dev \
+        python-tk \
+        zlib1g-dev \
+        libfreetype6-dev \
         fontconfig \
-        dbus \
-        libxext \
-        wkhtmltopdf \
+        libxrender1 \
+        libxext6 \
+        xfonts-75dpi \
+        xfonts-base \
     ; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
     npm install -g yarn; \
-    mv /usr/bin/wkhtmltopdf /usr/bin/wkhtmltopdf-origin; \
-    echo $'#!/usr/bin/env sh\n\
-          Xvfb :0 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & \n\
-          DISPLAY=:0.0 wkhtmltopdf-origin $@ \n\
-          killall Xvfb\
-          ' > /usr/bin/wkhtmltopdf; \
-    chmod +x /usr/bin/wkhtmltopdf; \
+    rm -rf /var/lib/apt/lists/*; \
+    wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOX_VERSION}/wkhtmltox-${WKHTMLTOX_VERSION}_linux-generic-amd64.tar.xz; \
+    tar xf wkhtmltox-${WKHTMLTOX_VERSION}_linux-generic-amd64.tar.xz; \
+    mv wkhtmltox/bin/* /usr/local/bin/; \
+    rm wkhtmltox-${WKHTMLTOX_VERSION}_linux-generic-amd64.tar.xz; \
     wkhtmltopdf --version; \
     wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     rm dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -rf /var/cache/apk/*; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v12.2.1
+ARG VERSION=v11.1.64
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
@@ -85,8 +93,8 @@ ENV FRAPPE_USER=frappe \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
-    addgroup -S $FRAPPE_USER; \
-    adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
+    groupadd -r $FRAPPE_USER; \
+    useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
     echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
 USER $FRAPPE_USER
