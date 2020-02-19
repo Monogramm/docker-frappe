@@ -1,6 +1,6 @@
 ##
 ##    Docker image for Frappe applications.
-##    Copyright (C) 2019  Monogramm
+##    Copyright (C) 2020  Monogramm
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU Affero General Public License as published
@@ -17,29 +17,8 @@
 ##
 FROM monogramm/docker-frappe-base:alpine
 
-ARG TAG
-ARG VCS_REF
-ARG BUILD_DATE
-ARG VERSION=v12.2.1
-
-LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
-      product="Frappe" \
-      version=$VERSION \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="Frappe" \
-      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
-      org.label-schema.url="https://frappe.io/" \
-      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
-      org.label-schema.version=$VERSION \
-      org.label-schema.schema-version="1.0"
-
 # Build environment variables
-ENV DOCKER_TAG=${TAG} \
-    DOCKER_VCS_REF=${VCS_REF} \
-    DOCKER_BUILD_DATE=${BUILD_DATE} \
-    FRAPPE_USER=frappe \
+ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
     FRAPPE_BRANCH=${VERSION}
 
@@ -105,29 +84,6 @@ RUN set -ex; \
 #    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
 #    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
 
-# Copy docker entrypoint and private install script
-ADD ./entrypoint.sh /
-
-# Set permissions
-RUN set -ex; \
-    sudo chmod +x \
-        /entrypoint.sh \
-    ; \
-    sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
-    sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
-    sudo chmod +rw \
-        "/home/$FRAPPE_USER"/frappe-bench/logs \
-        "/home/$FRAPPE_USER"/frappe-bench/logs/* \
-    ; \
-    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-        "/home/$FRAPPE_USER/frappe-bench" \
-    ;
-
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
-
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
     DOCKER_DB_ALLOWED_HOSTS= \
@@ -175,7 +131,53 @@ ENV DOCKER_DB_TIMEOUT=120 \
     REDIS_QUEUE_HOST=redis_queue \
     REDIS_SOCKETIO_HOST=redis_socketio
 
+# Copy docker entrypoint and private install script
+ADD ./entrypoint.sh /
+
+# Set permissions
+RUN set -ex; \
+    sudo chmod +x \
+        /entrypoint.sh \
+    ; \
+    sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
+    sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
+    sudo chmod +rw \
+        "/home/$FRAPPE_USER"/frappe-bench/logs \
+        "/home/$FRAPPE_USER"/frappe-bench/logs/* \
+    ; \
+    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+        "/home/$FRAPPE_USER/frappe-bench" \
+    ;
+
+VOLUME /home/$FRAPPE_USER/bench-repo \
+    /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites \
+    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
+
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["app"]
+
+ARG TAG
+ARG VCS_REF
+ARG BUILD_DATE
+ARG VERSION=v12.2.1
+
+LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
+      product="Frappe" \
+      version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name="Frappe" \
+      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
+      org.label-schema.url="https://frappe.io/" \
+      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
+
+# Docker built environment variables
+ENV DOCKER_TAG=${TAG} \
+    DOCKER_VCS_REF=${VCS_REF} \
+    DOCKER_BUILD_DATE=${BUILD_DATE}
