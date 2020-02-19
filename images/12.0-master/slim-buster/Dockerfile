@@ -136,6 +136,7 @@ RUN set -ex; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
+    sed -i -e "s|^werkzeug$|werkzeug==0.16.1|g" apps/frappe/requirements.txt; \
     test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
