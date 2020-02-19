@@ -29,8 +29,8 @@ RUN set -ex; \
         alpine-sdk \
         linux-headers \
         busybox-suid \
-        py%%MAJOR_VERSION%%-setuptools \
-        python%%MAJOR_VERSION%%-dev \
+        py-setuptools \
+        python-dev \
         libffi-dev \
         openntpd \
         screen \
@@ -42,8 +42,8 @@ RUN set -ex; \
         postgresql-libs \
         libxslt \
         libxslt-dev \
-        py%%MAJOR_VERSION%%-openssl \
-        py%%MAJOR_VERSION%%-ldap3 \
+        py-openssl \
+        py-ldap3 \
         tiff-dev \
         jpeg-dev \
         lcms2-dev \

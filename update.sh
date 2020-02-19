@@ -84,6 +84,11 @@ for latest in "${latestsFrappe[@]}"; do
 				mkdir -p "$dir"
 
 				shortVariant=${variant/slim-/}
+				majorVersion=${version:0:1}
+				if [[ "$majorVersion" = "2" && "${base[$variant]}" = "debian" ]]; then
+					majorVersion=
+				fi
+
 				# Copy the shell scripts
 				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
 					cp "docker-$name" "$dir/$name"
@@ -107,6 +112,7 @@ for latest in "${latestsFrappe[@]}"; do
 				if [ "$major" = "10" ]; then
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%MAJOR_VERSION%%/'"$majorVersion"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
 						s/%%NODE_VERSION%%/8/g;
@@ -116,6 +122,7 @@ for latest in "${latestsFrappe[@]}"; do
 				elif [ "$major" = "11" ]; then
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%MAJOR_VERSION%%/'"$majorVersion"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
 						s/%%NODE_VERSION%%/8/g;
@@ -125,6 +132,7 @@ for latest in "${latestsFrappe[@]}"; do
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%MAJOR_VERSION%%/'"$majorVersion"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
 						s/%%NODE_VERSION%%/12/g;
