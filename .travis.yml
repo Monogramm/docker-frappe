@@ -78,6 +78,8 @@ matrix:
     - env: VERSION=12.1 BENCH=master VARIANT=slim-buster
     - env: VERSION=12.1 BENCH=master VARIANT=buster
     - env: VERSION=12.0 BENCH=master VARIANT=alpine
+    - env: VERSION=12.0 BENCH=master VARIANT=slim-buster
+    - env: VERSION=12.0 BENCH=master VARIANT=buster
 
 env: # Environments
   - VERSION=develop BENCH=master VARIANT=alpine
