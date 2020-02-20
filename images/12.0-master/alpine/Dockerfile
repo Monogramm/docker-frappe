@@ -44,6 +44,7 @@ RUN set -ex; \
         libxslt-dev \
         py-openssl \
         py-ldap3 \
+        python-psycopg2 \
         tiff-dev \
         jpeg-dev \
         lcms2-dev \

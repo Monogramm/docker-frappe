@@ -54,6 +54,7 @@ RUN set -ex; \
         libcrypto++-dev \
         python%%MAJOR_VERSION%%-openssl \
         python%%MAJOR_VERSION%%-ldap3 \
+        python-psycopg2 \
         libtiff5-dev \
         libjpeg62-turbo-dev \
         liblcms2-dev \
