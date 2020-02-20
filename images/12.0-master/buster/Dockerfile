@@ -70,7 +70,7 @@ RUN set -ex; \
         xfonts-75dpi \
         xfonts-base \
     ; \
-    test "3" = "2" && apt-get install -y --allow-unauthenticated npm; \
+    test "${NODE_VERSION}" = "8" && apt-get install -y --allow-unauthenticated npm; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
