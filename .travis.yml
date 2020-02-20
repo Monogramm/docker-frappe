@@ -100,3 +100,6 @@ env: # Environments
   - VERSION=12.2 BENCH=master VARIANT=alpine
   - VERSION=12.2 BENCH=master VARIANT=slim-buster
   - VERSION=12.2 BENCH=master VARIANT=buster
+  - VERSION=12.3 BENCH=master VARIANT=alpine
+  - VERSION=12.3 BENCH=master VARIANT=slim-buster
+  - VERSION=12.3 BENCH=master VARIANT=buster
