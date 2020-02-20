@@ -39,8 +39,8 @@ RUN set -ex; \
         python-mysqldb \
         git \
         build-essential \
-        python-setuptools \
-        python-dev \
+        python2-setuptools \
+        python2-dev \
         libffi-dev \
         libssl-dev  \
         ntp \
@@ -52,8 +52,8 @@ RUN set -ex; \
         libxslt1.1 \
         libxslt1-dev \
         libcrypto++-dev \
-        python-openssl \
-        python-ldap3 \
+        python2-openssl \
+        python2-ldap3 \
         python-psycopg2 \
         libtiff5-dev \
         libjpeg62-turbo-dev \
@@ -70,6 +70,7 @@ RUN set -ex; \
         xfonts-75dpi \
         xfonts-base \
     ; \
+    test "2" = "2" && apt-get install -y --allow-unauthenticated npm; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
