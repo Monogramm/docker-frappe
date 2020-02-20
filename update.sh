@@ -87,22 +87,22 @@ for latest in "${latestsFrappe[@]}"; do
 
 				# Copy the shell scripts
 				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
-					cp "docker-$name" "$dir/$name"
+					cp "template/$name" "$dir/$name"
 					chmod 755 "$dir/$name"
 				done
 
 				case $frappe in
-					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
-					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
+					10.*|11.*) cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
+					*) cp "template/docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
 				esac
 
-				template="Dockerfile-${base[$variant]}.template"
+				template="template/Dockerfile.${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
 
-				cp ".dockerignore" "$dir/.dockerignore"
-				cp -r "./hooks" "$dir/hooks"
-				cp -r "./test" "$dir/"
-				cp "docker-compose.test.yml" "$dir/docker-compose.test.yml"
+				cp "template/.dockerignore" "$dir/.dockerignore"
+				cp -r "template/hooks" "$dir/hooks"
+				cp -r "template/test" "$dir/"
+				cp "template/docker-compose.test.yml" "$dir/docker-compose.test.yml"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
