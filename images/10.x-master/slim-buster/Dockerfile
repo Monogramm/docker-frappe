@@ -36,7 +36,6 @@ RUN set -ex; \
         sudo \
         wget \
         nodejs \
-        npm \
         python-mysqldb \
         git \
         build-essential \
