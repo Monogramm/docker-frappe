@@ -119,7 +119,7 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
-						s/%%NODE_VERSION%%/8/g;
+						s/%%NODE_VERSION%%/10/g;
 						s/%%PIP_VERSION%%/3/g;
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
