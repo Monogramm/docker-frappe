@@ -192,7 +192,7 @@ for latest in "${latestsFrappe[@]}"; do
 				if [[ $1 == 'build' ]]; then
 					tag="$frappe-$variant"
 					echo "Build Dockerfile for ${tag}"
-					docker build -t ${dockerRepo}:${tag} $dir
+					docker build -t "${dockerRepo}:${tag}" "$dir"
 				fi
 			done
 
