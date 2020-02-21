@@ -2,7 +2,7 @@
 # For production, download prebuilt image
 FROM docker-frappe:develop-alpine
 
-ADD docker_test.sh /docker_test.sh
+COPY docker_test.sh /docker_test.sh
 
 RUN set -ex; \
     test 'alpine' = 'slim-buster' && sudo apt-get update && sudo apt-get install -y --allow-unauthenticated iputils-ping; \

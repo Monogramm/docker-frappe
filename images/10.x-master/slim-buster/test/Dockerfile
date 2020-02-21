@@ -2,7 +2,7 @@
 # For production, download prebuilt image
 FROM docker-frappe:10-slim-buster
 
-ADD docker_test.sh /docker_test.sh
+COPY docker_test.sh /docker_test.sh
 
 RUN set -ex; \
     test 'slim-buster' = 'slim-buster' && sudo apt-get update && sudo apt-get install -y --allow-unauthenticated iputils-ping; \
