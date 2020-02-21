@@ -203,7 +203,7 @@ bench_doctor() {
 
 bench_build_apps() {
   log "Building apps assets..."
-  bench build ${FRAPPE_BUILD_OPTIONS} \
+  bench build "${FRAPPE_BUILD_OPTIONS}" \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Apps assets build Finished"
@@ -284,7 +284,7 @@ list_backups() {
     for file in "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}"/private/backups/*
     do
       log "    $i. $file"
-      i="$(($i+1))"
+      i="$((i + 1))"
     done
   else
     log "No available backups."
@@ -423,7 +423,7 @@ bench_app() {
   fi
 
   "${FRAPPE_WD}/env/bin/gunicorn" \
-     $GUNICORN_ARGS \
+    "$GUNICORN_ARGS" \
     frappe.app:application --preload \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
