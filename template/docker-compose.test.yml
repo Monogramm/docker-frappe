@@ -25,6 +25,8 @@ services:
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
       - DOCKER_DEBUG=1
+      # Test setup
+      - TEST_VERSION=%%FRAPPE_VERSION%%
     volumes_from:
       - frappe_app
     volumes:

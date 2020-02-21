@@ -172,13 +172,19 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%VERSION%%/'"$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
-					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
+					' "$dir/Dockerfile" \
+						"$dir/docker-compose.yml" \
+						"$dir/docker-compose.test.yml" \
+						"$dir/.env" "$dir/test/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
-					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
+					' "$dir/Dockerfile" \
+						"$dir/docker-compose.yml" \
+						"$dir/docker-compose.test.yml" \
+						"$dir/.env" "$dir/test/Dockerfile"
 				fi
 
 				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
