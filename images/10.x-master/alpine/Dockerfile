@@ -198,7 +198,7 @@ ENV DOCKER_DB_TIMEOUT=120 \
     REDIS_SOCKETIO_HOST=redis_socketio
 
 # Copy docker entrypoint and private install script
-ADD ./entrypoint.sh /
+COPY ./entrypoint.sh /
 
 # Set permissions
 RUN set -ex; \
