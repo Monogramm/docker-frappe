@@ -15,7 +15,7 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM python:3-alpine
+FROM python:3-alpine3.10
 
 ARG DOCKERIZE_VERSION=v0.6.1
 

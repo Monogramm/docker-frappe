@@ -106,8 +106,18 @@ for latest in "${latestsFrappe[@]}"; do
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
+
+					if [ "$variant" = "alpine" ]; then
+						sed -ri -e '
+							s/%%VARIANT%%/alpine3.10/g;
+						' "$dir/Dockerfile"
+					else
+						sed -ri -e '
+							s/%%VARIANT%%/'"$variant"'/g;
+						' "$dir/Dockerfile"
+					fi
+
 					sed -ri -e '
-						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
 						s/%%NODE_VERSION%%/8/g;
@@ -115,8 +125,18 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				elif [ "$major" = "11" ]; then
+
+					if [ "$variant" = "alpine" ]; then
+						sed -ri -e '
+							s/%%VARIANT%%/alpine3.10/g;
+						' "$dir/Dockerfile"
+					else
+						sed -ri -e '
+							s/%%VARIANT%%/'"$variant"'/g;
+						' "$dir/Dockerfile"
+					fi
+
 					sed -ri -e '
-						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
 						s/%%NODE_VERSION%%/10/g;
