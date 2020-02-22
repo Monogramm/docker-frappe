@@ -423,7 +423,7 @@ bench_app() {
   fi
 
   "${FRAPPE_WD}/env/bin/gunicorn" \
-    "$GUNICORN_ARGS" \
+    $GUNICORN_ARGS \
     frappe.app:application --preload \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
     | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
