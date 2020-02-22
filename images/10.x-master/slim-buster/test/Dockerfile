@@ -1,6 +1,6 @@
 # For development or CI, build from local Dockerfile
 # For production, download prebuilt image
-FROM docker-frappe:10-slim-buster
+FROM monogramm/docker-frappe:10-slim-buster
 
 COPY docker_test.sh /docker_test.sh
 
