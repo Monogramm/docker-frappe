@@ -2,32 +2,32 @@
 set -eo pipefail
 
 declare -A shebang=(
-	[stretch]='bash'
-	[stretch-slim]='bash'
+	[buster]='bash'
+	[slim-buster]='bash'
 	[alpine]='sh'
 )
 
-declare -A testbase=(
-	[stretch]='debian'
-	[stretch-slim]='debian-slim'
-	[alpine]='alpine'
-)
-
 declare -A base=(
-	[stretch]='debian'
-	[stretch-slim]='debian'
+	[buster]='debian'
+	[slim-buster]='debian'
 	[alpine]='alpine'
 )
 
 declare -A compose=(
-	[stretch]='mariadb'
-	[stretch-slim]='mariadb'
+	[buster]='mariadb'
+	[slim-buster]='mariadb'
+	[alpine]='postgres'
+)
+
+declare -A compose=(
+	[buster]='mariadb'
+	[slim-buster]='mariadb'
 	[alpine]='postgres'
 )
 
 variants=(
-	stretch
-	stretch-slim
+	buster
+	slim-buster
 	alpine
 )
 
@@ -83,43 +83,78 @@ for latest in "${latestsFrappe[@]}"; do
 				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
+				shortVariant=${variant/slim-/}
+
 				# Copy the shell scripts
 				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
-					cp "docker-$name" "$dir/$name"
+					cp "template/$name" "$dir/$name"
 					chmod 755 "$dir/$name"
 				done
 
 				case $frappe in
-					10.*|11.*) cp "docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
-					*) cp "docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
+					10.*|11.*) cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
+					*) cp "template/docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
 				esac
 
-				template="Dockerfile-${base[$variant]}.template"
+				template="template/Dockerfile.${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
 
-				cp ".dockerignore" "$dir/.dockerignore"
-				cp -r "./hooks" "$dir/hooks"
-				cp -r "./test" "$dir/"
-				cp "docker-compose.test.yml" "$dir/docker-compose.test.yml"
+				cp "template/.dockerignore" "$dir/.dockerignore"
+				cp -r "template/hooks" "$dir/hooks"
+				cp -r "template/test" "$dir/"
+				cp "template/docker-compose.test.yml" "$dir/docker-compose.test.yml"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
+
+					if [ "$variant" = "alpine" ]; then
+						sed -ri -e '
+							s/%%VARIANT%%/alpine3.10/g;
+						' "$dir/Dockerfile"
+					else
+						sed -ri -e '
+							s/%%VARIANT%%/'"$variant"'/g;
+						' "$dir/Dockerfile"
+					fi
+
 					sed -ri -e '
-						s/%%VARIANT%%/'"2.7-$variant"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
+						s/%%NODE_VERSION%%/8/g;
 						s/%%PIP_VERSION%%//g;
+						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
+					' "$dir/Dockerfile" "$dir/entrypoint.sh"
+				elif [ "$major" = "11" ]; then
+
+					if [ "$variant" = "alpine" ]; then
+						sed -ri -e '
+							s/%%VARIANT%%/alpine3.10/g;
+						' "$dir/Dockerfile"
+					else
+						sed -ri -e '
+							s/%%VARIANT%%/'"$variant"'/g;
+						' "$dir/Dockerfile"
+					fi
+
+					sed -ri -e '
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
+						s/%%PYTHON_VERSION%%/3/g;
+						s/%%NODE_VERSION%%/10/g;
+						s/%%PIP_VERSION%%/3/g;
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
+						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/3/g;
+						s/%%NODE_VERSION%%/12/g;
 						s/%%PIP_VERSION%%/3/g;
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
 				sed -ri -e '
-					s/%%VARIANT%%/'"${testbase[$variant]}"'/g;
+					s/%%VARIANT%%/'"$variant"'/g;
 				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then
@@ -128,7 +163,7 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile"
 				else
 					sed -ri -e '
-						s/%%BENCH_OPTIONS%%/--skip-redis-config-generation/g;
+						s/%%BENCH_OPTIONS%%/--skip-redis-config-generation --no-backups/g;
 					' "$dir/Dockerfile"
 				fi
 
@@ -137,13 +172,19 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%VERSION%%/'"$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
-					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
+					' "$dir/Dockerfile" \
+						"$dir/docker-compose.yml" \
+						"$dir/docker-compose.test.yml" \
+						"$dir/.env" "$dir/test/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
-					' "$dir/Dockerfile" "$dir/docker-compose.yml" "$dir/.env" "$dir/test/Dockerfile"
+					' "$dir/Dockerfile" \
+						"$dir/docker-compose.yml" \
+						"$dir/docker-compose.test.yml" \
+						"$dir/.env" "$dir/test/Dockerfile"
 				fi
 
 				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
@@ -151,7 +192,7 @@ for latest in "${latestsFrappe[@]}"; do
 				if [[ $1 == 'build' ]]; then
 					tag="$frappe-$variant"
 					echo "Build Dockerfile for ${tag}"
-					docker build -t ${dockerRepo}:${tag} $dir
+					docker build -t "${dockerRepo}:${tag}" "$dir"
 				fi
 			done
 

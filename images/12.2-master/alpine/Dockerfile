@@ -1,6 +1,6 @@
 ##
 ##    Docker image for Frappe applications.
-##    Copyright (C) 2019  Monogramm
+##    Copyright (C) 2020  Monogramm
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU Affero General Public License as published
@@ -15,31 +15,75 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM monogramm/docker-frappe-base:alpine
+FROM python:3-alpine
 
-ARG TAG
-ARG VCS_REF
-ARG BUILD_DATE
+ARG DOCKERIZE_VERSION=v0.6.1
+
+# Frappe base environment
+RUN set -ex; \
+    apk add --update \
+        wget \
+        nodejs \
+        nodejs-npm \
+        git \
+        alpine-sdk \
+        linux-headers \
+        busybox-suid \
+        py-setuptools \
+        python-dev \
+        libffi-dev \
+        openntpd \
+        screen \
+        mariadb-client \
+        mariadb-common \
+        mariadb-dev \
+        postgresql-client \
+        postgresql-dev \
+        postgresql-libs \
+        libxslt \
+        libxslt-dev \
+        py-openssl \
+        py-ldap3 \
+        tiff-dev \
+        jpeg-dev \
+        lcms2-dev \
+        libwebp-dev \
+        zlib-dev \
+        freetype-dev \
+        xvfb \
+        ttf-freefont \
+        fontconfig \
+        dbus \
+        libxext \
+        wkhtmltopdf \
+    ; \
+    mkdir /tmp/.X11-unix; \
+    chmod 777 /tmp/.X11-unix; \
+    chown root:root /tmp/.X11-unix; \
+    node --version; \
+    npm --version; \
+    npm install -g yarn; \
+    yarn --version; \
+    mv /usr/bin/wkhtmltopdf /usr/bin/wkhtmltopdf-origin; \
+    echo $'#!/usr/bin/env sh\n\
+          Xvfb :0 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & \n\
+          DISPLAY=:0.0 wkhtmltopdf-origin $@ \n\
+          killall Xvfb\
+          ' > /usr/bin/wkhtmltopdf; \
+    chmod +x /usr/bin/wkhtmltopdf; \
+    wkhtmltopdf --version; \
+    wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
+    tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
+    rm dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
+    rm -rf /var/lib/apt/lists/*; \
+    rm -rf /var/cache/apk/*; \
+    pip install --upgrade setuptools pip pip-tools; \
+    pip --version
+
 ARG VERSION=v12.2.1
 
-LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
-      product="Frappe" \
-      version=$VERSION \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="Frappe" \
-      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
-      org.label-schema.url="https://frappe.io/" \
-      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
-      org.label-schema.version=$VERSION \
-      org.label-schema.schema-version="1.0"
-
 # Build environment variables
-ENV DOCKER_TAG=${TAG} \
-    DOCKER_VCS_REF=${VCS_REF} \
-    DOCKER_BUILD_DATE=${BUILD_DATE} \
-    FRAPPE_USER=frappe \
+ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
     FRAPPE_BRANCH=${VERSION}
 
@@ -82,11 +126,12 @@ RUN set -ex; \
         --frappe-branch $FRAPPE_BRANCH \
         --no-auto-update \
         --python $(which python3) \
-        --skip-redis-config-generation frappe-bench \
+        --skip-redis-config-generation --no-backups frappe-bench \
     ; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
+    sed -i -e "s|^werkzeug$|werkzeug==0.16.1|g" apps/frappe/requirements.txt; \
     test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
@@ -104,29 +149,6 @@ RUN set -ex; \
 #    npm install babel-preset-env; \
 #    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
 #    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
-
-# Copy docker entrypoint and private install script
-ADD ./entrypoint.sh /
-
-# Set permissions
-RUN set -ex; \
-    sudo chmod +x \
-        /entrypoint.sh \
-    ; \
-    sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
-    sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
-    sudo chmod +rw \
-        "/home/$FRAPPE_USER"/frappe-bench/logs \
-        "/home/$FRAPPE_USER"/frappe-bench/logs/* \
-    ; \
-    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
-        "/home/$FRAPPE_USER/frappe-bench" \
-    ;
-
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
 
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=120 \
@@ -175,7 +197,52 @@ ENV DOCKER_DB_TIMEOUT=120 \
     REDIS_QUEUE_HOST=redis_queue \
     REDIS_SOCKETIO_HOST=redis_socketio
 
+# Copy docker entrypoint and private install script
+COPY ./entrypoint.sh /
+
+# Set permissions
+RUN set -ex; \
+    sudo chmod +x \
+        /entrypoint.sh \
+    ; \
+    sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
+    sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
+    sudo chmod +rw \
+        "/home/$FRAPPE_USER"/frappe-bench/logs \
+        "/home/$FRAPPE_USER"/frappe-bench/logs/* \
+    ; \
+    sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+        "/home/$FRAPPE_USER/frappe-bench" \
+    ;
+
+VOLUME /home/$FRAPPE_USER/bench-repo \
+    /home/$FRAPPE_USER/frappe-bench/logs \
+    /home/$FRAPPE_USER/frappe-bench/sites \
+    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
+
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["app"]
+
+ARG TAG
+ARG VCS_REF
+ARG BUILD_DATE
+
+LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
+      product="Frappe" \
+      version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name="Frappe" \
+      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
+      org.label-schema.url="https://frappe.io/" \
+      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
+
+# Docker built environment variables
+ENV DOCKER_TAG=${TAG} \
+    DOCKER_VCS_REF=${VCS_REF} \
+    DOCKER_BUILD_DATE=${BUILD_DATE}
