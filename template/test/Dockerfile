@@ -1,6 +1,6 @@
 # For development or CI, build from local Dockerfile
 # For production, download prebuilt image
-FROM docker-frappe:%%FRAPPE_VERSION%%-%%VARIANT%%
+FROM monogramm/docker-frappe:%%FRAPPE_VERSION%%-%%VARIANT%%
 
 COPY docker_test.sh /docker_test.sh
 

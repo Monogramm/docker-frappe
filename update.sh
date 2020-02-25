@@ -102,7 +102,7 @@ for latest in "${latestsFrappe[@]}"; do
 				cp "template/.dockerignore" "$dir/.dockerignore"
 				cp -r "template/hooks" "$dir/hooks"
 				cp -r "template/test" "$dir/"
-				cp "template/docker-compose.test.yml" "$dir/docker-compose.test.yml"
+				cp "template/docker-compose_test.yml" "$dir/docker-compose_test.yml"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
@@ -174,7 +174,7 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir/docker-compose.yml" \
-						"$dir/docker-compose.test.yml" \
+						"$dir/docker-compose_test.yml" \
 						"$dir/.env" "$dir/test/Dockerfile"
 				else
 					sed -ri -e '
@@ -183,7 +183,7 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir/docker-compose.yml" \
-						"$dir/docker-compose.test.yml" \
+						"$dir/docker-compose_test.yml" \
 						"$dir/.env" "$dir/test/Dockerfile"
 				fi
 

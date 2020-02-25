@@ -1,6 +1,6 @@
 # For development or CI, build from local Dockerfile
 # For production, download prebuilt image
-FROM docker-frappe:develop-alpine
+FROM monogramm/docker-frappe:develop-alpine
 
 COPY docker_test.sh /docker_test.sh
 

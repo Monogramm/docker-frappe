@@ -7,11 +7,14 @@ language: shell
 
 branches:
   only:
+    - develop
     - master
 
 before_script:
   - env | sort
   - dir="images/${VERSION}-${BENCH}/${VARIANT}"
+  - export DOCKER_TAG="${VERSION}-${VARIANT}-travis"
+  - export IMAGE_NAME="docker-frappe-travis:${DOCKER_TAG}"
 
 script:
   - cd "$dir"
