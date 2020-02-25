@@ -7,6 +7,12 @@ declare -A shebang=(
 	[alpine]='sh'
 )
 
+declare -A test_base=(
+	[buster]='debian'
+	[slim-buster]='debian-slim'
+	[alpine]='alpine'
+)
+
 declare -A base=(
 	[buster]='debian'
 	[slim-buster]='debian'
@@ -102,7 +108,7 @@ for latest in "${latestsFrappe[@]}"; do
 				cp "template/.dockerignore" "$dir/.dockerignore"
 				cp -r "template/hooks" "$dir/hooks"
 				cp -r "template/test" "$dir/"
-				cp "template/docker-compose_test.yml" "$dir/docker-compose_test.yml"
+				cp "template/docker-compose.test.yml" "$dir/docker-compose.test.yml"
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
@@ -154,7 +160,7 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				fi
 				sed -ri -e '
-					s/%%VARIANT%%/'"$variant"'/g;
+					s/%%VARIANT%%/'"${test_base[$variant]}"'/g;
 				' "$dir/.env" "$dir/test/Dockerfile"
 
 				if [ "$bench" = "4.1" ]; then
@@ -174,7 +180,7 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir/docker-compose.yml" \
-						"$dir/docker-compose_test.yml" \
+						"$dir/docker-compose.test.yml" \
 						"$dir/.env" "$dir/test/Dockerfile"
 				else
 					sed -ri -e '
@@ -183,7 +189,7 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir/docker-compose.yml" \
-						"$dir/docker-compose_test.yml" \
+						"$dir/docker-compose.test.yml" \
 						"$dir/.env" "$dir/test/Dockerfile"
 				fi
 
