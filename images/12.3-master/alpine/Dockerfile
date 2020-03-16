@@ -15,7 +15,7 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM python:3-alpine
+FROM python:3.7-alpine
 
 ARG DOCKERIZE_VERSION=v0.6.1
 
@@ -125,14 +125,14 @@ RUN set -ex; \
     bench init \
         --frappe-branch $FRAPPE_BRANCH \
         --no-auto-update \
-        --python $(which python3) \
+        --python $(which python3.7) \
         --skip-redis-config-generation --no-backups frappe-bench \
     ; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     sed -i -e "s|^werkzeug$|werkzeug==0.16.1|g" apps/frappe/requirements.txt; \
-    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3) ; \
+    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3.7) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
 # Alternative: replace previous run by this for manual install
