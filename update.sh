@@ -134,10 +134,12 @@ for latest in "${latestsFrappe[@]}"; do
 
 					if [ "$variant" = "alpine" ]; then
 						sed -ri -e '
+							s/%%PYTHON_VERSION%%/3.7/g;
 							s/%%VARIANT%%/alpine3.10/g;
 						' "$dir/Dockerfile"
 					else
 						sed -ri -e '
+							s/%%PYTHON_VERSION%%/3.7/g;
 							s/%%VARIANT%%/'"$variant"'/g;
 						' "$dir/Dockerfile"
 					fi
@@ -150,6 +152,10 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%SHEBANG%%/'"${shebang[$variant]}"'/g;
 					' "$dir/Dockerfile" "$dir/entrypoint.sh"
 				else
+					sed -ri -e '
+						s/%%PYTHON_VERSION%%/3.7/g;
+					' "$dir/Dockerfile"
+
 					sed -ri -e '
 						s/%%VARIANT%%/'"$variant"'/g;
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
