@@ -80,7 +80,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v11.1.65
+ARG VERSION=v11.1.66
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
@@ -124,7 +124,6 @@ RUN set -ex; \
     bench setup socketio; \
     bench init \
         --frappe-branch $FRAPPE_BRANCH \
-        --no-auto-update \
         --python $(which python3.7) \
         --skip-redis-config-generation --no-backups frappe-bench \
     ; \

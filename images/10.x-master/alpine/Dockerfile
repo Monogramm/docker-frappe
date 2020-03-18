@@ -124,7 +124,6 @@ RUN set -ex; \
     bench setup socketio; \
     bench init \
         --frappe-branch $FRAPPE_BRANCH \
-        --no-auto-update \
         --python $(which python2) \
         --skip-redis-config-generation --no-backups frappe-bench \
     ; \
