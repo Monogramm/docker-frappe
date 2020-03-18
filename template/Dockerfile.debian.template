@@ -134,7 +134,6 @@ RUN set -ex; \
     bench setup socketio; \
     bench init \
         --frappe-branch $FRAPPE_BRANCH \
-        --no-auto-update \
         --python $(which python%%PYTHON_VERSION%%) \
         %%BENCH_OPTIONS%% frappe-bench \
     ; \
