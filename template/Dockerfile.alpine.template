@@ -127,6 +127,7 @@ RUN set -ex; \
         --python $(which python%%PYTHON_VERSION%%) \
         %%BENCH_OPTIONS%% frappe-bench \
     ; \
+    bench --version; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
