@@ -53,6 +53,8 @@ FRAPPE_APP_TO_TEST=frappe
 
 echo "Preparing Frappe application '${FRAPPE_APP_TO_TEST}' tests..."
 
+bench set-config allow_tests true
+
 ################################################################################
 # TODO Frappe Unit tests
 # https://frappe.io/docs/user/en/guides/automated-testing/unit-testing
