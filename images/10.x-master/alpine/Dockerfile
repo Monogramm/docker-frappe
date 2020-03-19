@@ -127,6 +127,7 @@ RUN set -ex; \
         --python $(which python2) \
         --skip-redis-config-generation --no-backups frappe-bench \
     ; \
+    bench --version; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
