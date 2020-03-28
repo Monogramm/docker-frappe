@@ -16,7 +16,7 @@ before_install:
   - export VCS_REF=`git rev-parse --short HEAD`
   - export BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
   - export home=$(pwd)
-  - export travis_dir="images/${VERSION}-${BENCH}/${VARIANT}"
+  - export travis_dir="${home}/images/${VERSION}-${BENCH}/${VARIANT}"
   - export IMAGE_NAME="docker-frappe-travis:${TAG}"
 
 install:
@@ -50,7 +50,7 @@ script:
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (10 minutes)' && sleep 600
+  - echo 'Wait until tests finished (10 minutes)' && travis_wait 60 sleep 600
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container restart
@@ -63,7 +63,7 @@ script:
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (10 minutes)' && sleep 600
+  - echo 'Wait until tests finished (10 minutes)' && travis_wait 60 sleep 600
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container migrate
