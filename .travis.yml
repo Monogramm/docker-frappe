@@ -10,19 +10,29 @@ branches:
     - develop
     - master
 
-before_script:
+before_install:
   - env | sort
-  - dir="images/${VERSION}-${BENCH}/${VARIANT}"
-  - export DOCKER_TAG="${VERSION}-${VARIANT}-travis"
-  - export IMAGE_NAME="docker-frappe-travis:${DOCKER_TAG}"
+  - export TAG=travis
+  - export VCS_REF=`git rev-parse --short HEAD`
+  - export BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+  - export home=$(pwd)
+  - export travis_dir="images/${VERSION}-${BENCH}/${VARIANT}"
+  - export IMAGE_NAME="docker-frappe-travis:${TAG}"
 
-script:
-  - cd "$dir"
+install:
+  - echo "Changing to travis test directory ($travis_dir)"
+  - cd "$travis_dir"
   # Prepare test image for local build version and variant
   - sed -i -e "s|FROM monogramm/docker-frappe:.*|FROM ${IMAGE_NAME}|g" test/Dockerfile
   # Test container build
   - travis_retry docker-compose build
+
+before_script:
   - docker images
+
+script:
+  - echo "Changing to travis test directory ($travis_dir)"
+  - cd "$travis_dir"
   # Test container run
   - travis_retry docker-compose up -d && sleep 20
   - docker-compose ps
@@ -40,7 +50,7 @@ script:
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (1-2 minutes)' && sleep 300
+  - echo 'Wait until tests finished (10 minutes)' && sleep 600
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container restart
@@ -53,7 +63,7 @@ script:
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (1-2 minutes)' && sleep 300
+  - echo 'Wait until tests finished (10 minutes)' && sleep 600
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container migrate
@@ -70,10 +80,28 @@ script:
   # Test container "old" restore (file number instead of file name)
   - docker-compose run --rm "frappe_app" restore 1
 
+after_script:
+  - echo "Changing to project directory ($home)"
+  - cd "$home"
+  - sudo pip install coverage==4.5.4
+  - sudo pip install python-coveralls
+  # Create same directory path as docker test execution
+  - sudo mkdir -p '/home/frappe/frappe-bench/apps'
+  - sudo ln -sf "$home" '/home/frappe/frappe-bench/apps/erpnext_template'
+  # Copy and convert coverage to XML format
+  - cp '/srv/erpnext/frappe/sites/.coverage' .coverage
+  - coverage xml
+  # Publish coverage to Coveralls
+  - coveralls -b "$home" -d "$home/.coverage"
+  # Publish coverage to Codacy
+  - test -z "$CODACY_PROJECT_TOKEN" || bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Python -r "./coverage.xml"
+  # Publish coverage to Codecov
+  - test -z "$CODECOV_TOKEN" || bash <(curl -s https://codecov.io/bash)
+
 notifications:
   email: false
 
-matrix:
+jobs:
   allow_failures:
     - env: VERSION=develop BENCH=master VARIANT=alpine
     - env: VERSION=develop BENCH=master VARIANT=slim-buster
