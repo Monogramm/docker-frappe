@@ -27,47 +27,64 @@ ARG DOCKERIZE_VERSION=v0.6.1
 # Frappe base environment
 RUN set -ex; \
     apk add --update \
-        wget \
+        alpine-sdk \
+        busybox-suid \
+        dbus \
+        git \
+        glib \
+        linux-headers \
+        libgcc \
+        libintl \
+        libstdc++ \
+        libxslt \
+        libxslt-dev \
         nodejs \
         nodejs-npm \
-        git \
-        alpine-sdk \
-        linux-headers \
-        busybox-suid \
-        py-setuptools \
-        python-dev \
-        libffi-dev \
         openntpd \
-        screen \
+        py-setuptools \
+        py-openssl \
+        py-ldap3 \
+        python-dev \
+        wget \
+        zlib-dev \
+    ; \
+    git --version; \
+    node --version; \
+    npm --version; \
+    npm install -g yarn; \
+    yarn --version; \
+    apk add --update \
         mariadb-client \
         mariadb-common \
         mariadb-dev \
         postgresql-client \
         postgresql-dev \
         postgresql-libs \
-        libxslt \
-        libxslt-dev \
-        py-openssl \
-        py-ldap3 \
-        tiff-dev \
+    ; \
+    apk add --update \
         jpeg-dev \
         lcms2-dev \
+        libffi-dev \
         libwebp-dev \
-        zlib-dev \
+        tiff-dev \
+    ; \
+    apk add --update \
         freetype-dev \
-        xvfb \
-        ttf-freefont \
         fontconfig \
-        dbus \
+        libx11 \
         libxext \
+        libxrender \
+        screen \
+        ttf-freefont \
+        ttf-dejavu \
+        ttf-droid \
+        ttf-liberation \
+        ttf-ubuntu-font-family \
+        xvfb \
     ; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
-    node --version; \
-    npm --version; \
-    npm install -g yarn; \
-    yarn --version; \
     wkhtmltopdf --version; \
     wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
