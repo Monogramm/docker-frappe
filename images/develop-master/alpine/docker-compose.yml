@@ -82,14 +82,14 @@ services:
       - DB_ROOT_LOGIN=${FRAPPE_DB_ROOT_LOGIN}
       - DB_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
       # Mail setup
-      - MAIL_MUTED=true
+      - MAIL_MUTED=false
       - MAIL_HOST=${FRAPPE_MAIL_HOST}
-      - MAIL_PORT=587
-      - MAIL_USE_SSL=tls
+      - MAIL_PORT=1025
+      - MAIL_USE_SSL=
       - MAIL_LOGIN=${FRAPPE_SMTP_USER}
       - MAIL_PASSWORD=${FRAPPE_SMTP_PWD}
-      - MAIL_EMAIL_ID=${FRAPPE_SMTP_USER}@${FRAPPE_MAIL_HOST}
-      - MAIL_SENDER_NAME=ERPNext
+      - MAIL_EMAIL_ID=frappe@${FRAPPE_MAIL_HOST}
+      - MAIL_SENDER_NAME=Frappe
       # Redis setup
       - REDIS_CACHE_HOST=frappe_redis_cache
       - REDIS_QUEUE_HOST=frappe_redis_queue
@@ -131,6 +131,19 @@ services:
       - POSTGRES_PASSWORD=${FRAPPE_DB_ROOT_PWD}
     volumes:
       - /srv/erpnext/db/data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+  frappe_mailer:
+    image: sj26/mailcatcher:latest
+    hostname: frappe_mailer
+    container_name: frappe_mailer
+    restart: always
+    expose:
+      - 1025
+    ports:
+      - 1080:1080
+    volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
