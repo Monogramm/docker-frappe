@@ -22,7 +22,6 @@ FROM python:3.7-alpine3.10
 COPY --from=wkhtmltopdf-builder \
     /bin/wkhtmltopdf /bin/wkhtmltopdf
 
-ARG BUILD_LOG=https://api.travis-ci.org/v3/job/606718795/log.txt
 ARG DOCKERIZE_VERSION=v0.6.1
 
 # Frappe base environment
@@ -69,8 +68,6 @@ RUN set -ex; \
     npm --version; \
     npm install -g yarn; \
     yarn --version; \
-    test "$(sha256sum /bin/wkhtmltopdf | awk '{ print $1 }')" == \
-      "$(wget -q -O - $BUILD_LOG | sed -n '13685p' | awk '{ print $1 }')"; \
     wkhtmltopdf --version; \
     wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
@@ -165,8 +162,9 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_APP_INIT= \
     FRAPPE_APP_RESET= \
     FRAPPE_APP_PROTECTED=frappe \
-    FRAPPE_DEFAULT_PROTOCOL= \
+    FRAPPE_DEFAULT_PROTOCOL=http \
     FRAPPE_DEFAULT_SITE= \
+    FRAPPE_DEFAULT_PORT=80 \
     FRAPPE_RESET_SITES= \
     FRAPPE_REINSTALL_DATABASE= \
     FRAPPE_BUILD_OPTIONS= \
