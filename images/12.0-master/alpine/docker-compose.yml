@@ -104,7 +104,7 @@ services:
   frappe_web:
     image: nginx:alpine
     container_name: frappe_web
-    hostname: : frappe_web
+    hostname: frappe_web
     domainname: frappe_web
     #restart: always
     volumes:
