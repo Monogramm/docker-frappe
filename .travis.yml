@@ -50,7 +50,7 @@ script:
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (4-5 minutes)' && sleep 270
+  - echo 'Wait until tests finished (9-10 minutes)' && sleep 600
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container db reinstall
@@ -66,7 +66,7 @@ script:
   - docker-compose ps "frappe_app" | grep "Up"
   - docker-compose logs "frappe_web"
   - docker-compose ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (4-5 minutes)' && sleep 270
+  - echo 'Wait until tests finished (9-10 minutes)' && sleep 600
   - docker-compose logs "sut"
   - docker-compose ps "sut" | grep "Exit 0"
   # Test container migrate
