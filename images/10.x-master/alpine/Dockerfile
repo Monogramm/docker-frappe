@@ -85,12 +85,12 @@ RUN set -ex; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
+    rm -rf /var/cache/apk/*; \
+    echo 'Set disable_coredump false' > /etc/sudo.conf; \
     wkhtmltopdf --version; \
     wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     rm dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -rf /var/cache/apk/*; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
