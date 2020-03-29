@@ -573,7 +573,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "db_password": "${DB_PASSWORD}",
   "host_name": "${FRAPPE_DEFAULT_PROTOCOL:-http}://${FRAPPE_DEFAULT_SITE}:${FRAPPE_HTTP_PORT:-80}",
   "http_port": "${FRAPPE_HTTP_PORT:-80}",
-  "webserver_port": "${FRAPPE_WEBSERVER_PORT:-8000}",
+  "webserver_port": "${FRAPPE_WEBSERVER_PORT:-80}",
   "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
   "developer_mode": ${DEVELOPER_MODE:-0},
   "admin_password": "${ADMIN_PASSWORD:-admin}",
