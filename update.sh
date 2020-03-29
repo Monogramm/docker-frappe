@@ -109,6 +109,9 @@ for latest in "${latestsFrappe[@]}"; do
 				cp -r "template/hooks" "$dir/hooks"
 				cp -r "template/test" "$dir/"
 				cp "template/docker-compose.test.yml" "$dir/docker-compose.test.yml"
+				if [ "$variant" = "alpine" ]; then
+					cp -r 'template/patches' "$dir/"
+				fi
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
