@@ -137,8 +137,11 @@ FRAPPE_DEFAULT_PROTOCOL=http
 # Default site
 FRAPPE_DEFAULT_SITE=
 
-# Default port. Should either 80 (default value) or 443 when using SSL or any custom port defined for the NGinx reverse proxy.
-FRAPPE_DEFAULT_PORT=80
+# Default HTTP port. Should either 80 (default value) or 443 when using SSL or any custom port defined for the NGinx reverse proxy.
+FRAPPE_HTTP_PORT=80
+
+# Default backend port. Should either 8000 (default value) or any custom port defined for the app backend.
+FRAPPE_WEBSERVER_PORT=8000
 
 # Remove all sites data on startup if set to 1
 # This should only be used for dev / test environments
