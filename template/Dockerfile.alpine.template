@@ -15,7 +15,7 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 AS wkhtmltopdf-builder
+FROM madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10-606718795 AS wkhtmltopdf-builder
 
 FROM python:%%PYTHON_VERSION%%-%%VARIANT%%
 
