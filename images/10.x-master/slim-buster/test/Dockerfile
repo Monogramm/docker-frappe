@@ -1,11 +1,11 @@
-# For development or CI, build from local Dockerfile
+# For development or CI, build from local Dockerfile (.travis.yml will update base before tests)
 # For production, download prebuilt image
-FROM monogramm/docker-frappe:10-slim-buster
+FROM monogramm/docker-frappe:10-debian-slim
 
 COPY docker_test.sh /docker_test.sh
 
 RUN set -ex; \
-    test 'slim-buster' = 'slim-buster' && sudo apt-get update && sudo apt-get install -y --allow-unauthenticated iputils-ping; \
+    test 'debian-slim' = 'debian-slim' && sudo apt-get update && sudo apt-get install -y --allow-unauthenticated iputils-ping; \
     sudo chmod 755 /docker_test.sh; \
     sudo pip install coverage==4.5.4; \
     sudo pip install python-coveralls

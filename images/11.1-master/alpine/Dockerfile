@@ -15,68 +15,82 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
+FROM madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10-606718795 AS wkhtmltopdf-builder
+
 FROM python:3.7-alpine3.10
+
+COPY --from=wkhtmltopdf-builder \
+    /bin/wkhtmltopdf /bin/wkhtmltopdf
 
 ARG DOCKERIZE_VERSION=v0.6.1
 
 # Frappe base environment
 RUN set -ex; \
     apk add --update \
-        wget \
+        alpine-sdk \
+        busybox-suid \
+        dbus \
+        git \
+        glib \
+        linux-headers \
+        libgcc \
+        libintl \
+        libstdc++ \
+        libxslt \
+        libxslt-dev \
         nodejs \
         nodejs-npm \
-        git \
-        alpine-sdk \
-        linux-headers \
-        busybox-suid \
-        py-setuptools \
-        python-dev \
-        libffi-dev \
         openntpd \
-        screen \
+        py-setuptools \
+        py-openssl \
+        py-ldap3 \
+        python-dev \
+        wget \
+        zlib-dev \
+    ; \
+    git --version; \
+    node --version; \
+    npm --version; \
+    npm install -g yarn; \
+    yarn --version; \
+    apk add --update \
         mariadb-client \
         mariadb-common \
         mariadb-dev \
         postgresql-client \
         postgresql-dev \
         postgresql-libs \
-        libxslt \
-        libxslt-dev \
-        py-openssl \
-        py-ldap3 \
-        tiff-dev \
+    ; \
+    apk add --update \
         jpeg-dev \
         lcms2-dev \
+        libffi-dev \
         libwebp-dev \
-        zlib-dev \
+        tiff-dev \
+    ; \
+    apk add --update \
         freetype-dev \
-        xvfb \
-        ttf-freefont \
         fontconfig \
-        dbus \
+        libx11 \
         libxext \
-        wkhtmltopdf \
+        libxrender \
+        screen \
+        ttf-freefont \
+        ttf-dejavu \
+        ttf-droid \
+        ttf-liberation \
+        ttf-ubuntu-font-family \
+        xvfb \
     ; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
-    node --version; \
-    npm --version; \
-    npm install -g yarn; \
-    yarn --version; \
-    mv /usr/bin/wkhtmltopdf /usr/bin/wkhtmltopdf-origin; \
-    echo $'#!/usr/bin/env sh\n\
-          Xvfb :0 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & \n\
-          DISPLAY=:0.0 wkhtmltopdf-origin $@ \n\
-          killall Xvfb\
-          ' > /usr/bin/wkhtmltopdf; \
-    chmod +x /usr/bin/wkhtmltopdf; \
+    rm -rf /var/cache/apk/*; \
+    echo 'Set disable_coredump false' > /etc/sudo.conf; \
     wkhtmltopdf --version; \
     wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     rm dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -rf /var/cache/apk/*; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
@@ -165,13 +179,16 @@ ENV DOCKER_DB_TIMEOUT=120 \
     FRAPPE_APP_INIT= \
     FRAPPE_APP_RESET= \
     FRAPPE_APP_PROTECTED=frappe \
-    FRAPPE_DEFAULT_PROTOCOL= \
+    FRAPPE_DEFAULT_PROTOCOL=http \
     FRAPPE_DEFAULT_SITE= \
+    FRAPPE_HTTP_PORT=80 \
+    FRAPPE_WEBSERVER_PORT=80 \
     FRAPPE_RESET_SITES= \
     FRAPPE_REINSTALL_DATABASE= \
     FRAPPE_BUILD_OPTIONS= \
     FRAPPE_LOGGING=1 \
     GOOGLE_ANALYTICS_ID= \
+    SERVER_SCRIPT_ENABLED=0 \
     ALLOW_TESTS=0 \
     DEVELOPER_MODE=0 \
     ADMIN_PASSWORD=frappe \

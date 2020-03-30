@@ -18,6 +18,7 @@ This image was inspired by several other containers developed by the community:
 -   [emadshaaban92/docker-compose-erpnext](https://github.com/emadshaaban92/docker-compose-erpnext/) / [BizzoTech/docker-frappe](https://github.com/BizzoTech/docker-frappe) for the "_simple_" docker-compose setup
 -   [donysukardi/docker-frappe](https://github.com/donysukardi/docker-frappe) for the alpine variant (actually the source for BizzoTech images)
 -   [pipech/erpnext-docker-debian](https://github.com/pipech/erpnext-docker-debian) for the complete setup of apps and sites
+-   [madnight/docker-alpine-wkhtmltopdf](https://github.com/madnight/docker-alpine-wkhtmltopdf)
 
 The concept is the following:
 
@@ -130,11 +131,17 @@ FRAPPE_APP_RESET=
 # Mostly used to secure that frappe and erpnext are not removed due to misconfiguration
 FRAPPE_APP_PROTECTED=frappe
 
-# Default protocol (should either be empty, or http:// or https:// when using SSL)
-FRAPPE_DEFAULT_PROTOCOL=
+# Default protocol. Should either be http (default value) or https when using SSL.
+FRAPPE_DEFAULT_PROTOCOL=http
 
 # Default site
 FRAPPE_DEFAULT_SITE=
+
+# Default HTTP port. Should either be 80 (default value) or 443 when using SSL or any custom port defined for the NGinx reverse proxy.
+FRAPPE_HTTP_PORT=80
+
+# Default backend port. Should either be 80 (default value) or any custom port defined for the app backend.
+FRAPPE_WEBSERVER_PORT=80
 
 # Remove all sites data on startup if set to 1
 # This should only be used for dev / test environments
@@ -153,6 +160,8 @@ FRAPPE_LOGGING=1
 GOOGLE_ANALYTICS_ID=
 
 DEVELOPER_MODE=0
+ALLOW_TESTS=0
+SERVER_SCRIPT_ENABLED=0
 
 ADMIN_PASSWORD=frappe
 

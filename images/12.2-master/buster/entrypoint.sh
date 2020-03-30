@@ -203,7 +203,7 @@ bench_doctor() {
 
 bench_build_apps() {
   log "Building apps assets..."
-  bench build "${FRAPPE_BUILD_OPTIONS}" \
+  bench build ${FRAPPE_BUILD_OPTIONS} \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Apps assets build Finished"
@@ -548,7 +548,8 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     ;
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
-  "allow_tests": ${ALLOW_TESTS},
+  "allow_tests": ${ALLOW_TESTS:-0},
+  "server_script_enabled": ${SERVER_SCRIPT_ENABLED:-0},
   "deny_multiple_logins": false,
   "disable_website_cache": false,
   "dns_multitenant": false,
@@ -561,7 +562,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "redis_cache": "redis://${REDIS_CACHE_HOST}",
   "redis_queue": "redis://${REDIS_QUEUE_HOST}",
   "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}",
-  "logging": "${FRAPPE_LOGGING}",
+  "logging": "${FRAPPE_LOGGING:-1}",
   "root_login": "${DB_ROOT_LOGIN}",
   "root_password": "${DB_ROOT_PASSWORD}",
   "db_type": "${DB_TYPE}",
@@ -570,10 +571,12 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "db_name": "${DB_NAME}",
   "db_user": "${DB_NAME}",
   "db_password": "${DB_PASSWORD}",
-  "host_name": "${FRAPPE_DEFAULT_PROTOCOL}${FRAPPE_DEFAULT_SITE}",
+  "host_name": "${FRAPPE_DEFAULT_PROTOCOL:-http}://${FRAPPE_DEFAULT_SITE}:${FRAPPE_HTTP_PORT:-80}",
+  "http_port": "${FRAPPE_HTTP_PORT:-80}",
+  "webserver_port": "${FRAPPE_WEBSERVER_PORT:-80}",
   "google_analytics_id": "${GOOGLE_ANALYTICS_ID}",
-  "developer_mode": ${DEVELOPER_MODE},
-  "admin_password": "${ADMIN_PASSWORD}",
+  "developer_mode": ${DEVELOPER_MODE:-0},
+  "admin_password": "${ADMIN_PASSWORD:-admin}",
   "encryption_key": "${ENCRYPTION_KEY:-$(openssl rand -base64 32)}",
   "mail_server": "${MAIL_HOST}",
   "mail_port": ${MAIL_PORT},
@@ -582,9 +585,9 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   "mail_password": "${MAIL_PASSWORD}",
   "auto_email_id": "${MAIL_EMAIL_ID}",
   "email_sender_name": "${MAIL_SENDER_NAME}",
-  "always_use_account_email_id_as_sender": ${MAIL_ALWAYS_EMAIL_ID_AS_SENDER},
-  "always_use_account_name_as_sender_name": ${MAIL_ALWAYS_NAME_AS_SENDER_NAME},
-  "mute_emails": ${MAIL_MUTED}
+  "always_use_account_email_id_as_sender": ${MAIL_ALWAYS_EMAIL_ID_AS_SENDER:-0},
+  "always_use_account_name_as_sender_name": ${MAIL_ALWAYS_NAME_AS_SENDER_NAME:-0},
+  "mute_emails": ${MAIL_MUTED:-1}
 }
 EOF
   fi
