@@ -17,7 +17,7 @@
 ##
 FROM madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10-606718795 AS wkhtmltopdf-builder
 
-FROM python:3.7-alpine3.10
+FROM python:3.7-alpine
 
 COPY --from=wkhtmltopdf-builder \
     /bin/wkhtmltopdf /bin/wkhtmltopdf
@@ -94,7 +94,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v11.1.67
+ARG VERSION=v12.5.1
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
