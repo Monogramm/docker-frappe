@@ -143,6 +143,9 @@ FRAPPE_HTTP_PORT=80
 # Default backend port. Should either be 80 (default value) or any custom port defined for the app backend.
 FRAPPE_WEBSERVER_PORT=80
 
+# Default socketion port. Should either be 3000 (default value) or 80 (usual value for prod) or any custom port defined for the socketio service.
+FRAPPE_SOCKETIO_PORT=3000
+
 # Remove all sites data on startup if set to 1
 # This should only be used for dev / test environments
 FRAPPE_RESET_SITES=
