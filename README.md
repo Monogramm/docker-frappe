@@ -47,6 +47,10 @@ Full-stack web application framework that uses Python and MariaDB on the server 
     -   `develop-alpine` `develop`
     -   `develop-debian`
     -   `develop-debian-slim`
+-   Frappe 13
+    -   `13-alpine` `13`
+    -   `13-debian`
+    -   `13-debian-slim`
 -   Frappe 12
     -   `12-alpine` `12` `alpine` `latest`
     -   `12-debian` `debian`
