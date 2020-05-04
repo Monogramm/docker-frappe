@@ -69,7 +69,6 @@ mkdir -p ./images
 echo "update docker images"
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
-	echo "frappe $latest..."
 	frappe=$(echo "$latest" | cut -d. -f1-2)
 	major=$(echo "$latest" | cut -d. -f1-1)
 
@@ -99,6 +98,9 @@ for latest in "${latestsFrappe[@]}"; do
 				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
 					cp "template/$name" "$dir/$name"
 					chmod 755 "$dir/$name"
+					sed -i \
+						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
+						"$dir/$name"
 				done
 
 				case $frappe in
