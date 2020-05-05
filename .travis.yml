@@ -79,6 +79,7 @@ script:
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
+  # Test container restore
   - docker-compose run --rm "frappe_app" bench restore --help
   # Test container "old" restore (file number instead of file name)
   - docker-compose run --rm "frappe_app" restore 1
