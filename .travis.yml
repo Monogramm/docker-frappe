@@ -79,6 +79,7 @@ script:
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
   - docker-compose run --rm "frappe_app" backup && sleep 5
+  # Test container restore
   - docker-compose run --rm "frappe_app" bench restore --help
   # Test container "old" restore (file number instead of file name)
   - docker-compose run --rm "frappe_app" restore 1
@@ -109,6 +110,9 @@ jobs:
     - env: VERSION=develop BENCH=master VARIANT=alpine
     - env: VERSION=develop BENCH=master VARIANT=slim-buster
     - env: VERSION=develop BENCH=master VARIANT=buster
+    - env: VERSION=13.0 BENCH=master VARIANT=alpine
+    - env: VERSION=13.0 BENCH=master VARIANT=slim-buster
+    - env: VERSION=13.0 BENCH=master VARIANT=buster
     - env: VERSION=12.2 BENCH=master VARIANT=alpine
     - env: VERSION=12.2 BENCH=master VARIANT=slim-buster
     - env: VERSION=12.2 BENCH=master VARIANT=buster
@@ -151,3 +155,6 @@ env: # Environments
   - VERSION=12.5 BENCH=master VARIANT=alpine
   - VERSION=12.5 BENCH=master VARIANT=slim-buster
   - VERSION=12.5 BENCH=master VARIANT=buster
+  - VERSION=13.0 BENCH=master VARIANT=alpine
+  - VERSION=13.0 BENCH=master VARIANT=slim-buster
+  - VERSION=13.0 BENCH=master VARIANT=buster

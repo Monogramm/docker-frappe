@@ -46,7 +46,9 @@ function version_greater_or_equal() {
 min_versionFrappe=10
 
 dockerRepo="monogramm/docker-frappe"
-latestsFrappe=( $( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
+latestsFrappe=(
+	13.0.0-beta.1
+	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
 	11.1.67
@@ -96,6 +98,9 @@ for latest in "${latestsFrappe[@]}"; do
 				for name in entrypoint.sh redis_cache.conf nginx.conf .env; do
 					cp "template/$name" "$dir/$name"
 					chmod 755 "$dir/$name"
+					sed -i \
+						-e 's/{{ NGINX_SERVER_NAME }}/localhost/g' \
+						"$dir/$name"
 				done
 
 				case $frappe in
