@@ -15,9 +15,9 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM python:%%PYTHON_VERSION%%-%%VARIANT%%
+FROM python:3.7-buster
 
-ARG NODE_VERSION=%%NODE_VERSION%%
+ARG NODE_VERSION=10
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ARG WKHTMLTOX_VERSION=0.12.4
@@ -28,7 +28,7 @@ RUN set -ex; \
     apt-get update; \
     apt-get install -y software-properties-common gnupg2 curl; \
     apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8; \
-    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian %%SHORT_VARIANT%% main"; \
+    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian buster main"; \
     curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | bash -; \
     curl -sS "https://dl.yarnpkg.com/debian/pubkey.gpg" | apt-key add -; \
     apt-get update; \
@@ -90,11 +90,11 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=%%VERSION%%
+ARG VERSION=v11.1.69
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
-    BENCH_BRANCH=%%BENCH_BRANCH%% \
+    BENCH_BRANCH=master \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
@@ -109,7 +109,7 @@ WORKDIR /home/$FRAPPE_USER
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     git clone -b "$BENCH_BRANCH" --depth 1 https://github.com/frappe/bench bench-repo; \
-    sudo pip%%PIP_VERSION%% install -e "/home/$FRAPPE_USER/bench-repo" --no-cache-dir; \
+    sudo pip3 install -e "/home/$FRAPPE_USER/bench-repo" --no-cache-dir; \
     bench --version; \
     npm install \
         chalk \
@@ -134,15 +134,15 @@ RUN set -ex; \
     bench setup socketio; \
     bench init \
         --frappe-branch "$FRAPPE_BRANCH" \
-        --python $(which python%%PYTHON_VERSION%%) \
-        %%BENCH_OPTIONS%% frappe-bench \
+        --python $(which python3.7) \
+        --skip-redis-config-generation --no-backups frappe-bench \
     ; \
     bench --version; \
     rm -rf node_modules; \
     cd frappe-bench; \
     mkdir -p apps logs sites config; \
     sed -i -e "s|^werkzeug$|werkzeug==0.16.1|g" apps/frappe/requirements.txt; \
-    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python%%PYTHON_VERSION%%) ; \
+    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3.7) ; \
     sudo bench setup sudoers $FRAPPE_USER
 
 # Alternative: replace previous run by this for manual install

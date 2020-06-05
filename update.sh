@@ -43,16 +43,15 @@ function version_greater_or_equal() {
 	[[ "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1" || "$1" == "$2" ]];
 }
 
-min_versionFrappe=10
+min_versionFrappe=11
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=(
-	13.0.0-beta.1
+	13.0.0-beta.2
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
-	11.1.67
-	10.x.x
+	11.1.69
 	develop
 )
 
@@ -69,14 +68,14 @@ mkdir -p ./images
 echo "update docker images"
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
-	frappe=$(echo "$latest" | cut -d. -f1-2)
+	version=$(echo "$latest" | cut -d. -f1-2)
 	major=$(echo "$latest" | cut -d. -f1-1)
 
 	# Only add versions >= "$min_version"
-	if version_greater_or_equal "$frappe" "$min_versionFrappe"; then
+	if version_greater_or_equal "$major" "$min_versionFrappe"; then
 
 		# Define bench version for frappe
-		case $frappe in
+		case $version in
 			#10.*) bench=4.1;;
 			*) bench=master;;
 		esac
@@ -85,11 +84,11 @@ for latest in "${latestsFrappe[@]}"; do
 
 			for variant in "${variants[@]}"; do
 				# Create the frappe-bench/variant directory with a Dockerfile.
-				dir="images/$frappe-$bench/$variant"
+				dir="images/$major-$bench/$variant"
 				if [ -d "$dir" ]; then
 					continue
 				fi
-				echo "generating frappe $latest [$frappe] / bench $bench ($variant)"
+				echo "generating frappe $latest [$version] / bench $bench ($variant)"
 				mkdir -p "$dir"
 
 				shortVariant=${variant/slim-/}
@@ -103,7 +102,7 @@ for latest in "${latestsFrappe[@]}"; do
 						"$dir/$name"
 				done
 
-				case $frappe in
+				case $version in
 					10.*|11.*) cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
 					*) cp "template/docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
 				esac
@@ -205,10 +204,10 @@ for latest in "${latestsFrappe[@]}"; do
 						"$dir/.env" "$dir/test/Dockerfile"
 				fi
 
-				travisEnv='\n  - VERSION='"$frappe"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
+				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
 
 				if [[ $1 == 'build' ]]; then
-					tag="$frappe-$variant"
+					tag="$major-$variant"
 					echo "Build Dockerfile for ${tag}"
 					docker build -t "${dockerRepo}:${tag}" "$dir"
 				fi

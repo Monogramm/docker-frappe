@@ -131,30 +131,12 @@ env: # Environments
   - VERSION=develop BENCH=master VARIANT=alpine
   - VERSION=develop BENCH=master VARIANT=slim-buster
   - VERSION=develop BENCH=master VARIANT=buster
-  - VERSION=10.x BENCH=master VARIANT=alpine
-  - VERSION=10.x BENCH=master VARIANT=slim-buster
-  - VERSION=10.x BENCH=master VARIANT=buster
-  - VERSION=11.1 BENCH=master VARIANT=alpine
-  - VERSION=11.1 BENCH=master VARIANT=slim-buster
-  - VERSION=11.1 BENCH=master VARIANT=buster
-  - VERSION=12.0 BENCH=master VARIANT=alpine
-  - VERSION=12.0 BENCH=master VARIANT=slim-buster
-  - VERSION=12.0 BENCH=master VARIANT=buster
-  - VERSION=12.1 BENCH=master VARIANT=alpine
-  - VERSION=12.1 BENCH=master VARIANT=slim-buster
-  - VERSION=12.1 BENCH=master VARIANT=buster
-  - VERSION=12.2 BENCH=master VARIANT=alpine
-  - VERSION=12.2 BENCH=master VARIANT=slim-buster
-  - VERSION=12.2 BENCH=master VARIANT=buster
-  - VERSION=12.3 BENCH=master VARIANT=alpine
-  - VERSION=12.3 BENCH=master VARIANT=slim-buster
-  - VERSION=12.3 BENCH=master VARIANT=buster
-  - VERSION=12.4 BENCH=master VARIANT=alpine
-  - VERSION=12.4 BENCH=master VARIANT=slim-buster
-  - VERSION=12.4 BENCH=master VARIANT=buster
-  - VERSION=12.5 BENCH=master VARIANT=alpine
-  - VERSION=12.5 BENCH=master VARIANT=slim-buster
-  - VERSION=12.5 BENCH=master VARIANT=buster
-  - VERSION=13.0 BENCH=master VARIANT=alpine
-  - VERSION=13.0 BENCH=master VARIANT=slim-buster
-  - VERSION=13.0 BENCH=master VARIANT=buster
+  - VERSION=11 BENCH=master VARIANT=alpine
+  - VERSION=11 BENCH=master VARIANT=slim-buster
+  - VERSION=11 BENCH=master VARIANT=buster
+  - VERSION=12 BENCH=master VARIANT=alpine
+  - VERSION=12 BENCH=master VARIANT=slim-buster
+  - VERSION=12 BENCH=master VARIANT=buster
+  - VERSION=13 BENCH=master VARIANT=alpine
+  - VERSION=13 BENCH=master VARIANT=slim-buster
+  - VERSION=13 BENCH=master VARIANT=buster
