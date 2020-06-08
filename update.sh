@@ -115,18 +115,18 @@ for latest in "${latestsFrappe[@]}"; do
 				cp -r "template/test" "$dir/"
 				cp "template/docker-compose.test.yml" "$dir/docker-compose.test.yml"
 
+				if [ "$variant" = "alpine" ]; then
+					sed -ri -e '
+						s/%%VARIANT%%/alpine3.10/g;
+					' "$dir/Dockerfile"
+				else
+					sed -ri -e '
+						s/%%VARIANT%%/'"$variant"'/g;
+					' "$dir/Dockerfile"
+				fi
+
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
-
-					if [ "$variant" = "alpine" ]; then
-						sed -ri -e '
-							s/%%VARIANT%%/alpine3.10/g;
-						' "$dir/Dockerfile"
-					else
-						sed -ri -e '
-							s/%%VARIANT%%/'"$variant"'/g;
-						' "$dir/Dockerfile"
-					fi
 
 					sed -ri -e '
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
@@ -140,12 +140,10 @@ for latest in "${latestsFrappe[@]}"; do
 					if [ "$variant" = "alpine" ]; then
 						sed -ri -e '
 							s/%%PYTHON_VERSION%%/3.7/g;
-							s/%%VARIANT%%/alpine3.10/g;
 						' "$dir/Dockerfile"
 					else
 						sed -ri -e '
 							s/%%PYTHON_VERSION%%/3.7/g;
-							s/%%VARIANT%%/'"$variant"'/g;
 						' "$dir/Dockerfile"
 					fi
 
