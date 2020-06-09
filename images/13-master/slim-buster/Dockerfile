@@ -15,78 +15,74 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10-606718795 AS wkhtmltopdf-builder
+FROM python:3.7-slim-buster
 
-FROM python:3.7-alpine3.10
+ARG NODE_VERSION=12
 
-COPY --from=wkhtmltopdf-builder \
-    /bin/wkhtmltopdf /bin/wkhtmltopdf
-
+ENV DEBIAN_FRONTEND="noninteractive"
+ARG WKHTMLTOX_VERSION=0.12.4
 ARG DOCKERIZE_VERSION=v0.6.1
 
 # Frappe base environment
 RUN set -ex; \
-    apk add --update \
-        alpine-sdk \
-        busybox-suid \
-        dbus \
-        git \
-        glib \
-        linux-headers \
-        libgcc \
-        libintl \
-        libstdc++ \
-        libxslt \
-        libxslt-dev \
-        nodejs \
-        nodejs-npm \
-        openntpd \
-        py-setuptools \
-        py-openssl \
-        py-ldap3 \
-        python-dev \
+    apt-get update; \
+    apt-get install -y software-properties-common gnupg2 curl; \
+    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8; \
+    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian buster main"; \
+    curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | bash -; \
+    curl -sS "https://dl.yarnpkg.com/debian/pubkey.gpg" | apt-key add -; \
+    apt-get update; \
+    apt-get install -y --allow-unauthenticated \
+        sudo \
         wget \
-        zlib-dev \
+        nodejs \
+        python-mysqldb \
+        git \
+        build-essential \
+        python-setuptools \
+        python-dev \
+        libffi-dev \
+        libssl-dev  \
+        ntp \
+        screen \
+        mariadb-client \
+        mariadb-common \
+        postgresql-client \
+        postgresql-client-common \
+        libxslt1.1 \
+        libxslt1-dev \
+        libcrypto++-dev \
+        python-openssl \
+        python-ldap3 \
+        python-psycopg2 \
+        libtiff5-dev \
+        libjpeg62-turbo-dev \
+        liblcms2-dev \
+        libwebp-dev \
+        tcl8.6-dev \
+        tk8.6-dev \
+        python-tk \
+        zlib1g-dev \
+        libfreetype6-dev \
+        fontconfig \
+        libxrender1 \
+        libxext6 \
+        xfonts-75dpi \
+        xfonts-base \
     ; \
-    git --version; \
+    test "${NODE_VERSION}" = "8" && apt-get install -y --allow-unauthenticated npm; \
+    mkdir /tmp/.X11-unix; \
+    chmod 777 /tmp/.X11-unix; \
+    chown root:root /tmp/.X11-unix; \
     node --version; \
     npm --version; \
     npm install -g yarn; \
     yarn --version; \
-    apk add --update \
-        mariadb-client \
-        mariadb-common \
-        mariadb-dev \
-        postgresql-client \
-        postgresql-dev \
-        postgresql-libs \
-    ; \
-    apk add --update \
-        jpeg-dev \
-        lcms2-dev \
-        libffi-dev \
-        libwebp-dev \
-        tiff-dev \
-    ; \
-    apk add --update \
-        freetype-dev \
-        fontconfig \
-        libx11 \
-        libxext \
-        libxrender \
-        screen \
-        ttf-freefont \
-        ttf-dejavu \
-        ttf-droid \
-        ttf-liberation \
-        ttf-ubuntu-font-family \
-        xvfb \
-    ; \
-    mkdir /tmp/.X11-unix; \
-    chmod 777 /tmp/.X11-unix; \
-    chown root:root /tmp/.X11-unix; \
-    rm -rf /var/cache/apk/*; \
-    echo 'Set disable_coredump false' > /etc/sudo.conf; \
+    rm -rf /var/lib/apt/lists/*; \
+    wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOX_VERSION}/wkhtmltox-${WKHTMLTOX_VERSION}_linux-generic-amd64.tar.xz; \
+    tar xf wkhtmltox-${WKHTMLTOX_VERSION}_linux-generic-amd64.tar.xz; \
+    mv wkhtmltox/bin/* /usr/local/bin/; \
+    rm wkhtmltox-${WKHTMLTOX_VERSION}_linux-generic-amd64.tar.xz; \
     wkhtmltopdf --version; \
     wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
@@ -94,7 +90,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=develop
+ARG VERSION=v13.0.0-beta.2
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
@@ -102,8 +98,8 @@ ENV FRAPPE_USER=frappe \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
-    addgroup -S $FRAPPE_USER; \
-    adduser -D -G $FRAPPE_USER $FRAPPE_USER; \
+    groupadd -r $FRAPPE_USER; \
+    useradd -r -m -g $FRAPPE_USER $FRAPPE_USER; \
     echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
 USER $FRAPPE_USER
