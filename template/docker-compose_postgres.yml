@@ -40,6 +40,8 @@ services:
       - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
       - TRAVIS_JOB_WEB_URL=${TRAVIS_JOB_WEB_URL}
       - TRAVIS_BRANCH=${TRAVIS_BRANCH}
+      # Frappe setup
+      - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
     volumes_from:
       - frappe_app
     volumes:

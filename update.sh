@@ -55,10 +55,13 @@ latestsFrappe=(
 	develop
 )
 
-#latestsBench=( 
-#	master
-#	4.1
-#)
+latestsBench=(
+#	$( curl -fsSL 'https://api.github.com/repos/frappe/bench/tags' |tac|tac| \
+#	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
+#	sort -urV )
+	master
+	4.1
+)
 
 # Remove existing images
 echo "reset docker images"
@@ -77,7 +80,7 @@ for latest in "${latestsFrappe[@]}"; do
 		# Define bench version for frappe
 		case $version in
 			#10.*) bench=4.1;;
-			*) bench=master;;
+			*) bench=${latestsBench[0]};;
 		esac
 
 		#for bench in "${latestsBench[@]}"; do
@@ -102,9 +105,10 @@ for latest in "${latestsFrappe[@]}"; do
 						"$dir/$name"
 				done
 
-				case $version in
-					10.*|11.*) cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.yml";;
-					*) cp "template/docker-compose_${compose[$variant]}.yml" "$dir/docker-compose.yml";;
+				cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.mariadb.yml"
+				case $latest in
+					10.*|11.*) echo "Postgres not supported for $latest";;
+					*) cp "template/docker-compose_postgres.yml" "$dir/docker-compose.postgres.yml";;
 				esac
 
 				template="template/Dockerfile.${base[$variant]}.template"
@@ -188,7 +192,7 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
-						"$dir/docker-compose.yml" \
+						"$dir"/docker-compose.*.yml \
 						"$dir/docker-compose.test.yml" \
 						"$dir/.env" "$dir/test/Dockerfile"
 				else
@@ -197,12 +201,16 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
-						"$dir/docker-compose.yml" \
+						"$dir"/docker-compose.*.yml \
 						"$dir/docker-compose.test.yml" \
 						"$dir/.env" "$dir/test/Dockerfile"
 				fi
 
-				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant$travisEnv"
+				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=mariadb'"$travisEnv"
+				case $latest in
+					10.*|11.*) echo "Postgres not supported for $latest";;
+					*) travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=postgres'"$travisEnv";;
+				esac
 
 				if [[ $1 == 'build' ]]; then
 					tag="$major-$variant"
