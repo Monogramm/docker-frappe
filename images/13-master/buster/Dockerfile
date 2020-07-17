@@ -90,7 +90,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v13.0.0-beta.2
+ARG VERSION=v13.0.0-beta.3
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \

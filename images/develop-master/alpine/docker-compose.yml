@@ -1,4 +1,4 @@
-version: "2"
+version: "2.3"
 
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
@@ -55,9 +55,16 @@ services:
     command: app
     #restart: always
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
-      - frappe_db
+      frappe_db:
+        condition: service_healthy
+      frappe_redis_cache:
+        condition: service_started
+      frappe_redis_queue:
+        condition: service_started
+      frappe_redis_socketio:
+        condition: service_started
     links:
       - frappe_db
     environment:
@@ -118,9 +125,9 @@ services:
     volumes_from:
       - frappe_app
     ports:
-      - 80:80
+      - "80:80"
       # If you need SSL connection
-      # - '443:443'
+      # - "443:443"
     links:
       - frappe_app
       - frappe_socketio
@@ -132,6 +139,10 @@ services:
     stdin_open: true
     tty: true
     command: postgres -c 'max_connections=500'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${ERPNEXT_DB_NAME}", "-d", "${ERPNEXT_DB_NAME}"]
+    expose:
+      - '5432'
     environment:
       - POSTGRES_USER=${FRAPPE_DB_ROOT_LOGIN}
       - POSTGRES_PASSWORD=${FRAPPE_DB_ROOT_PWD}

@@ -47,7 +47,7 @@ min_versionFrappe=11
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=(
-	13.0.0-beta.2
+	13.0.0-beta.3
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )

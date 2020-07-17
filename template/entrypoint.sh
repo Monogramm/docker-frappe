@@ -235,6 +235,20 @@ bench_setup_database() {
   log "Database setup Finished"
 }
 
+bench_install_apps() {
+  for app in $@; do
+    if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
+      log "Adding '$app' to apps.txt..."
+      echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
+
+      log "Installing app '$app'..."
+      bench install-app "$app" \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    fi
+  done
+}
+
 bench_setup() {
   # Expecting parameters to be a list of apps to (re)install
   if [ "$#" -ne 0 ] || [[ "${FRAPPE_REINSTALL_DATABASE}" = "1" ]]; then
@@ -245,12 +259,7 @@ bench_setup() {
       | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
       | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
-    for app in $@; do
-      log "Installing app '$app'..."
-      bench install-app "$app" \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
-    done
+    bench_install_apps "$@"
   else
     log "No app specified to reinstall"
   fi
@@ -487,7 +496,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     done
   fi
 
-  # Init apps
+  # Reset apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [[ "${FRAPPE_APP_RESET}" == "1" ]]; then
     log "Adding frappe to apps.txt..."
     sudo touch "${FRAPPE_WD}/sites/apps.txt"
@@ -496,14 +505,6 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     ;
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
   fi
-
-  # Remove any missing app to init in apps.txt
-  for app in ${FRAPPE_APP_INIT}; do
-    if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
-      log "Adding '$app' to apps.txt..."
-      echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
-    fi
-  done
 
 else
   # Wait for another node to setup apps and sites
@@ -658,15 +659,25 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [[ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]]; then
 
     # Call bench setup for app
+    log "Docker Frappe automatic app setup..."
     bench_setup "${FRAPPE_APP_INIT}"
 
     echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
     log "Docker Frappe automatic app setup ended"
 
+  else
+
+    # Add any missing app to init in apps.txt
+    log "Docker Frappe automatic app update..."
+    bench_install_apps "${FRAPPE_APP_INIT}"
+
+    echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
+    log "Docker Frappe automatic app update ended"
+
   fi
 
   # Frappe automatic app migration (based on container build properties)
-  if [ -f "${FRAPPE_WD}/sites/.docker-init" ] && ! grep "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
+  if [ -f "${FRAPPE_WD}/sites/.docker-init" ] && ! grep -q "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" "${FRAPPE_WD}/sites/.docker-init"; then
     bench_setup_requirements
     bench_build_apps
     bench_migrate
@@ -688,6 +699,7 @@ case "${NODE_TYPE}" in
   ("doctor") wait_db; bench_doctor ;;
   ("setup") pip_install; shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
+  ("install-apps") bench_install_apps ;;
   ("build-apps") pip_install; bench_build_apps ;;
   ("update") shift; bench_update $@ ;;
   ("backup") shift; bench_backup $@ ;;
