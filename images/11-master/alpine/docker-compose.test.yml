@@ -1,4 +1,4 @@
-version: "2"
+version: "2.3"
 
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
@@ -27,6 +27,8 @@ services:
       - DOCKER_DEBUG=1
       # Test setup
       - TEST_VERSION=11
+      # Frappe setup
+      - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
     volumes_from:
       - frappe_app
     volumes:
@@ -42,9 +44,16 @@ services:
     command: app
     #restart: always
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
-      - frappe_db
+      frappe_db:
+        condition: service_healthy
+      frappe_redis_cache:
+        condition: service_started
+      frappe_redis_queue:
+        condition: service_started
+      frappe_redis_socketio:
+        condition: service_started
     links:
       - frappe_db
     environment:
@@ -106,9 +115,9 @@ services:
     volumes_from:
       - frappe_app
     ports:
-      - 80:80
+      - "80:80"
       # If you need SSL connection
-      # - '443:443'
+      # - "443:443"
     links:
       - frappe_app
       - frappe_socketio
@@ -118,6 +127,12 @@ services:
     container_name: frappe_db
     #restart: always
     command: --character_set_client=utf8 --bind-address=0.0.0.0 --character-set-client-handshake=FALSE --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode="ALLOW_INVALID_DATES"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "--password=${FRAPPE_DB_PWD}"]
+      timeout: 10s
+      retries: 5
+    expose:
+      - '3306'
     environment:
       - MYSQL_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
       # Following parameters are not needed with Frappe 12 or higher since it will create DB itself

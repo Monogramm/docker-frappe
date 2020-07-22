@@ -1,4 +1,4 @@
-version: "2"
+version: "2.3"
 
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
@@ -40,6 +40,8 @@ services:
       - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
       - TRAVIS_JOB_WEB_URL=${TRAVIS_JOB_WEB_URL}
       - TRAVIS_BRANCH=${TRAVIS_BRANCH}
+      # Frappe setup
+      - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
     volumes_from:
       - frappe_app
     volumes:
@@ -55,12 +57,21 @@ services:
     command: app
     #restart: always
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
-      - frappe_db
+      frappe_db:
+        condition: service_healthy
+      frappe_redis_cache:
+        condition: service_started
+      frappe_redis_queue:
+        condition: service_started
+      frappe_redis_socketio:
+        condition: service_started
     links:
       - frappe_db
     environment:
+      # Docker setup
+      - DOCKER_DB_ALLOWED_HOSTS=
       # Frappe setup
       - FRAPPE_APP_INIT=frappe
       - FRAPPE_APP_RESET=1
@@ -78,12 +89,11 @@ services:
       - ADMIN_PASSWORD=${FRAPPE_ADMIN_PWD}
       - ENCRYPTION_KEY=${FRAPPE_ENCRYPTION_KEY}
       # Database setup
-      - DB_TYPE=postgres
+      - DB_TYPE=mariadb
       - DB_HOST=frappe_db
-      - DB_PORT=5432
+      - DB_PORT=3306
       - DB_NAME=${FRAPPE_DB_NAME}
       - DB_PASSWORD=${FRAPPE_DB_PWD}
-      - DB_ROOT_LOGIN=${FRAPPE_DB_ROOT_LOGIN}
       - DB_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
       # Mail setup
       - MAIL_MUTED=false
@@ -118,27 +128,32 @@ services:
     volumes_from:
       - frappe_app
     ports:
-      - 80:80
+      - "80:80"
       # If you need SSL connection
-      # - '443:443'
+      # - "443:443"
     links:
       - frappe_app
       - frappe_socketio
 
   frappe_db:
-    image: postgres:10-alpine
+    image: mariadb:10
     container_name: frappe_db
     #restart: always
-    stdin_open: true
-    tty: true
-    command: postgres -c 'max_connections=500'
+    command: --character_set_client=utf8 --bind-address=0.0.0.0 --character-set-client-handshake=FALSE --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode="ALLOW_INVALID_DATES"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "--password=${FRAPPE_DB_PWD}"]
+      timeout: 10s
+      retries: 5
+    expose:
+      - '3306'
     environment:
-      - POSTGRES_USER=${FRAPPE_DB_ROOT_LOGIN}
-      - POSTGRES_PASSWORD=${FRAPPE_DB_ROOT_PWD}
+      - MYSQL_ROOT_PASSWORD=${FRAPPE_DB_ROOT_PWD}
+      # Following parameters are not needed with Frappe 12 or higher since it will create DB itself
+      - MYSQL_DATABASE=${FRAPPE_DB_NAME}
+      - MYSQL_USER=${FRAPPE_DB_NAME}
+      - MYSQL_PASSWORD=${FRAPPE_DB_PWD}
     volumes:
-      - /srv/erpnext/db/data:/var/lib/postgresql/data
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - /srv/erpnext/db:/var/lib/mysql
 
   frappe_mailer:
     image: sj26/mailcatcher:latest
@@ -156,11 +171,11 @@ services:
   frappe_scheduler:
     image: ${IMAGE_NAME}
     container_name: frappe_scheduler
+    command: scheduler
     #restart: always
     depends_on:
       - frappe_app
     environment:
-      - NODE_TYPE=scheduler
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
@@ -172,11 +187,11 @@ services:
   frappe_worker_default:
     image: ${IMAGE_NAME}
     container_name: frappe_worker_default
+    command: worker-default
     #restart: always
     depends_on:
       - frappe_app
     environment:
-      - NODE_TYPE=worker-default
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
@@ -188,11 +203,11 @@ services:
   frappe_worker_long:
     image: ${IMAGE_NAME}
     container_name: frappe_worker_long
+    command: worker-long
     #restart: always
     depends_on:
       - frappe_app
     environment:
-      - NODE_TYPE=worker-long
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
@@ -204,11 +219,11 @@ services:
   frappe_worker_short:
     image: ${IMAGE_NAME}
     container_name: frappe_worker_short
+    command: worker-short
     #restart: always
     depends_on:
       - frappe_app
     environment:
-      - NODE_TYPE=worker-short
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
@@ -227,7 +242,6 @@ services:
     depends_on:
       - frappe_app
     environment:
-      - NODE_TYPE=node-socketio
       # Docker setup
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
