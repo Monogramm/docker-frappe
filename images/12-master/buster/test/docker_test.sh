@@ -53,7 +53,7 @@ FRAPPE_APP_TO_TEST=frappe
 
 echo "Preparing Frappe application '${FRAPPE_APP_TO_TEST}' tests..."
 
-bench --site "${FRAPPE_DEFAULT_SITE}" set-config allow_tests true
+bench set-config allow_tests true -g
 
 echo "Checking environment for '${FRAPPE_APP_TO_TEST}' tests..."
 bench doctor
