@@ -34,15 +34,8 @@ script:
   - echo "Changing to travis test directory ($travis_dir)"
   - cd "$travis_dir"
   # Test container run
-  - travis_retry docker-compose -f "docker-compose.${DATABASE}.yml" up -d && sleep 20
-  - docker-compose -f "docker-compose.${DATABASE}.yml" ps
-  - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_db"
-  - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_db" | grep "Up" || exit 1
-  - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_app"
-  - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_app" | grep "Up" || exit 1
-  - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_web"
-  - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_web" | grep "Up" || exit 1
-  - echo 'Wait until sites and apps database installed (4-5 minutes)' && sleep 300
+  - travis_retry docker-compose -f "docker-compose.${DATABASE}.yml" up -d
+  - docker-compose -f "docker-compose.${DATABASE}.yml" logs -f "sut"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps
   - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_db"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_db" | grep "Up"
@@ -50,15 +43,14 @@ script:
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_app" | grep "Up"
   - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_web"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (9-10 minutes)' && sleep 540
-  - docker-compose -f "docker-compose.${DATABASE}.yml" logs "sut"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "sut" | grep "Exit 0"
   # Test container db reinstall
   - docker-compose -f "docker-compose.${DATABASE}.yml" run --rm "frappe_app" bench reinstall --help
   - docker-compose -f "docker-compose.${DATABASE}.yml" run --rm "frappe_app" bench reinstall --yes && sleep 20
   # Test container restart
   - docker-compose -f "docker-compose.${DATABASE}.yml" down
-  - travis_retry docker-compose -f "docker-compose.${DATABASE}.yml" up -d && sleep 20
+  - travis_retry docker-compose -f "docker-compose.${DATABASE}.yml" up -d
+  - docker-compose -f "docker-compose.${DATABASE}.yml" logs -f "sut"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps
   - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_db"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_db" | grep "Up"
@@ -66,8 +58,6 @@ script:
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_app" | grep "Up"
   - docker-compose -f "docker-compose.${DATABASE}.yml" logs "frappe_web"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "frappe_web" | grep "Up"
-  - echo 'Wait until tests finished (9-10 minutes)' && sleep 540
-  - docker-compose -f "docker-compose.${DATABASE}.yml" logs "sut"
   - docker-compose -f "docker-compose.${DATABASE}.yml" ps "sut" | grep "Exit 0"
   # Test container migrate
   - docker-compose -f "docker-compose.${DATABASE}.yml" run --rm "frappe_app" bench migrate --help
