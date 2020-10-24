@@ -88,13 +88,13 @@ RUN set -ex; \
     rm -rf /var/cache/apk/*; \
     echo 'Set disable_coredump false' > /etc/sudo.conf; \
     wkhtmltopdf --version; \
-    wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    rm dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
+    wget "https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"; \
+    tar -C /usr/local/bin -xzvf "dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"; \
+    rm "dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v12.10.1
+ARG VERSION=v12.11.0
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
