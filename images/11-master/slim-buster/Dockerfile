@@ -95,6 +95,7 @@ ARG VERSION=v11.1.69
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
+    FRAPPE_PATH=https://github.com/frappe/frappe \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
@@ -133,6 +134,7 @@ RUN set -ex; \
     ; \
     bench setup socketio; \
     bench init \
+        --frappe-path "$FRAPPE_PATH" \
         --frappe-branch "$FRAPPE_BRANCH" \
         --python $(which python3.7) \
         --skip-redis-config-generation --no-backups frappe-bench \
