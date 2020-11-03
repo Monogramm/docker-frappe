@@ -124,6 +124,12 @@ env: # Environments
   - VERSION=develop BENCH=master VARIANT=slim-buster DATABASE=mariadb
   - VERSION=develop BENCH=master VARIANT=buster DATABASE=postgres
   - VERSION=develop BENCH=master VARIANT=buster DATABASE=mariadb
+  - VERSION=version-11-hotfix BENCH=master VARIANT=alpine DATABASE=postgres
+  - VERSION=version-11-hotfix BENCH=master VARIANT=alpine DATABASE=mariadb
+  - VERSION=version-11-hotfix BENCH=master VARIANT=slim-buster DATABASE=postgres
+  - VERSION=version-11-hotfix BENCH=master VARIANT=slim-buster DATABASE=mariadb
+  - VERSION=version-11-hotfix BENCH=master VARIANT=buster DATABASE=postgres
+  - VERSION=version-11-hotfix BENCH=master VARIANT=buster DATABASE=mariadb
   - VERSION=11 BENCH=master VARIANT=alpine DATABASE=mariadb
   - VERSION=11 BENCH=master VARIANT=slim-buster DATABASE=mariadb
   - VERSION=11 BENCH=master VARIANT=buster DATABASE=mariadb

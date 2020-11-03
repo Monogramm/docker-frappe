@@ -52,6 +52,7 @@ latestsFrappe=(
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
 	11.1.69
+	version-11-hotfix
 	develop
 )
 
