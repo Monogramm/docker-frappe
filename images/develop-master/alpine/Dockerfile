@@ -95,7 +95,7 @@ RUN set -ex; \
     pip --version
 
 ARG VERSION=develop
-ARG FRAPPE_PATH=https://github.com/frappe/frappe
+ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \

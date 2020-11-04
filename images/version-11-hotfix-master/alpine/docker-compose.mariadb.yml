@@ -256,7 +256,7 @@ services:
     container_name: frappe_redis_cache
     #restart: always
     volumes:
-      - ./services/erpnext/conf/redis_cache.conf:/etc/conf.d/redis.conf:ro
+      - ./redis_cache.conf:/etc/conf.d/redis.conf:ro
     command: ["redis-server","/etc/conf.d/redis.conf"]
 
   frappe_redis_queue:
