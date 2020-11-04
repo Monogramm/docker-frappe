@@ -91,11 +91,11 @@ RUN set -ex; \
     pip --version
 
 ARG VERSION=v12.11.0
+ARG FRAPPE_PATH=https://github.com/frappe/frappe
 
 # Build environment variables
 ENV FRAPPE_USER=frappe \
     BENCH_BRANCH=master \
-    FRAPPE_PATH=https://github.com/frappe/frappe \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \

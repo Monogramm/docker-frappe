@@ -39,6 +39,8 @@ services:
     # For development or CI, build from local Dockerfile
     # For production, download prebuilt image
     build: ./
+    build:
+      context: .
     image: ${IMAGE_NAME}
     container_name: frappe_app
     command: app
