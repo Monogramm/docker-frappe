@@ -128,7 +128,7 @@ services:
     volumes_from:
       - frappe_app
     ports:
-      - "80:80"
+      - "8080:80"
       # If you need SSL connection
       # - "443:443"
     links:
