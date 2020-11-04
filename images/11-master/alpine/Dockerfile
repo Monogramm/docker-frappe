@@ -94,7 +94,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v11.1.69
+ARG VERSION=version-11-hotfix
 ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
 # Build environment variables
