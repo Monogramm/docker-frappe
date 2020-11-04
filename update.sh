@@ -135,7 +135,6 @@ for latest in "${latestsFrappe[@]}"; do
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
-
 					sed -ri -e '
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
@@ -211,8 +210,8 @@ for latest in "${latestsFrappe[@]}"; do
 				fi
 
 				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=mariadb'"$travisEnv"
-				case $latest in
-					10.*|11.*) echo "Postgres not supported for $latest";;
+				case $major in
+					10|11) echo "Postgres not supported for $latest";;
 					*) travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=postgres'"$travisEnv";;
 				esac
 
