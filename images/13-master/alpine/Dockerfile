@@ -51,7 +51,7 @@ RUN set -ex; \
     git --version; \
     node --version; \
     npm --version; \
-    sudo npm install -g yarn; \
+    npm install -g --unsafe-perm yarn; \
     yarn --version; \
     apk add --update \
         mariadb-client \
