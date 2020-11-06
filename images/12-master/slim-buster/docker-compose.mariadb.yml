@@ -51,7 +51,8 @@ services:
   frappe_app:
     # For development or CI, build from local Dockerfile
     # For production, download prebuilt image
-    build: ./
+    build:
+      context: .
     image: ${IMAGE_NAME}
     container_name: frappe_app
     command: app
@@ -128,7 +129,7 @@ services:
     volumes_from:
       - frappe_app
     ports:
-      - "80:80"
+      - "8080:80"
       # If you need SSL connection
       # - "443:443"
     links:
@@ -141,7 +142,7 @@ services:
     #restart: always
     command: --character_set_client=utf8 --bind-address=0.0.0.0 --character-set-client-handshake=FALSE --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode="ALLOW_INVALID_DATES"
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "--password=${FRAPPE_DB_PWD}"]
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "--user=${FRAPPE_DB_NAME}", "--password=${FRAPPE_DB_PWD}"]
       timeout: 10s
       retries: 5
     expose:
@@ -255,7 +256,7 @@ services:
     container_name: frappe_redis_cache
     #restart: always
     volumes:
-      - ./services/erpnext/conf/redis_cache.conf:/etc/conf.d/redis.conf:ro
+      - ./redis_cache.conf:/etc/conf.d/redis.conf:ro
     command: ["redis-server","/etc/conf.d/redis.conf"]
 
   frappe_redis_queue:

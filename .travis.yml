@@ -118,12 +118,6 @@ jobs:
     - env: VERSION=10.x BENCH=master VARIANT=buster DATABASE=mariadb
 
 env: # Environments
-  - VERSION=develop BENCH=master VARIANT=alpine DATABASE=postgres
-  - VERSION=develop BENCH=master VARIANT=alpine DATABASE=mariadb
-  - VERSION=develop BENCH=master VARIANT=slim-buster DATABASE=postgres
-  - VERSION=develop BENCH=master VARIANT=slim-buster DATABASE=mariadb
-  - VERSION=develop BENCH=master VARIANT=buster DATABASE=postgres
-  - VERSION=develop BENCH=master VARIANT=buster DATABASE=mariadb
   - VERSION=11 BENCH=master VARIANT=alpine DATABASE=mariadb
   - VERSION=11 BENCH=master VARIANT=slim-buster DATABASE=mariadb
   - VERSION=11 BENCH=master VARIANT=buster DATABASE=mariadb
@@ -139,3 +133,9 @@ env: # Environments
   - VERSION=13 BENCH=master VARIANT=slim-buster DATABASE=mariadb
   - VERSION=13 BENCH=master VARIANT=buster DATABASE=postgres
   - VERSION=13 BENCH=master VARIANT=buster DATABASE=mariadb
+  - VERSION=develop BENCH=master VARIANT=alpine DATABASE=postgres
+  - VERSION=develop BENCH=master VARIANT=alpine DATABASE=mariadb
+  - VERSION=develop BENCH=master VARIANT=slim-buster DATABASE=postgres
+  - VERSION=develop BENCH=master VARIANT=slim-buster DATABASE=mariadb
+  - VERSION=develop BENCH=master VARIANT=buster DATABASE=postgres
+  - VERSION=develop BENCH=master VARIANT=buster DATABASE=mariadb

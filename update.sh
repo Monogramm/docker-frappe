@@ -47,12 +47,13 @@ min_versionFrappe=11
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=(
+	develop
 	13.0.0-beta.5
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
-	11.1.69
-	develop
+	version-11-hotfix
+	#11.1.69
 )
 
 latestsBench=(
@@ -73,6 +74,9 @@ travisEnv=
 for latest in "${latestsFrappe[@]}"; do
 	version=$(echo "$latest" | cut -d. -f1-2)
 	major=$(echo "$latest" | cut -d. -f1-1)
+	if [ "$latest" = "version-11-hotfix" ]; then
+		major=11
+	fi
 
 	# Only add versions >= "$min_version"
 	if version_greater_or_equal "$major" "$min_versionFrappe"; then
@@ -106,8 +110,8 @@ for latest in "${latestsFrappe[@]}"; do
 				done
 
 				cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.mariadb.yml"
-				case $latest in
-					10.*|11.*) echo "Postgres not supported for $latest";;
+				case $major in
+					10|11) echo "Postgres not supported for $latest";;
 					*) cp "template/docker-compose_postgres.yml" "$dir/docker-compose.postgres.yml";;
 				esac
 
@@ -131,7 +135,6 @@ for latest in "${latestsFrappe[@]}"; do
 
 				# Replace the variables.
 				if [ "$major" = "10" ]; then
-
 					sed -ri -e '
 						s/%%SHORT_VARIANT%%/'"$shortVariant"'/g;
 						s/%%PYTHON_VERSION%%/2/g;
@@ -186,7 +189,7 @@ for latest in "${latestsFrappe[@]}"; do
 					' "$dir/Dockerfile"
 				fi
 
-				if [ "$latest" = "develop" ]; then
+				if [ "$latest" = "develop" ] || [ "$latest" = "version-11-hotfix" ]; then
 					sed -ri -e '
 						s/%%VERSION%%/'"$latest"'/g;
 						s/%%BENCH_BRANCH%%/'"$bench"'/g;
@@ -207,8 +210,8 @@ for latest in "${latestsFrappe[@]}"; do
 				fi
 
 				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=mariadb'"$travisEnv"
-				case $latest in
-					10.*|11.*) echo "Postgres not supported for $latest";;
+				case $major in
+					10|11) echo "Postgres not supported for $latest";;
 					*) travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=postgres'"$travisEnv";;
 				esac
 

@@ -51,7 +51,7 @@ RUN set -ex; \
     git --version; \
     node --version; \
     npm --version; \
-    npm install -g yarn; \
+    npm install -g --unsafe-perm yarn; \
     yarn --version; \
     apk add --update \
         mariadb-client \
@@ -88,16 +88,18 @@ RUN set -ex; \
     rm -rf /var/cache/apk/*; \
     echo 'Set disable_coredump false' > /etc/sudo.conf; \
     wkhtmltopdf --version; \
-    wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    tar -C /usr/local/bin -xzvf dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
-    rm dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz; \
+    wget "https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"; \
+    tar -C /usr/local/bin -xzvf "dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"; \
+    rm "dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v12.10.1
+ARG VERSION=v12.11.0
+ARG FRAPPE_USER=frappe
+ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
 # Build environment variables
-ENV FRAPPE_USER=frappe \
+ENV FRAPPE_USER=${FRAPPE_USER} \
     BENCH_BRANCH=master \
     FRAPPE_BRANCH=${VERSION}
 
@@ -137,6 +139,7 @@ RUN set -ex; \
     ; \
     bench setup socketio; \
     bench init \
+        --frappe-path "$FRAPPE_PATH" \
         --frappe-branch "$FRAPPE_BRANCH" \
         --python $(which python3.7) \
         --skip-redis-config-generation --no-backups frappe-bench \
