@@ -57,8 +57,10 @@ services:
     container_name: frappe_app
     command: app
     #restart: always
-    ports:
-      - "8000:8000"
+    expose:
+      - '8000'
+    #ports:
+    #  - "8000:8000"
     depends_on:
       frappe_db:
         condition: service_healthy
