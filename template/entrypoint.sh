@@ -31,22 +31,22 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 # Frappe Bench management functions
 
 reset_logs() {
-  sudo mkdir -p "${FRAPPE_WD}/logs/";
+  mkdir -p "${FRAPPE_WD}/logs/";
 
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 }
 
 log() {
   echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 }
 
 display_logs() {
   if [ -d "${FRAPPE_WD}/logs/" ]; then
-    sudo tail -n 100 "${FRAPPE_WD}"/logs/*.log
+    tail -n 100 "${FRAPPE_WD}"/logs/*.log
   else
     log "Logs directory does not exist!"
   fi
@@ -54,7 +54,7 @@ display_logs() {
 
 setup_logs_owner() {
   log "Setup logs folders and files owner to ${FRAPPE_USER}..."
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+  chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/logs" \
   ;
 }
@@ -62,7 +62,7 @@ setup_logs_owner() {
 setup_sites_owner() {
   # FIXME New bug with Debian where owners is not set properly??!
   log "Setup sites folders and files owner to ${FRAPPE_USER}..."
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+  chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/sites" \
   ;
 }
@@ -77,8 +77,8 @@ pip_install() {
   ls apps/ | while read -r file; do
     if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then
       ./env/bin/pip%%PIP_VERSION%% install -q -e "apps/$file" --no-cache-dir \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     fi;
   done
 
@@ -176,23 +176,23 @@ bench_doctor() {
     # TODO Only enable if doctor says the scheduler is disabled/inactive
     log "Enabling schedulers for current site..."
     bench enable-scheduler \
-      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
   else
 
     log "Error(s) detected in your Frappe environment and background workers!!!"
     bench doctor \
-      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
     # Remove any module not found from bench installed apps
     for app in $(bench doctor 3>&1 1>&2 2>&3 | grep 'ModuleNotFoundError: ' | cut -d"'" -f 2); do
       if ! echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${app}( |$)"; then
         log "Removing '$app' from bench..."
         bench remove-from-installed-apps "$app" \
-          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
       else
         log "The application '$app' was not found but cannot be removed because it is protected!!"
       fi
@@ -204,8 +204,8 @@ bench_doctor() {
 bench_build_apps() {
   log "Building apps assets..."
   bench build ${FRAPPE_BUILD_OPTIONS} \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Apps assets build Finished"
 }
 
@@ -243,8 +243,8 @@ bench_install_apps() {
 
       log "Installing app '$app'..."
       bench install-app "$app" \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     fi
   done
 }
@@ -256,8 +256,8 @@ bench_setup() {
 
     log "Reinstalling with fresh database..."
     bench reinstall --yes \
-      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
     bench_install_apps "$@"
   else
@@ -272,8 +272,8 @@ bench_update() {
   setup_logs_owner
   log "Starting update..."
   bench update $@ \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Update Finished"
 }
 
@@ -304,8 +304,8 @@ bench_backup() {
   setup_logs_owner
   log "Starting backup..."
   bench backup $@ \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Backup Finished."
   list_backups
 
@@ -378,8 +378,8 @@ bench_restore() {
       fi
 
       bench --force restore ${RESTORE_ARGS} "$file" \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
     log "Backup successfully restored."
     # Call bench doctor after backup
@@ -394,8 +394,8 @@ bench_setup_requirements() {
   setup_logs_owner
   log "Starting setup of requirements..."
   bench setup requirements $@ \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Requirements setup Finished"
 }
 
@@ -403,8 +403,8 @@ bench_migrate() {
   setup_logs_owner
   log "Starting migration..."
   bench migrate $@ \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
   log "Migrate Finished"
 
   # Call bench doctor after migrate
@@ -434,29 +434,29 @@ bench_app() {
   "${FRAPPE_WD}/env/bin/gunicorn" \
     $GUNICORN_ARGS \
     frappe.app:application --preload \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_scheduler() {
   log "Starting scheduler..."
   bench schedule \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_worker() {
   log "Starting $1 worker..."
   bench worker --queue "$1" \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 bench_socketio() {
   log "Starting socketio..."
   node "${FRAPPE_WD}/apps/frappe/socketio.js" \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | sudo tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
 }
 
 
@@ -490,8 +490,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
       if ! echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${app}( |$)" && ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
         log "Removing '$app' from bench..."
         bench remove-from-installed-apps "$app" \
-          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-          | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
       fi
     done
   fi
@@ -499,8 +499,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   # Reset apps
   if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [[ "${FRAPPE_APP_RESET}" == "1" ]]; then
     log "Adding frappe to apps.txt..."
-    sudo touch "${FRAPPE_WD}/sites/apps.txt"
-    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+    touch "${FRAPPE_WD}/sites/apps.txt"
+    chown "${FRAPPE_USER}:${FRAPPE_USER}" \
       "${FRAPPE_WD}/sites/apps.txt" \
     ;
     echo "frappe" > "${FRAPPE_WD}/sites/apps.txt"
@@ -529,7 +529,7 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/tasks-logs" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/task-logs" \
   ;
-  sudo chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
+  chown -R "${FRAPPE_USER}:${FRAPPE_USER}" \
     "${FRAPPE_WD}/sites/assets" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/error-snapshots" \
     "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/locks" \
@@ -543,8 +543,8 @@ if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-in
   # Init common site config
   if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
     log "Creating common site config..."
-    sudo touch "${FRAPPE_WD}/sites/common_site_config.json"
-    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+    touch "${FRAPPE_WD}/sites/common_site_config.json"
+    chown "${FRAPPE_USER}:${FRAPPE_USER}" \
       "${FRAPPE_WD}/sites/common_site_config.json" \
     ;
     cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
@@ -601,7 +601,7 @@ EOF
     cp \
       "${FRAPPE_WD}/sites/common_site_config.json" \
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json"
-    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+    chown "${FRAPPE_USER}:${FRAPPE_USER}" \
       "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" \
     ;
   fi
@@ -620,20 +620,20 @@ EOF
         --admin-password ${ADMIN_PASSWORD} \
         --mariadb-root-username ${DB_ROOT_LOGIN} \
         --mariadb-root-password "${DB_ROOT_PASSWORD}" \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     else
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
         --force \
         --db-name ${DB_NAME} \
         --admin-password ${ADMIN_PASSWORD} \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     fi
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
-    sudo touch "${FRAPPE_WD}/sites/currentsite.txt"
-    sudo chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+    touch "${FRAPPE_WD}/sites/currentsite.txt"
+    chown "${FRAPPE_USER}:${FRAPPE_USER}" \
       "${FRAPPE_WD}/sites/currentsite.txt" \
     ;
     echo "${FRAPPE_DEFAULT_SITE}" > "${FRAPPE_WD}/sites/currentsite.txt"
@@ -641,8 +641,8 @@ EOF
 
   log "Using site at ${FRAPPE_DEFAULT_SITE}..."
   bench use "${FRAPPE_DEFAULT_SITE}" \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | sudo tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
 
   echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-site-init"
   log "Docker Frappe automatic site setup ended"
@@ -708,7 +708,7 @@ case "${NODE_TYPE}" in
   # Service tasks
   ("app") wait_db; pip_install; bench_app ;;
   ("scheduler") bench_scheduler ;;
-  ("worker-default") bench_worker default ;;
+  ("worker-default"|"worker") bench_worker default ;;
   ("worker-long") bench_worker long ;;
   ("worker-short") bench_worker short ;;
   ("node-socketio") bench_socketio ;;

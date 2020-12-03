@@ -4,11 +4,15 @@ FROM monogramm/docker-frappe:13-alpine
 
 COPY docker_test.sh /docker_test.sh
 
+USER root
+
 RUN set -ex; \
-    test 'alpine' = 'debian-slim' && sudo apt-get update && sudo apt-get install -y --allow-unauthenticated iputils-ping; \
-    sudo chmod 755 /docker_test.sh; \
-    sudo pip install coverage==4.5.4; \
-    sudo pip install python-coveralls
+    test 'alpine' = 'debian-slim' && apt-get update && apt-get install -y --allow-unauthenticated iputils-ping; \
+    chmod 755 /docker_test.sh; \
+    pip install coverage==4.5.4; \
+    pip install python-coveralls
+
+USER $FRAPPE_USER
 
 # TODO QUnit (JS) Unit tests
 EXPOSE 4444
