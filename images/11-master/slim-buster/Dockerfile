@@ -212,8 +212,11 @@ ENV DOCKER_DB_TIMEOUT=240 \
     MAIL_ALWAYS_EMAIL_ID_AS_SENDER=0 \
     MAIL_ALWAYS_NAME_AS_SENDER_NAME=0 \
     REDIS_CACHE_HOST=redis_cache \
+    REDIS_CACHE_PORT=6379 \
     REDIS_QUEUE_HOST=redis_queue \
-    REDIS_SOCKETIO_HOST=redis_socketio
+    REDIS_QUEUE_PORT=6379 \
+    REDIS_SOCKETIO_HOST=redis_socketio \
+    REDIS_SOCKETIO_PORT=6379
 
 # Copy docker entrypoint and private install script
 COPY ./entrypoint.sh /
