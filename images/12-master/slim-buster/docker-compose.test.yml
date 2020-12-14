@@ -26,7 +26,18 @@ services:
       - DOCKER_APPS_TIMEOUT=900
       - DOCKER_DEBUG=1
       # Test setup
-      - TEST_VERSION=12
+      - TEST_VERSION=${VERSION}
+      - TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID}
+      - TRAVIS_BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
+      - TRAVIS_BUILD_WEB_URL=${TRAVIS_BUILD_WEB_URL}
+      - TRAVIS_COMMIT=${TRAVIS_COMMIT}
+      #- TRAVIS_COMMIT_MESSAGE=${TRAVIS_COMMIT_MESSAGE}
+      - TRAVIS_COMMIT_RANGE=${TRAVIS_COMMIT_RANGE}
+      - TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
+      - TRAVIS_JOB_NAME=${TRAVIS_JOB_NAME}
+      - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+      - TRAVIS_JOB_WEB_URL=${TRAVIS_JOB_WEB_URL}
+      - TRAVIS_BRANCH=${TRAVIS_BRANCH}
       # Frappe setup
       - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
     volumes_from:
@@ -38,7 +49,6 @@ services:
   frappe_app:
     # For development or CI, build from local Dockerfile
     # For production, download prebuilt image
-    build: ./
     build:
       context: .
     image: ${IMAGE_NAME}
@@ -145,6 +155,8 @@ services:
       - MYSQL_PASSWORD=${FRAPPE_DB_PWD}
     volumes:
       - /srv/erpnext/db:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
   frappe_mailer:
     image: sj26/mailcatcher:latest

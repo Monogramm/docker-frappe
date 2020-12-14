@@ -43,6 +43,7 @@ Full-stack web application framework that uses Python and MariaDB on the server 
 
 <https://hub.docker.com/r/monogramm/docker-frappe/>
 
+<!-- Tags -->
 -   Frappe develop branch
     -   `develop-alpine` `develop`
     -   `develop-debian`
@@ -59,6 +60,7 @@ Full-stack web application framework that uses Python and MariaDB on the server 
     -   `11-alpine` `11`
     -   `11-debian`
     -   `11-debian-slim`
+<!-- Tags -->
 
 # Auto configuration via environment variables
 

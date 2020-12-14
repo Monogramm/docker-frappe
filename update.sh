@@ -48,7 +48,7 @@ min_versionFrappe=11
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=(
 	develop
-	13.0.0-beta.5
+	13.0.0-beta.8
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
@@ -196,8 +196,9 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir"/docker-compose.*.yml \
-						"$dir/docker-compose.test.yml" \
-						"$dir/.env" "$dir/test/Dockerfile"
+						"$dir/.env" \
+						"$dir/test/docker_test.sh" \
+						"$dir/test/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
@@ -205,10 +206,21 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir"/docker-compose.*.yml \
-						"$dir/docker-compose.test.yml" \
-						"$dir/.env" "$dir/test/Dockerfile"
+						"$dir/.env" \
+						"$dir/test/docker_test.sh" \
+						"$dir/test/Dockerfile"
 				fi
 
+				# Create a list of "alias" tags for DockerHub post_push
+				if [ "$latest" = 'develop' ]; then
+					echo "develop-$variant " > "$dir/.dockertags"
+				elif [ "$latest" = 'version-11-hotfix' ]; then
+					echo "11-$variant " > "$dir/.dockertags"
+				else
+					echo "$latest-$variant $version-$variant $major-$variant " > "$dir/.dockertags"
+				fi
+
+				# Add Travis-CI env var
 				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=mariadb'"$travisEnv"
 				case $major in
 					10|11) echo "Postgres not supported for $latest";;

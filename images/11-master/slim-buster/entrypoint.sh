@@ -616,17 +616,17 @@ EOF
     if [ "${DB_TYPE}" = "mariadb" ]; then
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
         --force \
-        --db-name ${DB_NAME} \
-        --admin-password ${ADMIN_PASSWORD} \
-        --mariadb-root-username ${DB_ROOT_LOGIN} \
+        --db-name "${DB_NAME}" \
+        --admin-password "${ADMIN_PASSWORD}" \
+        --mariadb-root-username "${DB_ROOT_LOGIN}" \
         --mariadb-root-password "${DB_ROOT_PASSWORD}" \
         | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
         | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     else
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
         --force \
-        --db-name ${DB_NAME} \
-        --admin-password ${ADMIN_PASSWORD} \
+        --db-name "${DB_NAME}" \
+        --admin-password "${ADMIN_PASSWORD}" \
         | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
         | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
     fi

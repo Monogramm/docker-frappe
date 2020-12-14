@@ -90,7 +90,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v13.0.0-beta.5
+ARG VERSION=v13.0.0-beta.8
 ARG FRAPPE_USER=frappe
 ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
