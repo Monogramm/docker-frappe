@@ -691,22 +691,23 @@ if [ -f "/after_${NODE_TYPE}_init.sh" ]; then
   "/after_${NODE_TYPE}_init.sh"
 fi
 
-
+# Always install pip packages
+pip_install
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
   # Management tasks
   ("doctor") wait_db; bench_doctor ;;
-  ("setup") pip_install; shift; bench_setup $@ ;;
+  ("setup") shift; bench_setup $@ ;;
   ("setup-database") bench_setup_database ;;
   ("install-apps") bench_install_apps ;;
-  ("build-apps") pip_install; bench_build_apps ;;
+  ("build-apps") bench_build_apps ;;
   ("update") shift; bench_update $@ ;;
   ("backup") shift; bench_backup $@ ;;
   ("restore") shift; bench_restore $@ ;;
   ("migrate") shift; bench_migrate $@ ;;
   # Service tasks
-  ("app") wait_db; pip_install; bench_app ;;
+  ("app") wait_db; bench_app ;;
   ("scheduler") bench_scheduler ;;
   ("worker-default"|"worker") bench_worker default ;;
   ("worker-long") bench_worker long ;;
