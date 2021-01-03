@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# See documentation for details:
+# https://docs.docker.com/docker-hub/builds/advanced/
+
+for file in $(ls docker-compose*.test.yml); do
+
+    echo "Starting Test in ${file}..."
+
+    docker-compose -f "${file}" up -d && sleep 60
+    docker-compose -f "${file}" logs -f "sut"
+    docker-compose -f "${file}" ps
+    docker-compose -f "${file}" logs "frappe_db"
+    docker-compose -f "${file}" ps "frappe_db" | grep "Up"
+    docker-compose -f "${file}" logs "frappe_app"
+    docker-compose -f "${file}" ps "frappe_app" | grep "Up"
+    docker-compose -f "${file}" logs "frappe_web"
+    docker-compose -f "${file}" ps "frappe_web" | grep "Up"
+    docker-compose -f "${file}" ps "sut" | grep "Exit 0" || exit 1
+    docker-compose -f "${file}" down
+
+done

@@ -75,14 +75,26 @@ pip_install() {
 
   cd "${FRAPPE_WD}"
   ls apps/ | while read -r file; do
-    if [ "$file" != "frappe" ] && [ -f "apps/$file/setup.py" ]; then
-      ./env/bin/pip3 install -q -e "apps/$file" --no-cache-dir \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
-    fi;
+    # Install python packages of installed frappe apps
+    if grep -q "^${file}$" "${FRAPPE_WD}/sites/apps.txt"; then
+      pip_install_package "$file"
+    fi
   done
 
   log "Apps python packages installed"
+}
+
+pip_install_package() {
+  local package=$1
+  log "Install apps python package '$package'..."
+
+  if [ "$package" != "frappe" ] && [ -f "apps/$package/setup.py" ]; then
+    ./env/bin/pip3 install -q -e "apps/$package" --no-cache-dir \
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  fi;
+
+  log "Apps python package '$package' installed"
 }
 
 wait_db() {
@@ -240,6 +252,8 @@ bench_install_apps() {
     if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
       log "Adding '$app' to apps.txt..."
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
+
+      pip_install_package "$app"
 
       log "Installing app '$app'..."
       bench install-app "$app" \
@@ -649,8 +663,10 @@ EOF
 else
   # Wait for another node to setup sites
   wait_sites
-fi
 
+  # Always install pip packages
+  pip_install
+fi
 
 
 if [ -n "${FRAPPE_APP_INIT}" ]; then
@@ -687,12 +703,9 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
 fi
 
 if [ -f "/after_${NODE_TYPE}_init.sh" ]; then
-  log "Executin custom script after '${NODE_TYPE}' init..."
+  log "Executing custom script after '${NODE_TYPE}' init..."
   "/after_${NODE_TYPE}_init.sh"
 fi
-
-# Always install pip packages
-pip_install
 
 # Execute task based on node type
 case "${NODE_TYPE}" in
