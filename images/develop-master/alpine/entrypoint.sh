@@ -1,7 +1,7 @@
 #!/bin/sh
 ##
 ##    Docker image for Frappe applications.
-##    Copyright (C) 2020  Monogramm
+##    Copyright (C) 2021  Monogramm
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU Affero General Public License as published
@@ -19,7 +19,7 @@
 set -e
 
 # Container node type. Can be set by command argument or env var
-NODE_TYPE=${NODE_TYPE:-${1}}
+WORKER_TYPE=${WORKER_TYPE:-${NODE_TYPE:-${1}}}
 
 # Frappe user
 FRAPPE_USER=${FRAPPE_USER:-frappe}
@@ -33,15 +33,15 @@ FRAPPE_WD="/home/${FRAPPE_USER}/frappe-bench"
 reset_logs() {
   mkdir -p "${FRAPPE_WD}/logs/";
 
-  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  echo "[${WORKER_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] Reset docker entrypoint logs" \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 }
 
 log() {
-  echo "[${NODE_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  echo "[${WORKER_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 }
 
 display_logs() {
@@ -90,8 +90,8 @@ pip_install_package() {
 
   if [ "$package" != "frappe" ] && [ -f "apps/$package/setup.py" ]; then
     ./env/bin/pip3 install -q -e "apps/$package" --no-cache-dir \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   fi;
 
   log "Apps python package '$package' installed"
@@ -114,7 +114,7 @@ wait_apps() {
       log "Waiting apps..."
       sleep "$s"
 
-      i="$(($i+$s))"
+      i="$((i+s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
           if [[ "${DOCKER_DEBUG}" == "1" ]]; then
@@ -136,7 +136,7 @@ wait_sites() {
       log "Waiting site..."
       sleep "$s"
 
-      i="$(($i+$s))"
+      i="$((i+s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
           if [[ "${DOCKER_DEBUG}" == "1" ]]; then
@@ -158,7 +158,7 @@ wait_container() {
       log "Waiting init..."
       sleep "$s"
 
-      i="$(($i+$s))"
+      i="$((i+s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
           if [[ "${DOCKER_DEBUG}" == "1" ]]; then
@@ -188,23 +188,23 @@ bench_doctor() {
     # TODO Only enable if doctor says the scheduler is disabled/inactive
     log "Enabling schedulers for current site..."
     bench enable-scheduler \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 
   else
 
     log "Error(s) detected in your Frappe environment and background workers!!!"
     bench doctor \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 
     # Remove any module not found from bench installed apps
     for app in $(bench doctor 3>&1 1>&2 2>&3 | grep 'ModuleNotFoundError: ' | cut -d"'" -f 2); do
       if ! echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${app}( |$)"; then
         log "Removing '$app' from bench..."
         bench remove-from-installed-apps "$app" \
-          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+          | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
       else
         log "The application '$app' was not found but cannot be removed because it is protected!!"
       fi
@@ -216,8 +216,8 @@ bench_doctor() {
 bench_build_apps() {
   log "Building apps assets..."
   bench build ${FRAPPE_BUILD_OPTIONS} \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   log "Apps assets build Finished"
 }
 
@@ -248,7 +248,7 @@ bench_setup_database() {
 }
 
 bench_install_apps() {
-  for app in $@; do
+  for app in "$@"; do
     if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
       log "Adding '$app' to apps.txt..."
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
@@ -257,8 +257,8 @@ bench_install_apps() {
 
       log "Installing app '$app'..."
       bench install-app "$app" \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
     fi
   done
 }
@@ -270,8 +270,8 @@ bench_setup() {
 
     log "Reinstalling with fresh database..."
     bench reinstall --yes \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-      | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+      | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 
     bench_install_apps "$@"
   else
@@ -285,9 +285,9 @@ bench_setup() {
 bench_update() {
   setup_logs_owner
   log "Starting update..."
-  bench update $@ \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  bench update "$@" \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   log "Update Finished"
 }
 
@@ -317,9 +317,9 @@ list_backups() {
 bench_backup() {
   setup_logs_owner
   log "Starting backup..."
-  bench backup $@ \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  bench backup "$@" \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   log "Backup Finished."
   list_backups
 
@@ -333,11 +333,11 @@ bench_restore() {
   if [ "$#" -eq 0 ]; then
     list_backups
     # Choose file name
-    read -p "Enter the SQL file name which you want to restore: " file
+    read -r -p "Enter the SQL file name which you want to restore: " file
 
     # Allow to set the private and public files archive as well
-    read -p "Enter the public files archive name which you want to restore (or press enter for none): " public
-    read -p "Enter the private files archive name which you want to restore (or press enter for none): " private
+    read -r -p "Enter the public files archive name which you want to restore (or press enter for none): " public
+    read -r -p "Enter the private files archive name which you want to restore (or press enter for none): " private
   else
 
     case ${1} in
@@ -357,7 +357,7 @@ bench_restore() {
           elif [ "$3" = "$i" ]; then
             private=$f
           fi
-          i="$(($i+1))"
+          i="$((i+1))"
         done
         ;;
     esac
@@ -392,8 +392,8 @@ bench_restore() {
       fi
 
       bench --force restore ${RESTORE_ARGS} "$file" \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 
     log "Backup successfully restored."
     # Call bench doctor after backup
@@ -407,18 +407,18 @@ bench_restore() {
 bench_setup_requirements() {
   setup_logs_owner
   log "Starting setup of requirements..."
-  bench setup requirements $@ \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  bench setup requirements "$@" \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   log "Requirements setup Finished"
 }
 
 bench_migrate() {
   setup_logs_owner
   log "Starting migration..."
-  bench migrate $@ \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+  bench migrate "$@" \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   log "Migrate Finished"
 
   # Call bench doctor after migrate
@@ -448,29 +448,29 @@ bench_app() {
   "${FRAPPE_WD}/env/bin/gunicorn" \
     $GUNICORN_ARGS \
     frappe.app:application --preload \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.err.log"
 }
 
 bench_scheduler() {
   log "Starting scheduler..."
   bench schedule \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.err.log"
 }
 
 bench_worker() {
   log "Starting $1 worker..."
   bench worker --queue "$1" \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.err.log"
 }
 
 bench_socketio() {
   log "Starting socketio..."
   node "${FRAPPE_WD}/apps/frappe/socketio.js" \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.log" 3>&1 1>&2 2>&3 \
-    | tee "${FRAPPE_WD}/logs/${NODE_TYPE}.err.log"
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.err.log"
 }
 
 
@@ -480,9 +480,9 @@ bench_socketio() {
 reset_logs
 setup_logs_owner
 
-if [ -f "/before_${NODE_TYPE}_init.sh" ]; then
-  log "Executin custom script before '${NODE_TYPE}' init..."
-  "/before_${NODE_TYPE}_init.sh"
+if [ -f "/before_${WORKER_TYPE}_init.sh" ]; then
+  log "Executin custom script before '${WORKER_TYPE}' init..."
+  "/before_${WORKER_TYPE}_init.sh"
 fi
 
 if [[ "${FRAPPE_RESET_SITES}" == "1" ]]; then
@@ -504,8 +504,8 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
       if ! echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${app}( |$)" && ! echo "${FRAPPE_APP_INIT}" | grep -qE "(^| )${app}( |$)"; then
         log "Removing '$app' from bench..."
         bench remove-from-installed-apps "$app" \
-          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-          | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+          | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+          | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
       fi
     done
   fi
@@ -634,15 +634,15 @@ EOF
         --admin-password "${ADMIN_PASSWORD}" \
         --mariadb-root-username "${DB_ROOT_LOGIN}" \
         --mariadb-root-password "${DB_ROOT_PASSWORD}" \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
     else
       bench new-site "${FRAPPE_DEFAULT_SITE}" \
         --force \
         --db-name "${DB_NAME}" \
         --admin-password "${ADMIN_PASSWORD}" \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-        | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+        | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
     fi
 
     log "Setting ${FRAPPE_DEFAULT_SITE} as current site..."
@@ -655,10 +655,10 @@ EOF
 
   log "Using site at ${FRAPPE_DEFAULT_SITE}..."
   bench use "${FRAPPE_DEFAULT_SITE}" \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
-    | tee -a "${FRAPPE_WD}/logs/${NODE_TYPE}-docker.err.log"
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
+    | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 
-  echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-site-init"
+  date +%Y-%m-%dT%H:%M:%S%:z > "${FRAPPE_WD}/sites/.docker-site-init"
   log "Docker Frappe automatic site setup ended"
 else
   # Wait for another node to setup sites
@@ -678,7 +678,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     log "Docker Frappe automatic app setup..."
     bench_setup "${FRAPPE_APP_INIT}"
 
-    echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
+    date +%Y-%m-%dT%H:%M:%S%:z > "${FRAPPE_WD}/sites/.docker-app-init"
     log "Docker Frappe automatic app setup ended"
 
   else
@@ -687,7 +687,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     log "Docker Frappe automatic app update..."
     bench_install_apps "${FRAPPE_APP_INIT}"
 
-    echo "$(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
+    date +%Y-%m-%dT%H:%M:%S%:z > "${FRAPPE_WD}/sites/.docker-app-init"
     log "Docker Frappe automatic app update ended"
 
   fi
@@ -702,23 +702,23 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
 
 fi
 
-if [ -f "/after_${NODE_TYPE}_init.sh" ]; then
-  log "Executing custom script after '${NODE_TYPE}' init..."
-  "/after_${NODE_TYPE}_init.sh"
+if [ -f "/after_${WORKER_TYPE}_init.sh" ]; then
+  log "Executing custom script after '${WORKER_TYPE}' init..."
+  "/after_${WORKER_TYPE}_init.sh"
 fi
 
 # Execute task based on node type
-case "${NODE_TYPE}" in
+case "${WORKER_TYPE}" in
   # Management tasks
   ("doctor") wait_db; bench_doctor ;;
-  ("setup") shift; bench_setup $@ ;;
+  ("setup") shift; bench_setup "$@" ;;
   ("setup-database") bench_setup_database ;;
   ("install-apps") bench_install_apps ;;
   ("build-apps") bench_build_apps ;;
-  ("update") shift; bench_update $@ ;;
-  ("backup") shift; bench_backup $@ ;;
-  ("restore") shift; bench_restore $@ ;;
-  ("migrate") shift; bench_migrate $@ ;;
+  ("update") shift; bench_update "$@" ;;
+  ("backup") shift; bench_backup "$@" ;;
+  ("restore") shift; bench_restore "$@" ;;
+  ("migrate") shift; bench_migrate "$@" ;;
   # Service tasks
   ("app") wait_db; bench_app ;;
   ("scheduler") bench_scheduler ;;
