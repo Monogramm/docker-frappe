@@ -211,13 +211,30 @@ for latest in "${latestsFrappe[@]}"; do
 						"$dir/test/Dockerfile"
 				fi
 
+				sed -ri -e '
+					s|DOCKER_TAG=.*|DOCKER_TAG='"$major"'|g;
+					s|DOCKER_REPO=.*|DOCKER_REPO='"$dockerRepo"'|g;
+				' "$dir/hooks/run"
+
 				# Create a list of "alias" tags for DockerHub post_push
 				if [ "$latest" = 'develop' ]; then
-					echo "develop-$variant " > "$dir/.dockertags"
+					if [ "$variant" = 'alpine' ]; then
+						echo "develop-$variant develop " > "$dir/.dockertags"
+					else
+						echo "develop-$variant " > "$dir/.dockertags"
+					fi
 				elif [ "$latest" = 'version-11-hotfix' ]; then
-					echo "11-$variant " > "$dir/.dockertags"
+					if [ "$variant" = 'alpine' ]; then
+						echo "11-$variant 11 " > "$dir/.dockertags"
+					else
+						echo "11-$variant " > "$dir/.dockertags"
+					fi
 				else
-					echo "$latest-$variant $version-$variant $major-$variant " > "$dir/.dockertags"
+					if [ "$variant" = 'alpine' ]; then
+						echo "$latest-$variant $version-$variant $major-$variant $latest $version $major " > "$dir/.dockertags"
+					else
+						echo "$latest-$variant $version-$variant $major-$variant " > "$dir/.dockertags"
+					fi
 				fi
 
 				# Add Travis-CI env var
