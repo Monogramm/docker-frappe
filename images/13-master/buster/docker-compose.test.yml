@@ -266,7 +266,7 @@ services:
     #restart: always
 
   frappe_mailer:
-    image: sj26/mailcatcher:2.1
+    image: sj26/mailcatcher:latest
     hostname: frappe_mailer
     container_name: frappe_mailer
     restart: always
