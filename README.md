@@ -43,24 +43,22 @@ Full-stack web application framework that uses Python and MariaDB on the server 
 
 <https://hub.docker.com/r/monogramm/docker-frappe/>
 
-<!-- Tags -->
--   Frappe develop branch
-    -   `develop-alpine` `develop`
-    -   `develop-debian`
-    -   `develop-debian-slim`
--   Frappe 13
-    -   `13-alpine` `13`
-    -   `13-debian`
-    -   `13-debian-slim`
--   Frappe 12
-    -   `12-alpine` `12` `alpine` `latest`
-    -   `12-debian` `debian`
-    -   `12-debian-slim` `debian-slim`
--   Frappe 11
-    -   `11-alpine` `11`
-    -   `11-debian`
-    -   `11-debian-slim`
-<!-- Tags -->
+<!-- >Docker Tags -->
+
+-   develop-buster  (`images/develop-master/buster/Dockerfile`)
+-   develop-slim-buster  (`images/develop-master/slim-buster/Dockerfile`)
+-   develop-alpine develop  (`images/develop-master/alpine/Dockerfile`)
+-   13.0.0-beta.9-buster 13.0-buster 13-buster  (`images/13-master/buster/Dockerfile`)
+-   13.0.0-beta.9-slim-buster 13.0-slim-buster 13-slim-buster  (`images/13-master/slim-buster/Dockerfile`)
+-   13.0.0-beta.9-alpine 13.0-alpine 13-alpine 13.0.0-beta.9 13.0 13  (`images/13-master/alpine/Dockerfile`)
+-   12.14.0-buster 12.14-buster 12-buster  (`images/12-master/buster/Dockerfile`)
+-   12.14.0-slim-buster 12.14-slim-buster 12-slim-buster  (`images/12-master/slim-buster/Dockerfile`)
+-   12.14.0-alpine 12.14-alpine 12-alpine 12.14.0 12.14 12  (`images/12-master/alpine/Dockerfile`)
+-   version-11-hotfix-buster 11.x-buster 11-buster  (`images/11-master/buster/Dockerfile`)
+-   version-11-hotfix-slim-buster 11.x-slim-buster 11-slim-buster  (`images/11-master/slim-buster/Dockerfile`)
+-   version-11-hotfix-alpine 11.x-alpine 11-alpine version-11-hotfix 11.x 11  (`images/11-master/alpine/Dockerfile`)
+
+<!-- <Docker Tags -->
 
 # Auto configuration via environment variables
 

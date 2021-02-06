@@ -1,7 +1,7 @@
 #!/bin/sh
 ##
 ##    Docker image for Frappe applications.
-##    Copyright (C) 2021  Monogramm
+##    Copyright (C) 2021 Monogramm
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU Affero General Public License as published
@@ -39,7 +39,7 @@ reset_logs() {
 }
 
 log() {
-  echo "[${WORKER_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $@" \
+  echo "[${WORKER_TYPE}] [$(date +%Y-%m-%dT%H:%M:%S%:z)] $*" \
     | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 }
@@ -94,7 +94,7 @@ pip_install_package() {
       | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
   fi;
 
-  log "Apps python package '$package' installed"
+  log "App python package '$package' installed"
 }
 
 wait_db() {
@@ -110,7 +110,7 @@ wait_apps() {
   i=0
   s=10
   l=${DOCKER_APPS_TIMEOUT}
-  while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
+  while [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ]; do
       log "Waiting apps..."
       sleep "$s"
 
@@ -124,6 +124,7 @@ wait_apps() {
           exit 1
       fi
   done
+  log "Apps were set at $(cat "${FRAPPE_WD}/sites/.docker-app-init")"
 }
 
 wait_sites() {
@@ -132,7 +133,7 @@ wait_sites() {
   i=0
   s=10
   l=${DOCKER_SITES_TIMEOUT}
-  while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] || [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
+  while [ ! -f "${FRAPPE_WD}/sites/currentsite.txt" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; do
       log "Waiting site..."
       sleep "$s"
 
@@ -146,6 +147,7 @@ wait_sites() {
           exit 1
       fi
   done
+  log "Site was set at $(cat "${FRAPPE_WD}/sites/.docker-site-init")"
 }
 
 wait_container() {
@@ -168,6 +170,7 @@ wait_container() {
           exit 1
       fi
   done
+  log "Container was set at $(cat "${FRAPPE_WD}/sites/.docker-init")"
 }
 
 bench_doctor() {
@@ -227,19 +230,19 @@ bench_setup_database() {
   if [ "${DB_TYPE}" = "mariadb" ] && [ -n "${DOCKER_DB_ALLOWED_HOSTS}" ]; then
     log "Updating MariaDB users allowed hosts..."
     mysql -h "${DB_HOST}" -P "${DB_PORT}" \
-          -u "${DB_ROOT_LOGIN}" -p${DB_ROOT_PASSWORD} \
+          -u "${DB_ROOT_LOGIN}" "-p${DB_ROOT_PASSWORD}" \
           "${DB_NAME}" \
           -e "UPDATE mysql.user SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%.%.%.%' AND user != 'root';"
 
     log "Updating MariaDB databases allowed hosts..."
     mysql -h "${DB_HOST}" -P "${DB_PORT}" \
-          -u "${DB_ROOT_LOGIN}" -p${DB_ROOT_PASSWORD} \
+          -u "${DB_ROOT_LOGIN}" "-p${DB_ROOT_PASSWORD}" \
           "${DB_NAME}" \
           -e "UPDATE mysql.db SET host = '${DOCKER_DB_ALLOWED_HOSTS}' WHERE host LIKE '%.%.%.%' AND user != 'root';"
 
     log "Flushing MariaDB privileges..."
     mysql -h "${DB_HOST}" -P "${DB_PORT}" \
-          -u "${DB_ROOT_LOGIN}" -p${DB_ROOT_PASSWORD} \
+          -u "${DB_ROOT_LOGIN}" "-p${DB_ROOT_PASSWORD}" \
           "${DB_NAME}" \
           -e "FLUSH PRIVILEGES;"
   fi
@@ -248,7 +251,7 @@ bench_setup_database() {
 }
 
 bench_install_apps() {
-  for app in "$@"; do
+  for app in $@; do
     if ! grep -q "^${app}$" "${FRAPPE_WD}/sites/apps.txt"; then
       log "Adding '$app' to apps.txt..."
       echo "$app" >> "${FRAPPE_WD}/sites/apps.txt"
@@ -473,6 +476,13 @@ bench_socketio() {
     | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.err.log"
 }
 
+bench_socketio_doctor() {
+  log "Checking socketio diagnostic info..."
+  node "${FRAPPE_WD}/apps/frappe/health.js" \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.log" 3>&1 1>&2 2>&3 \
+    | tee "${FRAPPE_WD}/logs/${WORKER_TYPE}.err.log"
+}
+
 
 # -------------------------------------------------------------------
 # Runtime
@@ -530,8 +540,13 @@ fi
 
 
 # Frappe automatic site setup
-if [ -n "${FRAPPE_DEFAULT_SITE}" ] && [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; then
+if [ -z "${FRAPPE_DEFAULT_SITE}" ]; then
+  log 'Wait for another node to setup sites...'
+  wait_sites
 
+  log 'Always install pip packages...'
+  pip_install
+elif [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; then
   log "Creating default directories for sites/${FRAPPE_DEFAULT_SITE}..."
   mkdir -p \
     "${FRAPPE_WD}/sites/assets" \
@@ -658,14 +673,8 @@ EOF
     | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.log" 3>&1 1>&2 2>&3 \
     | tee -a "${FRAPPE_WD}/logs/${WORKER_TYPE}-docker.err.log"
 
-  date +%Y-%m-%dT%H:%M:%S%:z > "${FRAPPE_WD}/sites/.docker-site-init"
+  echo "[${WORKER_TYPE}] $(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-site-init"
   log "Docker Frappe automatic site setup ended"
-else
-  # Wait for another node to setup sites
-  wait_sites
-
-  # Always install pip packages
-  pip_install
 fi
 
 
@@ -678,7 +687,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     log "Docker Frappe automatic app setup..."
     bench_setup "${FRAPPE_APP_INIT}"
 
-    date +%Y-%m-%dT%H:%M:%S%:z > "${FRAPPE_WD}/sites/.docker-app-init"
+    echo "[${WORKER_TYPE}] $(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
     log "Docker Frappe automatic app setup ended"
 
   else
@@ -687,7 +696,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     log "Docker Frappe automatic app update..."
     bench_install_apps "${FRAPPE_APP_INIT}"
 
-    date +%Y-%m-%dT%H:%M:%S%:z > "${FRAPPE_WD}/sites/.docker-app-init"
+    echo "[${WORKER_TYPE}] $(date +%Y-%m-%dT%H:%M:%S%:z)" > "${FRAPPE_WD}/sites/.docker-app-init"
     log "Docker Frappe automatic app update ended"
 
   fi
@@ -698,7 +707,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
     bench_build_apps
     bench_migrate
   fi
-  echo "${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" > "${FRAPPE_WD}/sites/.docker-init"
+  echo "[${WORKER_TYPE}] ${DOCKER_TAG} ${DOCKER_VCS_REF} ${DOCKER_BUILD_DATE}" > "${FRAPPE_WD}/sites/.docker-init"
 
 fi
 
@@ -710,22 +719,23 @@ fi
 # Execute task based on node type
 case "${WORKER_TYPE}" in
   # Management tasks
-  ("doctor") wait_db; bench_doctor ;;
-  ("setup") shift; bench_setup "$@" ;;
-  ("setup-database") bench_setup_database ;;
-  ("install-apps") bench_install_apps ;;
-  ("build-apps") bench_build_apps ;;
-  ("update") shift; bench_update "$@" ;;
-  ("backup") shift; bench_backup "$@" ;;
-  ("restore") shift; bench_restore "$@" ;;
-  ("migrate") shift; bench_migrate "$@" ;;
+  doctor) wait_db; bench_doctor ;;
+  setup) shift; bench_setup "$@" ;;
+  setup-database) bench_setup_database ;;
+  install-apps) bench_install_apps ;;
+  build-apps) bench_build_apps ;;
+  update) shift; bench_update "$@" ;;
+  backup) shift; bench_backup "$@" ;;
+  restore) shift; bench_restore "$@" ;;
+  migrate) shift; bench_migrate "$@" ;;
   # Service tasks
-  ("app") wait_db; bench_app ;;
-  ("scheduler") bench_scheduler ;;
-  ("worker-default"|"worker") bench_worker default ;;
-  ("worker-long") bench_worker long ;;
-  ("worker-short") bench_worker short ;;
-  ("node-socketio") bench_socketio ;;
+  start|app) wait_db; bench_app ;;
+  schedule|scheduler) bench_scheduler ;;
+  worker-default|worker) bench_worker default ;;
+  worker-long) bench_worker long ;;
+  worker-short) bench_worker short ;;
+  node-socketio) bench_socketio ;;
+  node-socketio-doctor) bench_socketio_doctor ;;
   # TODO Add a cron task ?
   (*) exec "$@" ;;
 esac

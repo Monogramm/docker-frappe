@@ -1,5 +1,10 @@
 version: "2.3"
 
+volumes:
+  frappe_sites:
+  frappe_logs:
+  frappe_db:
+
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
   sut:
@@ -43,8 +48,10 @@ services:
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      - frappe_logs:/home/frappe/frappe-bench/logs
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_app:
     # For development or CI, build from local Dockerfile
@@ -110,8 +117,8 @@ services:
       - REDIS_QUEUE_HOST=frappe_redis_queue
       - REDIS_SOCKETIO_HOST=frappe_redis_socketio
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
-      - /srv/erpnext/frappe/logs:/home/frappe/frappe-bench/logs
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      - frappe_logs:/home/frappe/frappe-bench/logs
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -131,7 +138,7 @@ services:
     ports:
       - "8080:80"
       # If you need SSL connection
-      # - "443:443"
+      # - "8443:443"
     links:
       - frappe_app
       - frappe_socketio
@@ -154,20 +161,7 @@ services:
       - MYSQL_USER=${FRAPPE_DB_NAME}
       - MYSQL_PASSWORD=${FRAPPE_DB_PWD}
     volumes:
-      - /srv/erpnext/db:/var/lib/mysql
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-
-  frappe_mailer:
-    image: sj26/mailcatcher:latest
-    hostname: frappe_mailer
-    container_name: frappe_mailer
-    restart: always
-    expose:
-      - 1025
-    ports:
-      - 1080:1080
-    volumes:
+      - frappe_db:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -183,9 +177,9 @@ services:
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
       - frappe_app
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_default:
     image: ${IMAGE_NAME}
@@ -199,9 +193,9 @@ services:
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
       - frappe_app
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_long:
     image: ${IMAGE_NAME}
@@ -215,9 +209,9 @@ services:
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
       - frappe_app
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
 
   frappe_worker_short:
     image: ${IMAGE_NAME}
@@ -231,9 +225,9 @@ services:
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
       - frappe_app
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
 
   frappe_socketio:
     image: ${IMAGE_NAME}
@@ -241,7 +235,7 @@ services:
     command: node-socketio
     #restart: always
     ports:
-      - 3000:3000
+      - "3000:3000"
     depends_on:
       - frappe_app
     environment:
@@ -249,9 +243,9 @@ services:
       - DOCKER_APPS_TIMEOUT=900
     volumes_from:
       - frappe_app
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
 
   frappe_redis_cache:
     image: redis:alpine
@@ -270,3 +264,16 @@ services:
     image: redis:alpine
     container_name: frappe_redis_socketio
     #restart: always
+
+  frappe_mailer:
+    image: sj26/mailcatcher:2.1
+    hostname: frappe_mailer
+    container_name: frappe_mailer
+    restart: always
+    expose:
+      - 1025
+    ports:
+      - "1080:1080"
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
