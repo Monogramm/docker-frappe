@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         version: ['11', '12', '13']
-        variant: ['alpine', 'debian', 'debian-slim']
+        variant: ['alpine', 'buster', 'slim-buster']
         bench: ['master']
 
     steps:
