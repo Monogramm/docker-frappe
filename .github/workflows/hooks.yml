@@ -14,6 +14,7 @@ jobs:
       matrix:
         version: ['11', '12', '13']
         variant: ['alpine', 'debian', 'debian-slim']
+        bench: ['master']
 
     steps:
       - name: Check Out Repo
@@ -22,7 +23,7 @@ jobs:
       - name: Execute CI hooks
         id: docker_build
         run: |
-          cd ./images/${{ matrix.version }}/${{ matrix.variant }}/
+          cd ./images/${{ matrix.version }}-${{ matrix.bench }}/${{ matrix.variant }}/
           ./hooks/run
 
       - name: Display docker images
