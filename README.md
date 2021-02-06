@@ -1,9 +1,5 @@
-[uri_license]: http://www.gnu.org/licenses/agpl.html
-
-[uri_license_image]: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
-
 [![License: AGPL v3][uri_license_image]][uri_license]
-[![Build Status](https://travis-ci.org/Monogramm/docker-frappe.svg)](https://travis-ci.org/Monogramm/docker-frappe)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Monogramm/docker-frappe/Docker%20Image%20CI)](https://github.com/Monogramm/docker-frappe/actions)
 [![Docker Automated buid](https://img.shields.io/docker/cloud/build/monogramm/docker-frappe.svg)](https://hub.docker.com/r/monogramm/docker-frappe/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/monogramm/docker-frappe.svg)](https://hub.docker.com/r/monogramm/docker-frappe/)
 [![](https://images.microbadger.com/badges/version/monogramm/docker-frappe.svg)](https://microbadger.com/images/monogramm/docker-frappe)
@@ -31,7 +27,7 @@ The concept is the following:
 
 Check image [Monogramm/docker-erpnext](https://github.com/Monogramm/docker-erpnext) to see how to expand this image and build frappe apps.
 
-## What is Frappe ?
+## What is Frappe
 
 Full-stack web application framework that uses Python and MariaDB on the server side and a tightly integrated client side library. Built for [ERPNext](https://erpnext.com/).
 
@@ -60,11 +56,11 @@ Full-stack web application framework that uses Python and MariaDB on the server 
 
 <!-- <Docker Tags -->
 
-# Auto configuration via environment variables
+## Auto configuration via environment variables
 
 The image supports auto configuration via environment variables.
 
-## Docker entrypoint configuration
+### Docker entrypoint configuration
 
 ```sh
 # The docker "node" type. Defines the behavior of the container.
@@ -117,7 +113,7 @@ DOCKER_GUNICORN_CERTFILE=
 DOCKER_GUNICORN_KEYFILE=
 ```
 
-## Frappe configuration
+### Frappe configuration
 
 ```sh
 # List of frappe apps (space separated) to init on startup (bench install-app)
@@ -173,7 +169,7 @@ ADMIN_PASSWORD=frappe
 ENCRYPTION_KEY=
 ```
 
-## Database configuration
+### Database configuration
 
 ```sh
 # DB type. Can either be mariadb or postgresql
@@ -193,7 +189,7 @@ DB_ROOT_LOGIN=root
 DB_ROOT_PASSWORD=mariadb_root_password
 ```
 
-## Mail configuration
+### Mail configuration
 
 ```sh
 MAIL_MUTED=false
@@ -204,7 +200,7 @@ MAIL_LOGIN=frappe-mail
 MAIL_PASSWORD=youshouldoverwritethis
 ```
 
-## Redis configuration
+### Redis configuration
 
 ```sh
 REDIS_CACHE_HOST=redis_cache
@@ -212,13 +208,13 @@ REDIS_QUEUE_HOST=redis_queue
 REDIS_SOCKETIO_HOST=redis_socketio
 ```
 
-## How to run this image ?
+### How to run this image
 
 This image does not contain the database for Frappe. You need to use either an existing database or a database container.
 
 This image is designed to be used in a micro-service environment using docker-compose. There are basically 2 variants of the image you can choose from: `alpine` or `debian`.
 
-# Running this image with docker-compose
+## Running this image with docker-compose
 
 -   Select the version closest to what you want in the images folder
     -   You can comment the `build` lines, uncomment the `image` lines and edit versions to download prebuilt docker container.
@@ -226,10 +222,14 @@ This image is designed to be used in a micro-service environment using docker-co
 -   Run the docker-compose with `docker-compose up -d` and that's it.
 -   Now, go to <http://localhost:80> to access the first run installation wizard.
 
-# Questions / Issues
+## Questions / Issues
 
 If you got any questions or problems using the image, please visit our [Github Repository](https://github.com/Monogramm/docker-frappe) and write an issue.
 
-# Documentation
+## Documentation
 
 Additional documentation can be found [here](docs/README.md).
+
+[uri_license]: http://www.gnu.org/licenses/agpl.html
+
+[uri_license_image]: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
