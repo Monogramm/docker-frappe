@@ -75,8 +75,12 @@ pip_install() {
 
   cd "${FRAPPE_WD}"
   ls apps/ | while read -r file; do
-    # Install python packages of installed frappe apps
-    if grep -q "^${file}$" "${FRAPPE_WD}/sites/apps.txt"; then
+    # Install python packages of installed or protected frappe apps
+    if grep -q "^${file}$" "${DODOCK_WD}/sites/apps.txt"; then
+      log "Install requested app '$file' python packages..."
+      pip_install_package "$file"
+    elif echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${file}( |$)"; then
+      log "Install protected app '$file' python packages..."
       pip_install_package "$file"
     fi
   done
@@ -117,7 +121,7 @@ wait_apps() {
       i="$((i+s))"
       if [ "$i" = "$l" ]; then
           log 'Apps were not set in time!'
-          if [[ "${DOCKER_DEBUG}" == "1" ]]; then
+          if [[ "${DOCKER_DEBUG}" = "1" ]]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -140,7 +144,7 @@ wait_sites() {
       i="$((i+s))"
       if [ "$i" = "$l" ]; then
           log 'Site was not set in time!'
-          if [[ "${DOCKER_DEBUG}" == "1" ]]; then
+          if [[ "${DOCKER_DEBUG}" = "1" ]]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -163,7 +167,7 @@ wait_container() {
       i="$((i+s))"
       if [ "$i" = "$l" ]; then
           log 'Container was not initialized in time!'
-          if [[ "${DOCKER_DEBUG}" == "1" ]]; then
+          if [[ "${DOCKER_DEBUG}" = "1" ]]; then
             log 'Check the following logs for details:'
             display_logs
           fi
@@ -495,7 +499,7 @@ if [ -f "/before_${WORKER_TYPE}_init.sh" ]; then
   "/before_${WORKER_TYPE}_init.sh"
 fi
 
-if [[ "${FRAPPE_RESET_SITES}" == "1" ]]; then
+if [[ "${FRAPPE_RESET_SITES}" = "1" ]]; then
   log "Removing all sites!"
   rm -rf "${FRAPPE_WD}/sites/*"
 fi
@@ -521,7 +525,7 @@ if [ -n "${FRAPPE_APP_INIT}" ]; then
   fi
 
   # Reset apps
-  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [[ "${FRAPPE_APP_RESET}" == "1" ]]; then
+  if [ ! -f "${FRAPPE_WD}/sites/apps.txt" ] || [[ "${FRAPPE_APP_RESET}" = "1" ]]; then
     log "Adding frappe to apps.txt..."
     touch "${FRAPPE_WD}/sites/apps.txt"
     chown "${FRAPPE_USER}:${FRAPPE_USER}" \
@@ -681,7 +685,7 @@ fi
 if [ -n "${FRAPPE_APP_INIT}" ]; then
 
   # Frappe automatic app setup
-  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [[ "${FRAPPE_REINSTALL_DATABASE}" == "1" ]]; then
+  if [ ! -f "${FRAPPE_WD}/sites/.docker-app-init" ] || [[ "${FRAPPE_REINSTALL_DATABASE}" = "1" ]]; then
 
     # Call bench setup for app
     log "Docker Frappe automatic app setup..."
