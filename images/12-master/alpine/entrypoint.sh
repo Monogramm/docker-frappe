@@ -76,7 +76,7 @@ pip_install() {
   cd "${FRAPPE_WD}"
   ls apps/ | while read -r file; do
     # Install python packages of installed or protected frappe apps
-    if grep -q "^${file}$" "${DODOCK_WD}/sites/apps.txt"; then
+    if grep -q "^${file}$" "${FRAPPE_WD}/sites/apps.txt"; then
       log "Install requested app '$file' python packages..."
       pip_install_package "$file"
     elif echo "${FRAPPE_APP_PROTECTED}" | grep -qE "(^| )${file}( |$)"; then
