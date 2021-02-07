@@ -90,7 +90,6 @@ pip_install() {
 
 pip_install_package() {
   local package=$1
-  log "Install apps python package '$package'..."
 
   if [ "$package" != "frappe" ] && [ -f "apps/$package/setup.py" ]; then
     ./env/bin/pip3 install -q -e "apps/$package" --no-cache-dir \
