@@ -227,9 +227,6 @@ COPY ./entrypoint.sh /
 
 # Set permissions
 RUN set -ex; \
-    sudo chmod +x \
-        /entrypoint.sh \
-    ; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
     sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
     sudo chmod +rw \
@@ -254,6 +251,11 @@ ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
 
+# Docker built environment variables
+ENV DOCKER_TAG=${TAG} \
+    DOCKER_VCS_REF=${VCS_REF} \
+    DOCKER_BUILD_DATE=${BUILD_DATE}
+
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
       version=$VERSION \
@@ -266,8 +268,3 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
-
-# Docker built environment variables
-ENV DOCKER_TAG=${TAG} \
-    DOCKER_VCS_REF=${VCS_REF} \
-    DOCKER_BUILD_DATE=${BUILD_DATE}

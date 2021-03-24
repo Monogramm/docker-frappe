@@ -15,9 +15,9 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
-FROM python:3.7-slim-buster
+FROM gitpod/workspace-full:latest
 
-ARG NODE_VERSION=10
+USER root
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ARG WKHTMLTOX_VERSION=0.12.4
@@ -26,37 +26,16 @@ ARG DOCKERIZE_VERSION=v0.6.1
 # Frappe base environment
 RUN set -ex; \
     apt-get update; \
-    apt-get install -y software-properties-common gnupg2 curl; \
-    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8; \
-    add-apt-repository "deb http://ams2.mirrors.digitalocean.com/mariadb/repo/10.5/debian buster main"; \
-    curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | bash -; \
-    curl -sS "https://dl.yarnpkg.com/debian/pubkey.gpg" | apt-key add -; \
-    apt-get update; \
     apt-get install -y --allow-unauthenticated \
-        sudo \
-        wget \
-        nodejs \
-        python-mysqldb \
-        git \
-        build-essential \
-        python-setuptools \
-        python-dev \
         libffi-dev \
         libssl-dev  \
         ntp \
         screen \
-        mariadb-client \
-        mariadb-common \
-        postgresql-client \
-        postgresql-client-common \
         libxslt1.1 \
         libxslt1-dev \
         libcrypto++-dev \
         python-openssl \
-        python-ldap3 \
-        python-psycopg2 \
         libtiff5-dev \
-        libjpeg62-turbo-dev \
         liblcms2-dev \
         libwebp-dev \
         tcl8.6-dev \
@@ -70,7 +49,6 @@ RUN set -ex; \
         xfonts-75dpi \
         xfonts-base \
     ; \
-    test "${NODE_VERSION}" = "8" && apt-get install -y --allow-unauthenticated npm; \
     mkdir /tmp/.X11-unix; \
     chmod 777 /tmp/.X11-unix; \
     chown root:root /tmp/.X11-unix; \
@@ -90,19 +68,18 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=version-11-hotfix
-ARG FRAPPE_USER=frappe
+ARG VERSION=%%VERSION%%
+ARG FRAPPE_USER=gitpod
 ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
 # Build environment variables
 ENV FRAPPE_USER=${FRAPPE_USER} \
-    BENCH_BRANCH=master \
+    BENCH_BRANCH=%%BENCH_BRANCH%% \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
-    groupadd -r "$FRAPPE_USER"; \
-    useradd -r -m -g "$FRAPPE_USER" "$FRAPPE_USER"; \
-    echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
+    groupadd -r "frappe"; \
+    usermod -a -G "frappe" "$FRAPPE_USER";
 
 USER $FRAPPE_USER
 WORKDIR /home/$FRAPPE_USER
@@ -111,34 +88,14 @@ WORKDIR /home/$FRAPPE_USER
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
     git clone -b "$BENCH_BRANCH" --depth 1 'https://github.com/frappe/bench' bench-repo; \
-    sudo pip3 install -e "/home/$FRAPPE_USER/bench-repo" --no-cache-dir; \
+    sudo pip%%PIP_VERSION%% install -e "/home/$FRAPPE_USER/bench-repo" --no-cache-dir; \
     bench --version; \
-    npm install \
-        chalk \
-        rollup \
-        rollup-plugin-multi-entry \
-        rollup-plugin-commonjs \
-        rollup-plugin-node-resolve \
-        rollup-plugin-uglify \
-        rollup-plugin-postcss \
-        rollup-plugin-buble \
-        rollup-plugin-terser \
-        rollup-plugin-vue \
-        vue-template-compiler \
-        moment \
-    ; \
-    test "$BENCH_BRANCH" = "4.1" && npm install \
-        babel-core \
-        babel-plugin-transform-object-rest-spread \
-        babel-preset-env \
-        touch \
-    ; \
     bench setup socketio; \
     bench init \
         --frappe-path "$FRAPPE_PATH" \
         --frappe-branch "$FRAPPE_BRANCH" \
-        --python $(which python3.7) \
-        --skip-redis-config-generation --no-backups frappe-bench \
+        --python $(which python%%PYTHON_VERSION%%) \
+        %%BENCH_OPTIONS%% frappe-bench \
     ; \
     bench --version; \
     rm -rf node_modules; \
@@ -146,7 +103,7 @@ RUN set -ex; \
     mkdir -p apps logs sites config; \
     sed -i -e "s|^werkzeug$|werkzeug==0.16.1|g" apps/frappe/requirements.txt; \
     grep 'ldap3==2.7' apps/frappe/requirements.txt || echo 'ldap3==2.7' >> apps/frappe/requirements.txt; \
-    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python3.7) ; \
+    test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python%%PYTHON_VERSION%%) ; \
     sudo bench setup sudoers "$FRAPPE_USER"
 
 # Alternative: replace previous run by this for manual install
@@ -218,9 +175,6 @@ ENV DOCKER_DB_TIMEOUT=240 \
     REDIS_SOCKETIO_HOST=redis_socketio \
     REDIS_SOCKETIO_PORT=6379
 
-# Copy docker entrypoint
-COPY ./entrypoint.sh /
-
 # Set permissions
 RUN set -ex; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
@@ -233,15 +187,7 @@ RUN set -ex; \
         "/home/$FRAPPE_USER/frappe-bench" \
     ;
 
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
-
 WORKDIR /home/$FRAPPE_USER/frappe-bench
-
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["app"]
 
 ARG TAG
 ARG VCS_REF
@@ -251,16 +197,3 @@ ARG BUILD_DATE
 ENV DOCKER_TAG=${TAG} \
     DOCKER_VCS_REF=${VCS_REF} \
     DOCKER_BUILD_DATE=${BUILD_DATE}
-
-LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
-      product="Frappe" \
-      version=$VERSION \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/Monogramm/docker-frappe" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="Frappe" \
-      org.label-schema.description="Python + JS based metadata driven, full-stack web-application framework." \
-      org.label-schema.url="https://frappe.io/" \
-      org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
-      org.label-schema.version=$VERSION \
-      org.label-schema.schema-version="1.0"

@@ -5,36 +5,42 @@ declare -A shebang=(
 	[buster]='bash'
 	[slim-buster]='bash'
 	[alpine]='sh'
+	[gitpod]='bash'
 )
 
 declare -A test_base=(
 	[buster]='debian'
 	[slim-buster]='debian-slim'
 	[alpine]='alpine'
+	[gitpod]='debian'
 )
 
 declare -A base=(
 	[buster]='debian'
 	[slim-buster]='debian'
 	[alpine]='alpine'
+	[gitpod]='gitpod'
 )
 
 declare -A compose=(
 	[buster]='mariadb'
 	[slim-buster]='mariadb'
 	[alpine]='postgres'
+	[gitpod]='mariadb'
 )
 
 declare -A compose=(
 	[buster]='mariadb'
 	[slim-buster]='mariadb'
 	[alpine]='postgres'
+	[gitpod]='mariadb'
 )
 
 variants=(
 	buster
 	slim-buster
 	alpine
+	#gitpod
 )
 
 
@@ -113,11 +119,15 @@ for latest in "${latestsFrappe[@]}"; do
 						"$dir/$name"
 				done
 
-				cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.mariadb.yml"
-				case $major in
-					10|11) echo "Postgres not supported for $latest";;
-					*) cp "template/docker-compose_postgres.yml" "$dir/docker-compose.postgres.yml";;
-				esac
+				if ! [ "$variant" = "gitpod" ]; then
+					cp "template/entrypoint.sh" "$dir/entrypoint.sh"
+
+					cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.mariadb.yml"
+					case $major in
+						10|11) echo "Postgres not supported for $latest";;
+						*) cp "template/docker-compose_postgres.yml" "$dir/docker-compose.postgres.yml";;
+					esac
+				fi
 
 				template="template/Dockerfile.${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
