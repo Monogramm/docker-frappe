@@ -94,7 +94,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v12.16.2
+ARG VERSION=v12.17.0
 ARG FRAPPE_USER=frappe
 ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
@@ -209,6 +209,7 @@ ENV DOCKER_DB_TIMEOUT=240 \
     MAIL_HOST=mail \
     MAIL_PORT=587 \
     MAIL_USE_SSL=1 \
+    MAIL_USE_TLS=1 \
     MAIL_LOGIN=frappe-mail \
     MAIL_PASSWORD=youshouldoverwritethis \
     MAIL_EMAIL_ID= \

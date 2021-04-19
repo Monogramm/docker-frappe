@@ -209,6 +209,7 @@ ENV DOCKER_DB_TIMEOUT=240 \
     MAIL_HOST=mail \
     MAIL_PORT=587 \
     MAIL_USE_SSL=1 \
+    MAIL_USE_TLS=1 \
     MAIL_LOGIN=frappe-mail \
     MAIL_PASSWORD=youshouldoverwritethis \
     MAIL_EMAIL_ID= \
