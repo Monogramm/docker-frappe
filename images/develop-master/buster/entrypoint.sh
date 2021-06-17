@@ -573,28 +573,32 @@ elif [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; then
   ;
 
   # Init common site config
-  if [ ! -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
-    log "Creating common site config..."
-    touch "${FRAPPE_WD}/sites/common_site_config.json"
-    chown "${FRAPPE_USER}:${FRAPPE_USER}" \
-      "${FRAPPE_WD}/sites/common_site_config.json" \
-    ;
-    cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
+  if [ -f "${FRAPPE_WD}/sites/common_site_config.json" ]; then
+    log "Common site config already existing?! Backuping as it shouldn't exist..."
+    mv "${FRAPPE_WD}/sites/common_site_config.json" "${FRAPPE_WD}/sites/common_site_config.json.backup"
+  fi
+
+  log "Creating common site config..."
+  touch "${FRAPPE_WD}/sites/common_site_config.json"
+  chown "${FRAPPE_USER}:${FRAPPE_USER}" \
+    "${FRAPPE_WD}/sites/common_site_config.json" \
+  ;
+  cat <<EOF > "${FRAPPE_WD}/sites/common_site_config.json"
 {
   "allow_tests": ${ALLOW_TESTS:-0},
   "server_script_enabled": ${SERVER_SCRIPT_ENABLED:-0},
   "deny_multiple_logins": false,
   "disable_website_cache": false,
-  "dns_multitenant": false,
+  "dns_multitenant": ${DNS_MULTITENANT:-false},
   "serve_default_site": true,
   "frappe_user": "${FRAPPE_USER}",
   "auto_update": false,
   "update_bench_on_update": true,
   "shallow_clone": true,
   "rebase_on_pull": false,
-  "redis_cache": "redis://${REDIS_CACHE_HOST}:${REDIS_CACHE_PORT}",
-  "redis_queue": "redis://${REDIS_QUEUE_HOST}:${REDIS_QUEUE_PORT}",
-  "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}:${REDIS_SOCKETIO_PORT}",
+  "redis_cache": "redis://${REDIS_CACHE_HOST}:${REDIS_CACHE_PORT:-6379}",
+  "redis_queue": "redis://${REDIS_QUEUE_HOST}:${REDIS_QUEUE_PORT:-6379}",
+  "redis_socketio": "redis://${REDIS_SOCKETIO_HOST}:${REDIS_SOCKETIO_PORT:-6379}",
   "logging": "${FRAPPE_LOGGING:-1}",
   "root_login": "${DB_ROOT_LOGIN}",
   "root_password": "${DB_ROOT_PASSWORD}",
@@ -625,7 +629,6 @@ elif [ ! -f "${FRAPPE_WD}/sites/.docker-site-init" ]; then
   "mute_emails": ${MAIL_MUTED:-1}
 }
 EOF
-  fi
 
   # Check default site config
   if [ ! -f "${FRAPPE_WD}/sites/${FRAPPE_DEFAULT_SITE}/site_config.json" ]; then

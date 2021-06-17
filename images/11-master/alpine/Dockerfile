@@ -217,11 +217,8 @@ ENV DOCKER_DB_TIMEOUT=240 \
     MAIL_ALWAYS_EMAIL_ID_AS_SENDER=0 \
     MAIL_ALWAYS_NAME_AS_SENDER_NAME=0 \
     REDIS_CACHE_HOST=redis_cache \
-    REDIS_CACHE_PORT=6379 \
     REDIS_QUEUE_HOST=redis_queue \
-    REDIS_QUEUE_PORT=6379 \
-    REDIS_SOCKETIO_HOST=redis_socketio \
-    REDIS_SOCKETIO_PORT=6379
+    REDIS_SOCKETIO_HOST=redis_socketio
 
 # Copy docker entrypoint
 COPY ./entrypoint.sh /
@@ -238,10 +235,10 @@ RUN set -ex; \
         "/home/$FRAPPE_USER/frappe-bench" \
     ;
 
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
+#VOLUME /home/$FRAPPE_USER/bench-repo \
+#    /home/$FRAPPE_USER/frappe-bench/logs \
+#    /home/$FRAPPE_USER/frappe-bench/sites \
+#    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
 
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
