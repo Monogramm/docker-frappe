@@ -79,6 +79,7 @@ mkdir ./images/
 
 echo "update docker images"
 readmeTags=
+githubEnv=
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
 	version=$(echo "$latest" | cut -d. -f1-2)
@@ -96,6 +97,11 @@ for latest in "${latestsFrappe[@]}"; do
 			#10.*) bench=4.1;;
 			*) bench=${latestsBench[0]};;
 		esac
+
+		if [ ! -d "images/$major-$bench" ]; then
+			# Add GitHub Actions env var
+			githubEnv="'$major', $githubEnv"
+		fi
 
 		#for bench in "${latestsBench[@]}"; do
 
@@ -279,6 +285,9 @@ done
 sed '/^<!-- >Docker Tags -->/,/^<!-- <Docker Tags -->/{/^<!-- >Docker Tags -->/!{/^<!-- <Docker Tags -->/!d}}' README.md > README.md.tmp
 sed -e "s|<!-- >Docker Tags -->|<!-- >Docker Tags -->\n$readmeTags\n|g" README.md.tmp > README.md
 rm README.md.tmp
+
+# update .github workflows
+sed -i -e "s|version: \[.*\]|version: [${githubEnv}]|g" .github/workflows/hooks.yml
 
 # update .travis.yml
 travis="$(awk -v 'RS=\n\n' '$1 == "env:" && $2 == "#" && $3 == "Environments" { $0 = "env: # Environments'"$travisEnv"'" } { printf "%s%s", $0, RS }' .travis.yml)"
