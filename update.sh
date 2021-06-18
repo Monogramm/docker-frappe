@@ -50,18 +50,16 @@ function version_greater_or_equal() {
 }
 
 min_versionFrappe=11
-dockerLatest='13.0.0-beta.10'
+dockerLatest='13.5'
 dockerDefaultVariant='alpine'
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=(
 	develop
-	13.0.0-beta.9
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
 	version-11-hotfix
-	#11.1.69
 )
 
 latestsBench=(
