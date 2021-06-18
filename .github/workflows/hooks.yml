@@ -13,8 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        version: ['11', '12', ]
+        version: ['11', '12', '13', 'develop', ]
         variant: ['alpine', 'buster', 'slim-buster']
         bench: ['master']
 
