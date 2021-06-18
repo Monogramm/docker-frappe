@@ -27,6 +27,8 @@ jobs:
         id: docker_build
         run: |
           cd ./images/${{ matrix.version }}-${{ matrix.bench }}/${{ matrix.variant }}/
+          # Export variables to build to GitHub Container Registry
+          #export DOCKER_REGISTRY=ghcr.io
           ./hooks/run build
 
       - name: Display docker images
@@ -48,7 +50,6 @@ jobs:
           #export DOCKER_LOGIN=${{ github.repository_owner }}
           #export DOCKER_PASSWORD=${{ secrets.GITHUB_REGISTRY_TOKEN }}
           # Export variables to login and push to DockerHub Registry
-          export DOCKER_REGISTRY=registry-1.docker.io
           export DOCKER_LOGIN=${{ secrets.DOCKERHUB_REGISTRY_LOGIN }}
           export DOCKER_PASSWORD=${{ secrets.DOCKERHUB_REGISTRY_TOKEN }}
           ./hooks/run push
