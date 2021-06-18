@@ -5,36 +5,42 @@ declare -A shebang=(
 	[buster]='bash'
 	[slim-buster]='bash'
 	[alpine]='sh'
+	[gitpod]='bash'
 )
 
 declare -A test_base=(
 	[buster]='debian'
 	[slim-buster]='debian-slim'
 	[alpine]='alpine'
+	[gitpod]='debian'
 )
 
 declare -A base=(
 	[buster]='debian'
 	[slim-buster]='debian'
 	[alpine]='alpine'
+	[gitpod]='gitpod'
 )
 
 declare -A compose=(
 	[buster]='mariadb'
 	[slim-buster]='mariadb'
 	[alpine]='postgres'
+	[gitpod]='mariadb'
 )
 
 declare -A compose=(
 	[buster]='mariadb'
 	[slim-buster]='mariadb'
 	[alpine]='postgres'
+	[gitpod]='mariadb'
 )
 
 variants=(
 	buster
 	slim-buster
 	alpine
+	#gitpod
 )
 
 
@@ -44,11 +50,13 @@ function version_greater_or_equal() {
 }
 
 min_versionFrappe=11
+dockerLatest='13.0.0-beta.10'
+dockerDefaultVariant='alpine'
 
 dockerRepo="monogramm/docker-frappe"
 latestsFrappe=(
 	develop
-	13.0.0-beta.5
+	13.0.0-beta.9
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
@@ -67,14 +75,17 @@ latestsBench=(
 # Remove existing images
 echo "reset docker images"
 rm -rf ./images/
-mkdir -p ./images
+mkdir ./images/
 
 echo "update docker images"
+readmeTags=
+githubEnv=
 travisEnv=
 for latest in "${latestsFrappe[@]}"; do
 	version=$(echo "$latest" | cut -d. -f1-2)
 	major=$(echo "$latest" | cut -d. -f1-1)
 	if [ "$latest" = "version-11-hotfix" ]; then
+		version=11.x
 		major=11
 	fi
 
@@ -86,6 +97,11 @@ for latest in "${latestsFrappe[@]}"; do
 			#10.*) bench=4.1;;
 			*) bench=${latestsBench[0]};;
 		esac
+
+		if [ ! -d "images/$major-$bench" ]; then
+			# Add GitHub Actions env var
+			githubEnv="'$major', $githubEnv"
+		fi
 
 		#for bench in "${latestsBench[@]}"; do
 
@@ -109,11 +125,15 @@ for latest in "${latestsFrappe[@]}"; do
 						"$dir/$name"
 				done
 
-				cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.mariadb.yml"
-				case $major in
-					10|11) echo "Postgres not supported for $latest";;
-					*) cp "template/docker-compose_postgres.yml" "$dir/docker-compose.postgres.yml";;
-				esac
+				if ! [ "$variant" = "gitpod" ]; then
+					cp "template/entrypoint.sh" "$dir/entrypoint.sh"
+
+					cp "template/docker-compose_mariadb.yml" "$dir/docker-compose.mariadb.yml"
+					case $major in
+						10|11) echo "Postgres not supported for $latest";;
+						*) cp "template/docker-compose_postgres.yml" "$dir/docker-compose.postgres.yml";;
+					esac
+				fi
 
 				template="template/Dockerfile.${base[$variant]}.template"
 				cp "$template" "$dir/Dockerfile"
@@ -196,8 +216,9 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir"/docker-compose.*.yml \
-						"$dir/docker-compose.test.yml" \
-						"$dir/.env" "$dir/test/Dockerfile"
+						"$dir/.env" \
+						"$dir/test/docker_test.sh" \
+						"$dir/test/Dockerfile"
 				else
 					sed -ri -e '
 						s/%%VERSION%%/'"v$latest"'/g;
@@ -205,10 +226,42 @@ for latest in "${latestsFrappe[@]}"; do
 						s/%%FRAPPE_VERSION%%/'"$major"'/g;
 					' "$dir/Dockerfile" \
 						"$dir"/docker-compose.*.yml \
-						"$dir/docker-compose.test.yml" \
-						"$dir/.env" "$dir/test/Dockerfile"
+						"$dir/.env" \
+						"$dir/test/docker_test.sh" \
+						"$dir/test/Dockerfile"
 				fi
 
+				sed -ri -e '
+					s|DOCKER_TAG=.*|DOCKER_TAG='"$major"'|g;
+					s|DOCKER_REPO=.*|DOCKER_REPO='"$dockerRepo"'|g;
+				' "$dir/hooks/run"
+
+				# Create a list of "alias" tags for DockerHub post_push
+				if [ "$version" = "$dockerLatest" ]; then
+					if [ "$variant" = "$dockerDefaultVariant" ]; then
+						export DOCKER_TAGS="$latest-$variant $version-$variant $major-$variant $variant $latest $version $major latest "
+					else
+						export DOCKER_TAGS="$latest-$variant $version-$variant $major-$variant $variant "
+					fi
+				elif [ "$version" = "$latest" ]; then
+					if [ "$variant" = "$dockerDefaultVariant" ]; then
+						export DOCKER_TAGS="$latest-$variant $latest "
+					else
+						export DOCKER_TAGS="$latest-$variant "
+					fi
+				else
+					if [ "$variant" = "$dockerDefaultVariant" ]; then
+						export DOCKER_TAGS="$latest-$variant $version-$variant $major-$variant $latest $version $major "
+					else
+						export DOCKER_TAGS="$latest-$variant $version-$variant $major-$variant "
+					fi
+				fi
+				echo "${DOCKER_TAGS} " > "$dir/.dockertags"
+
+				# Add README tags
+				readmeTags="$readmeTags\n-   ${DOCKER_TAGS} (\`$dir/Dockerfile\`)"
+
+				# Add Travis-CI env var
 				travisEnv='\n  - VERSION='"$major"' BENCH='"$bench"' VARIANT='"$variant"' DATABASE=mariadb'"$travisEnv"
 				case $major in
 					10|11) echo "Postgres not supported for $latest";;
@@ -227,6 +280,14 @@ for latest in "${latestsFrappe[@]}"; do
 	fi
 
 done
+
+# update README.md
+sed '/^<!-- >Docker Tags -->/,/^<!-- <Docker Tags -->/{/^<!-- >Docker Tags -->/!{/^<!-- <Docker Tags -->/!d}}' README.md > README.md.tmp
+sed -e "s|<!-- >Docker Tags -->|<!-- >Docker Tags -->\n$readmeTags\n|g" README.md.tmp > README.md
+rm README.md.tmp
+
+# update .github workflows
+sed -i -e "s|version: \[.*\]|version: [${githubEnv}]|g" .github/workflows/hooks.yml
 
 # update .travis.yml
 travis="$(awk -v 'RS=\n\n' '$1 == "env:" && $2 == "#" && $3 == "Environments" { $0 = "env: # Environments'"$travisEnv"'" } { printf "%s%s", $0, RS }' .travis.yml)"

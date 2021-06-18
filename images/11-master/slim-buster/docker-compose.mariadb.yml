@@ -7,8 +7,6 @@ services:
       context: ./test
       dockerfile: Dockerfile
     command: sh /docker_test.sh
-    # Only for travis-ci, do not name test container in dockerhub
-    container_name: sut
     depends_on:
       - frappe_db
       - frappe_app
@@ -57,8 +55,10 @@ services:
     container_name: frappe_app
     command: app
     #restart: always
-    ports:
-      - "8000:8000"
+    expose:
+      - '8000'
+    #ports:
+    #  - "8000:8000"
     depends_on:
       frappe_db:
         condition: service_healthy
@@ -155,6 +155,8 @@ services:
       - MYSQL_PASSWORD=${FRAPPE_DB_PWD}
     volumes:
       - /srv/erpnext/db:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
   frappe_mailer:
     image: sj26/mailcatcher:latest

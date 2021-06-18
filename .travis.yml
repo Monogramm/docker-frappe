@@ -29,6 +29,9 @@ install:
 
 before_script:
   - docker images
+  # Set permissions for persistence
+  - mkdir -p '/srv/erpnext/frappe/sites' '/srv/erpnext/frappe/logs'
+  - chown 1000:1000 '/srv/erpnext/frappe/sites' '/srv/erpnext/frappe/logs'
 
 script:
   - echo "Changing to travis test directory ($travis_dir)"

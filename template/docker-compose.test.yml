@@ -1,5 +1,10 @@
 version: "2.3"
 
+volumes:
+  frappe_sites:
+  frappe_logs:
+  frappe_db:
+
 services:
   # https://docs.docker.com/docker-hub/builds/automated-testing/
   sut:
@@ -26,27 +31,41 @@ services:
       - DOCKER_APPS_TIMEOUT=900
       - DOCKER_DEBUG=1
       # Test setup
-      - TEST_VERSION=%%FRAPPE_VERSION%%
+      - TEST_VERSION=${VERSION}
+      - TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID}
+      - TRAVIS_BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
+      - TRAVIS_BUILD_WEB_URL=${TRAVIS_BUILD_WEB_URL}
+      - TRAVIS_COMMIT=${TRAVIS_COMMIT}
+      #- TRAVIS_COMMIT_MESSAGE=${TRAVIS_COMMIT_MESSAGE}
+      - TRAVIS_COMMIT_RANGE=${TRAVIS_COMMIT_RANGE}
+      - TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
+      - TRAVIS_JOB_NAME=${TRAVIS_JOB_NAME}
+      - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+      - TRAVIS_JOB_WEB_URL=${TRAVIS_JOB_WEB_URL}
+      - TRAVIS_BRANCH=${TRAVIS_BRANCH}
       # Frappe setup
       - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      - frappe_logs:/home/frappe/frappe-bench/logs
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_app:
     # For development or CI, build from local Dockerfile
     # For production, download prebuilt image
-    build: ./
     build:
       context: .
     image: ${IMAGE_NAME}
     container_name: frappe_app
+    restart: on-failure
     command: app
-    #restart: always
-    ports:
-      - "8000:8000"
+    expose:
+      - '8000'
+    #ports:
+    #  - "8000:8000"
     depends_on:
       frappe_db:
         condition: service_healthy
@@ -98,10 +117,10 @@ services:
       - REDIS_QUEUE_HOST=frappe_redis_queue
       - REDIS_SOCKETIO_HOST=frappe_redis_socketio
     volumes:
-      - /srv/erpnext/frappe/sites:/home/frappe/frappe-bench/sites
-      - /srv/erpnext/frappe/logs:/home/frappe/frappe-bench/logs
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      - frappe_logs:/home/frappe/frappe-bench/logs
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_web:
     image: nginx:alpine
@@ -119,7 +138,7 @@ services:
     ports:
       - "8080:80"
       # If you need SSL connection
-      # - "443:443"
+      # - "8443:443"
     links:
       - frappe_app
       - frappe_socketio
@@ -142,20 +161,9 @@ services:
       - MYSQL_USER=${FRAPPE_DB_NAME}
       - MYSQL_PASSWORD=${FRAPPE_DB_PWD}
     volumes:
-      - /srv/erpnext/db:/var/lib/mysql
-
-  frappe_mailer:
-    image: sj26/mailcatcher:latest
-    hostname: frappe_mailer
-    container_name: frappe_mailer
-    restart: always
-    expose:
-      - 1025
-    ports:
-      - 1080:1080
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_db:/var/lib/mysql
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_scheduler:
     image: ${IMAGE_NAME}
@@ -170,8 +178,9 @@ services:
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_worker_default:
     image: ${IMAGE_NAME}
@@ -186,8 +195,9 @@ services:
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_worker_long:
     image: ${IMAGE_NAME}
@@ -202,8 +212,9 @@ services:
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_worker_short:
     image: ${IMAGE_NAME}
@@ -218,8 +229,9 @@ services:
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_socketio:
     image: ${IMAGE_NAME}
@@ -227,7 +239,7 @@ services:
     command: node-socketio
     #restart: always
     ports:
-      - 3000:3000
+      - "3000:3000"
     depends_on:
       - frappe_app
     environment:
@@ -236,23 +248,45 @@ services:
     volumes_from:
       - frappe_app
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - frappe_sites:/home/frappe/frappe-bench/sites
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_redis_cache:
     image: redis:alpine
     container_name: frappe_redis_cache
-    #restart: always
+    command: ["redis-server","/etc/conf.d/redis.conf"]
+    restart: on-failure
     volumes:
       - ./redis_cache.conf:/etc/conf.d/redis.conf:ro
-    command: ["redis-server","/etc/conf.d/redis.conf"]
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
 
   frappe_redis_queue:
     image: redis:alpine
     container_name: frappe_redis_queue
-    #restart: always
+    restart: on-failure
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
 
   frappe_redis_socketio:
     image: redis:alpine
     container_name: frappe_redis_socketio
-    #restart: always
+    restart: on-failure
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro
+
+  frappe_mailer:
+    image: sj26/mailcatcher:latest
+    hostname: frappe_mailer
+    container_name: frappe_mailer
+    restart: always
+    expose:
+      - 1025
+    ports:
+      - "1080:1080"
+    #volumes:
+    #  - /etc/localtime:/etc/localtime:ro
+    #  - /etc/timezone:/etc/timezone:ro

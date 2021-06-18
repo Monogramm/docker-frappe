@@ -1,6 +1,6 @@
 ##
 ##    Docker image for Frappe applications.
-##    Copyright (C) 2020  Monogramm
+##    Copyright (C) 2021 Monogramm
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU Affero General Public License as published
@@ -114,7 +114,7 @@ WORKDIR /home/$FRAPPE_USER
 # Setup Bench and Frappe
 RUN set -ex; \
     test "$BENCH_BRANCH" = "4.1" && sudo pip install pip==9.0.3; \
-    git clone -b "$BENCH_BRANCH" --depth 1 https://github.com/frappe/bench bench-repo; \
+    git clone -b "$BENCH_BRANCH" --depth 1 'https://github.com/frappe/bench' bench-repo; \
     sudo pip%%PIP_VERSION%% install -e "/home/$FRAPPE_USER/bench-repo" --no-cache-dir; \
     bench --version; \
     npm install \
@@ -151,7 +151,7 @@ RUN set -ex; \
     sed -i -e "s|^werkzeug$|werkzeug==0.16.1|g" apps/frappe/requirements.txt; \
     grep 'ldap3==2.7' apps/frappe/requirements.txt || echo 'ldap3==2.7' >> apps/frappe/requirements.txt; \
     test ! "$FRAPPE_BRANCH" = "v10.x.x" && bench setup env --python $(which python%%PYTHON_VERSION%%) ; \
-    sudo bench setup sudoers $FRAPPE_USER
+    sudo bench setup sudoers "$FRAPPE_USER"
 
 # Alternative: replace previous run by this for manual install
 #RUN set -ex; \
@@ -159,14 +159,14 @@ RUN set -ex; \
 #    cd frappe-bench; \
 #    mkdir -p apps logs sites config; \
 #    bench setup env; \
-#    sudo bench setup sudoers $FRAPPE_USER; \
-#    bench get-app frappe https://github.com/frappe/frappe --branch $FRAPPE_BRANCH; \
-#    cd /home/$FRAPPE_USER/frappe-bench/apps/frappe; \
+#    sudo bench setup sudoers "$FRAPPE_USER"; \
+#    bench get-app frappe 'https://github.com/frappe/frappe' --branch "$FRAPPE_BRANCH"; \
+#    cd "/home/$FRAPPE_USER/frappe-bench/apps/frappe"; \
 #    npm install; \
-#    cd /home/$FRAPPE_USER/frappe-bench; \
+#    cd "/home/$FRAPPE_USER/frappe-bench"; \
 #    npm install babel-preset-env; \
-#    rm -rf /home/$FRAPPE_USER/bench-repo/.git; \
-#    rm -rf /home/$FRAPPE_USER/frappe-bench/apps/frappe/.git
+#    rm -rf "/home/$FRAPPE_USER/bench-repo/.git"; \
+#    rm -rf "/home/$FRAPPE_USER/frappe-bench/apps/frappe/.git"
 
 # Runtime environment variables
 ENV DOCKER_DB_TIMEOUT=240 \
@@ -209,6 +209,7 @@ ENV DOCKER_DB_TIMEOUT=240 \
     MAIL_HOST=mail \
     MAIL_PORT=587 \
     MAIL_USE_SSL=1 \
+    MAIL_USE_TLS=1 \
     MAIL_LOGIN=frappe-mail \
     MAIL_PASSWORD=youshouldoverwritethis \
     MAIL_EMAIL_ID= \
@@ -219,14 +220,11 @@ ENV DOCKER_DB_TIMEOUT=240 \
     REDIS_QUEUE_HOST=redis_queue \
     REDIS_SOCKETIO_HOST=redis_socketio
 
-# Copy docker entrypoint and private install script
+# Copy docker entrypoint
 COPY ./entrypoint.sh /
 
 # Set permissions
 RUN set -ex; \
-    sudo chmod +x \
-        /entrypoint.sh \
-    ; \
     sudo mkdir -p "/home/$FRAPPE_USER"/frappe-bench/logs; \
     sudo touch "/home/$FRAPPE_USER"/frappe-bench/logs/bench.log; \
     sudo chmod +rw \
@@ -237,10 +235,10 @@ RUN set -ex; \
         "/home/$FRAPPE_USER/frappe-bench" \
     ;
 
-VOLUME /home/$FRAPPE_USER/bench-repo \
-    /home/$FRAPPE_USER/frappe-bench/logs \
-    /home/$FRAPPE_USER/frappe-bench/sites \
-    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
+#VOLUME /home/$FRAPPE_USER/bench-repo \
+#    /home/$FRAPPE_USER/frappe-bench/logs \
+#    /home/$FRAPPE_USER/frappe-bench/sites \
+#    /home/$FRAPPE_USER/frappe-bench/apps/frappe/frappe/public
 
 WORKDIR /home/$FRAPPE_USER/frappe-bench
 
@@ -250,6 +248,11 @@ CMD ["app"]
 ARG TAG
 ARG VCS_REF
 ARG BUILD_DATE
+
+# Docker built environment variables
+ENV DOCKER_TAG=${TAG} \
+    DOCKER_VCS_REF=${VCS_REF} \
+    DOCKER_BUILD_DATE=${BUILD_DATE}
 
 LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       product="Frappe" \
@@ -263,8 +266,3 @@ LABEL maintainer="Monogramm Maintainers <opensource at monogramm dot io>" \
       org.label-schema.vendor="Frappé Technologies Pvt. Ltd" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
-
-# Docker built environment variables
-ENV DOCKER_TAG=${TAG} \
-    DOCKER_VCS_REF=${VCS_REF} \
-    DOCKER_BUILD_DATE=${BUILD_DATE}

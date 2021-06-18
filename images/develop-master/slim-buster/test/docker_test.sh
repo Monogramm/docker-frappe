@@ -50,6 +50,7 @@ echo 'Docker tests successful'
 ################################################################################
 
 FRAPPE_APP_TO_TEST=frappe
+TEST_VERSION=${TEST_VERSION:-develop}
 
 echo "Preparing Frappe application '${FRAPPE_APP_TO_TEST}' tests..."
 
