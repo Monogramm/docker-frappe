@@ -27,17 +27,6 @@ services:
       - DOCKER_DEBUG=1
       # Test setup
       - TEST_VERSION=${VERSION}
-      - TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID}
-      - TRAVIS_BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
-      - TRAVIS_BUILD_WEB_URL=${TRAVIS_BUILD_WEB_URL}
-      - TRAVIS_COMMIT=${TRAVIS_COMMIT}
-      #- TRAVIS_COMMIT_MESSAGE=${TRAVIS_COMMIT_MESSAGE}
-      - TRAVIS_COMMIT_RANGE=${TRAVIS_COMMIT_RANGE}
-      - TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
-      - TRAVIS_JOB_NAME=${TRAVIS_JOB_NAME}
-      - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
-      - TRAVIS_JOB_WEB_URL=${TRAVIS_JOB_WEB_URL}
-      - TRAVIS_BRANCH=${TRAVIS_BRANCH}
       # Frappe setup
       - FRAPPE_DEFAULT_SITE=${FRAPPE_SITE}
     volumes_from:
@@ -137,7 +126,7 @@ services:
       - frappe_socketio
 
   frappe_db:
-    image: mariadb:10
+    image: mariadb:10.5
     container_name: frappe_db
     #restart: always
     command: --character_set_client=utf8 --bind-address=0.0.0.0 --character-set-client-handshake=FALSE --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode="ALLOW_INVALID_DATES"

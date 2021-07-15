@@ -92,6 +92,8 @@ RUN set -ex; \
 
 ARG VERSION=develop
 ARG FRAPPE_USER=frappe
+ARG FRAPPE_UID=1000
+ARG FRAPPE_GID=1000
 ARG FRAPPE_PATH=https://github.com/frappe/frappe.git
 
 # Build environment variables
@@ -100,8 +102,8 @@ ENV FRAPPE_USER=${FRAPPE_USER} \
     FRAPPE_BRANCH=${VERSION}
 
 RUN set -ex; \
-    groupadd -r "$FRAPPE_USER"; \
-    useradd -r -m -g "$FRAPPE_USER" "$FRAPPE_USER"; \
+    groupadd -r "${FRAPPE_USER}" -g "${FRAPPE_GID}"; \
+    useradd -r -m -g "${FRAPPE_USER}" -u "${FRAPPE_UID}" "${FRAPPE_USER}"; \
     echo 'frappe ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
 USER $FRAPPE_USER
