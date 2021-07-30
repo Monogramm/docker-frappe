@@ -94,7 +94,7 @@ RUN set -ex; \
     pip install --upgrade setuptools pip pip-tools; \
     pip --version
 
-ARG VERSION=v12.19.2
+ARG VERSION=v12.20.0
 ARG FRAPPE_USER=frappe
 ARG FRAPPE_UID=1000
 ARG FRAPPE_GID=1000

@@ -59,6 +59,7 @@ latestsFrappe=(
 	$( curl -fsSL 'https://api.github.com/repos/frappe/frappe/tags' |tac|tac| \
 	grep -oE '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+' | \
 	sort -urV )
+	12.20.0
 	version-11-hotfix
 )
 
